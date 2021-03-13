@@ -1,0 +1,217 @@
+\chapter{Lambda Calculus}\label{cha:lambdacalculus}
+
+The~term \emph{\lc} has come to refer to a~collection of several formal systems.
+They are all based on a~notation that was introduced by Alonzo Church in
+the~1930s. Church originally proposed the~\lc as a~way to define notations for
+logical formulas while trying to formulate a~foundation of mathematics based on
+functions~\cite{church_1932}. Church's students Kleene and Rosser have however
+shown that this system was inconsistent~\cite{kleene_rosser_1935}. The~\lc thus
+found a~different application, pointed out by Church from the~start, in formally
+describing the~informal notion of effective computability. The~formal definition
+was required to show the~undecidability of Hilbert's \emph{Entscheidungsproblem}.
+
+The~various extensions of Church's simplest, \emph{pure}, \lc usually introduce
+some forms of additional grammatical structure, depending on its intended use.
+Most of the~systems have some syntactic restrictions built-in, like
+type-restrictions. We will examine the~types in the~next chapter, but first we
+will describe the~pure \lc.
+
+As a~motivation for the~$\lambda$-notation, consider the~mathematical
+expression $x + y$. We can think of this as either defining a~function $f$ of
+$x$ or a~function $g$ of $y$;
+\begin{align*}
+  f(x) = x + y,&  &  &g(y) = x + y,
+\intertext{or}
+  f : \;\; x \mapsto x + y,&  &  &g : \;\; y \mapsto x + y.
+\end{align*}
+With more complex terms, we can imagine the~need for a~notation giving $f$ and
+$g$ different names in some systematic way.
+
+Church came up with a~systematic way of constructing, for each expression
+involving $x$, a~notation for the~corresponding function of $x$, and similarly
+for $y$, etc. He introduced $\lambda$ as an~auxiliary symbol and wrote
+the~functions as
+\begin{align*}
+  f = \lam{x}{x + y},&  &  &g = \lam{y}{x + y}.
+\intertext{In this example, applications}
+  f(0) = 0 + y,&  &  &g(1) = x + 1
+\intertext{become}
+  (\lam{x}{x + y})(0) = 0 + y,&  &  &(\lam{y}{x + y})(1) = x + 1.
+\end{align*}
+We can consider extending the~notation to functions of more than one variable.
+For example, the~expression $x + y$ determines two functions $h$ and $k$ of two
+variables
+\begin{align*}
+  h(x,y) = x + y,&  &  &k(y,x) = x + y.
+\intertext{These can be denoted by}
+  h = \lam{xy}{x + y},&  &  &k = \lam{yx}{x + y}.
+\end{align*}
+Instead, we will use functions of one variable to \emph{represent} all other
+functions as well. For example, instead of the~function $h$, consider
+the~function $h^\star$ defined by
+\[
+  h^\star = \lam x (\lam y {x + y}).
+\]
+For each value $a$, we have
+\begin{align*}
+  h^\star(a) &= \lam y {a + y};
+\intertext{hence for each pair of values $a, b$,}
+  (h^\star(a))(b) &= (\lam y {a + y})(b) \\
+                  &= a + b \\
+                  &= h(a, b).
+\end{align*}
+The~use of $h^\star$ instead of $h$ is usually called \emph{currying}, after
+the~logician Haskell Curry. As is usually the~case, from here on we will
+restrict ourselves to the~use of curried functions.
+
+Now that we have seen the~$\lambda$-notation in an~informal context, let us
+construct a~formal system of \lc.
+\begin{definition}\label{def:lambda_calculus}
+  Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
+  \mathbf{v}_1, \mathbf{v}_2, \cdots$ called \emph{variables}, then the~set of
+  expressions called $\lambda$-terms is defined inductively as follows:
+  \begin{enumerate}
+    \item all variables are $\lambda$-terms (called \emph{atoms});
+    \item if $M$ and $N$ are $\lambda$-terms, then $(M N)$ is a~$\lambda$-term
+      (called \emph{application});
+    \item if $M$ is a~$\lambda$-term and $x$ is a~variable, then $(\lam x M)$ is
+      a~$\lambda$-term (called an~\emph{abstraction}).
+  \end{enumerate}
+\end{definition}
+Like in the~definition, capital letters will denote arbitrary $\lambda$-terms.
+Letters $x, y, z, u, v, w$ will denote variables. Application is
+left-associative and we will omit parentheses accordingly. For example,
+$M N P Q$ denotes the~term $(((M N) P) Q)$. Other abbreviations are
+\begin{align*}
+  &{\lam x {P Q}}  &  &\text{for}  &  &(\lam x {(P Q)}) \\
+  &{\lam {x_1 x_2 \dots x_n} M}  &  &\text{for}  &
+    &(\lam {x_1} {(\lam {x_2} {(\dots(\lam {x_n} M) \dots)})}).
+\end{align*}
+\emph{Syntactic identity} of terms, written as $M \equiv N$, means that
+the~terms $M$ and $N$ are exactly the~same.
+
+\sectionwithtoc{Substitution}
+
+Our goal is to be able to formulate a~procedure for calculating with terms in
+accordance with their informal meaning. Before we formalise this, we need to
+look at how to substitute terms for variables.
+
+\begin{definition}
+  Given $\lambda$-terms $P$ and $Q$, we define a~relation \emph{$P$ occurs in
+  $Q$} by induction on $Q$:
+  \begin{enumerate}
+    \item $P$ occurs in $P$;
+    \item if $P$ occurs in $M$ or in $N$, then $P$ occurs in $(M N)$;
+    \item if $P$ occurs in $M$ or $P \equiv x$, then $P$ occurs in $(\lam x M)$.
+  \end{enumerate}
+\end{definition}
+
+Note that, for example, in the~term $(\lam x (x y)) (x y)$, there are two
+occurrences of $(x y)$ and three occurrences of $x$.
+
+\begin{definition}
+  For a~particular occurrence of $\lam x M$ in a~term $P$, the~occurrence of $M$
+  is called the~\emph{scope} of the~occurrence of $\lambda x$ on the~left.
+\end{definition}
+
+\begin{definition}[Free and bound variables]
+  A~variable $x$ in a~term $P$ is called
+  \begin{itemize}
+    \item \emph{bound} if its occurrence is in the~scope of a~$\lambda x$ in $P$,
+    \item \emph{bound and binding}, if and only if it is the~$x$ in $\lambda x$,
+    \item \emph{free} otherwise.
+  \end{itemize}
+  Free variables form a~set, called $\fv P$.
+\end{definition}
+
+For example, in the~term $P \equiv xy(\lam {zv} {zy})w$ the~leftmost $x, y$ and
+the~rightmost $w$ are all free variables, the~$z$ and $v$ in $\lam {zv} {}$ are
+bound and binding, the~rightmost $z$ is bound, and the~rightmost $y$ is free;
+hence
+\[
+  \fv P = \{x, y, w\} .
+\]
+
+\begin{definition}[Substitution]\label{def:substitution}
+  Given terms $M$ and $N$, the~result of substituting $N$ for every occurrence
+  of the~free variable $x$, written $[N/x]M$, is defined by induction on $M$:
+  \begin{enumerate}
+    \item $[N/x]x  \equiv N$;
+    \item $[N/x]a  \equiv a$  \hfill for all atoms $a \not\equiv x$;
+    \item $[N/x](P Q)  \equiv ([N/x]P [N/x]Q)$;
+    \item $[N/x](\lam x P)  \equiv \lam x P$;
+    \item $[N/x](\lam y P)  \equiv \lam y P$ \hfill if $x \notin \fv P$;
+    \item $[N/x](\lam y P)  \equiv \lam y {[N/x]P}$
+      \hfill if $x \in \fv P$ and $y \notin \fv N$;
+    \item \label{def:substitution:g_item} $[N/x](\lam y P)
+      \equiv \lam z {[N/x][z/y]P}$ \hfill if $x \in \fv P$ and $y \in \fv N$,
+  \end{enumerate}
+  where $y \not\equiv x$ and $z$ is chosen as the~first variable $\notin \fv N
+  \cup \fv P$.
+\end{definition}
+
+Note that the~case \ref{def:substitution:g_item} involves replacing the~concrete
+bound variables such that they do not clash with the~free variables in the~term
+that is being substituted in. In fact, the~choice of any particular bound
+variable is entirely arbitrary and it can be exchanged for another available
+variable. The~following definition formalises this idea.
+
+\begin{definition}
+  Given a~term $P$ containing an~occurrence of $\lam x M$ and a~variable $y
+  \notin \fv M$, the~act of replacing this $\lam x M$ by
+  \[
+    \lam y {[y/x]M}
+  \]
+  is called an~\emph{$\alpha$-conversion}, or \emph{a~change of bound variable}
+  in $P$.
+
+  The~reflexive-transitive closure of the~$\alpha$-conversion relation is
+  the~\emph{$\alpha$-converts to} relation, or
+  \[
+    P \equiv_\alpha Q.
+  \]
+\end{definition}
+
+Reflexive-transitive closure of a~relation in this case means, that we are able
+to find a~sequence (possibly empty) of $\alpha$-conversions, that transforms
+the~term $P$ into $Q$.
+
+Having looked at the~way we can combine $\lambda$-terms via substitution, we can
+turn our focus to the~calculation procedure that lies at the~heart of \lc and
+gives it its power.
+
+\sectionwithtoc{\ensuremath{\beta}-reduction}
+
+As the~name in the~\autoref{def:lambda_calculus} suggests, a~term of
+the~form $(\lam x M) N$ represents an~application of an~operator $\lam x M$ to
+an~argument $N$. The~resulting value of such application is the~\emph{simplified}
+term $[N/x]M$. This simplification process is captured in the~following
+definition.
+
+\begin{definition}
+  Any term of the~form
+  \[
+    (\lam x M) N
+  \]
+  is called a~\emph{$\beta$-redex} and the~corresponding term
+  \[
+    [N/x]M
+  \]
+  is called \emph{contractum}. If and only if a~term $P$ contains an~occurrence
+  of $(\lam x M) N$ and we replace that occurrence by $[N/x]M$, and the~result
+  is $P'$, we say we have \emph{contracted} the~redex-occurrence in $P$, and $P$
+  \emph{$\beta$-contracts} to $P'$, or
+  \[
+    P \; \triangleright_{1\beta} \; P'.
+  \]
+  The~reflexive-transitive closure of the~$\beta$-contracts relation is
+  the~\emph{$\beta$-reduces to} relation, or
+  \[
+    P \triangleright_\beta Q.
+  \]
+\end{definition}
+
+Informally speaking, the~$\lambda$-terms are called \emph{programs}, which we
+can then think of as \emph{executing}, or \emph{running}, instead of
+$\beta$-reducing.
+

@@ -1,0 +1,547 @@
+\chapter{Type Systems}\label{cha:typesystems}
+
+In mathematics, the~definition of a~particular function usually specifies
+the~kind of inputs it accepts, and the~kind of output it produces. For example,
+at the~start of the~previous chapter, we saw the~function $f(x) = x + y$ applied
+to an~integer 0. Although we did not mention the~domain nor the~range of
+the~function then, we can now pick some and say that $f$ is a~function from
+integers to integers, or
+\[
+  f: \Int \to \Int.
+\]
+Corresponding to the~mathematical intuition, the~pure \lc can be modified by
+attaching expressions called \emph{types} to terms, like labels to denote their
+intended input and output. While conventionally the~term \emph{type} is used to
+refer to an~abstraction of a~set of values, generally, a~type can be any
+property of a~term, that we can establish without executing it.
+
+We are looking to formulate the~procedure of assigning the~type annotations to
+$\lambda$-terms, such that the~terms for which this procedure fails will be
+deemed invalid. Hence, thanks to the~type system we are able to reject faulty
+programs that exhibit unwanted behaviour before they are executed.
+As a~consequence of the~\emph{Halting Problem} though, the~conclusions a~type
+system can make are necessarily just approximations. Either it must reject
+programs that might have run without an~error, or accept programs that may error
+when executed. With more expressive type systems, we are able to more precisely
+decide whether to reject a~given program.
+
+In this chapter, we will formulate gradually more expressive type systems,
+but to do that effectively, we need to introduce a~bit of new notation first.
+
+\sectionwithtoc{Natural deduction}\label{sec:natural_deduction}
+
+Conventionally, type systems are presented using \emph{natural deduction}, which
+was first introduced by Gentzen as a~new formulation of
+logic~\cite{gentzen_1935}. Natural deduction is a deductive system and is thus
+specified by a~collection of \emph{judgments} and a~collection of \emph{rules}.
+A~rule takes a~list of judgments and produces a~new judgment.
+
+\emph{Judgment} is a~proposition in the~metalanguage. For example, in
+first-order logic, judgment can say that a~certain string of symbols $A$ is
+a~\emph{well-formed proposition}, written \emph{$A$ prop}. Another judgment may
+say that these symbols form a~\emph{proposition that is true}, written
+\emph{$A$ true}.
+
+A~\emph{rule} is written as a~horizontal line with its \emph{premises}, or
+\emph{antecedents}, above the~line and its \emph{conclusion}, or
+\emph{consequent}, below the~line. There can be zero or more premises, but
+conclusion is exactly one. The~interpretation of a~rule is that if all premises
+hold, then the~conclusion follows. An~example of a~rule may be the~rule of
+implication elimination, or \emph{modus ponens}, which can be stated as:
+\begin{mathpar}
+  \inferrule*[right=Mp]
+  {P \to Q \\ P}
+  {Q}.
+\end{mathpar}
+It says that if ``$P$ implies $Q$,'' and ``$P$,'' then ``$Q$.'' Note that some
+rules have a~name, which is attached to the~right side of the~horizontal line.
+In our example the~name is \ir{Mp}.
+
+Given a~set of rules, we are able to combine them to form a~tree, where every
+node is an~instance of a~rule. We say we can \emph{deduce}, or \emph{derive},
+a~formula if there exists a~tree where the~formula is at the~root and all leaves
+are \emph{axioms}, that is rules that have no premises.
+
+Natural deduction also often involves \emph{hypothetical judgments}, or
+\emph{reasoning from assumptions}. To express hypothetical reasoning within
+the~rules of a~deductive system, we indicate in each judgment on which
+hypotheses it depends. To denote the~hypothetical judgment of $Q$ assuming $P$,
+we write
+\[
+  P \vdash Q.
+\]
+The~list of assumptions on which a~judgment depends, denoted by $\Gamma$, can be
+extended by appending an~assumption $P$ to the~end of the~list with a~comma:
+$\Gamma, P$. We can also combine lists of assumptions; the~list that results
+from appending the~assumptions from $\Gamma_2$ to the~list $\Gamma_1$ is written
+$\Gamma_1, \Gamma_2.$
+
+For example, the~derivation tree of the~judgment that given that $P$ implies $Q$
+and given $P$, one may deduce both $P$ and $Q$:
+\begin{mathpar}
+  \inferrule*
+  {
+    \inferrule*
+    { }
+    { P \to Q, P \vdash P } \\
+    \inferrule*[right=Mp]
+    {
+      \inferrule*
+      { }
+      {P \to Q, P \vdash P \to Q} \\
+      \inferrule*
+      { }
+      {P \to Q, P \vdash P }
+    }
+    { P \to Q, P \vdash Q }
+  }
+  { P \to Q, P \vdash P \wedge Q }.
+\end{mathpar}
+
+Notice that in the~definition of \ir{Mp} we have elided the~ambient
+assumptions that could have been added to every judgment, i.e. we could have
+written:
+\begin{mathpar}
+  \inferrule*[right=Mp$'$]
+  {\Gamma_1 \vdash P \to Q \\ \Gamma_2 \vdash P}
+  {\Gamma_1, \Gamma_2 \vdash Q}.
+\end{mathpar}
+
+\sectionwithtoc{Simple types}
+
+\begin{definition}
+  Assume that we are given a finite or infinite sequence of symbols called
+  \emph{atomic types}; then we define \emph{types} as follows:
+  \begin{enumerate}
+    \item every atomic type is a type;
+    \item if $\sigma$ and $\tau$ are types, then $(\sigma \to \tau)$ is a~type,
+      called a~\emph{function type};
+    \item if $\sigma$ and $\tau$ are types, then $(\sigma \times \tau)$ is
+      a~type, called a~\emph{pair type};
+  \end{enumerate}
+\end{definition}
+
+Atomic types are intended to denote a~particular set. For example we may have
+the~atomic type \Int for the~set of integers, and \Bool for the~set of Boolean
+values $\{ \mathtt{true}, \mathtt{false} \}$.
+
+A~function type $(\sigma \to \tau)$ is intended to denote some given set of
+\emph{functions from $\sigma$ to $\tau$}. That is, functions that accept as
+input a~member of its \emph{domain}, the~set denoted by $\sigma$, and produce
+an~output in its \emph{range}, a~subset of the~set denoted by $\tau$. The~exact
+set of functions denoted by $(\sigma \to \tau)$ depends on the~intended use
+of the~type system we are trying to build. It might be the~set of \emph{all}
+functions from $\sigma$ to $\tau$, or just some subset. Some examples of types
+are:
+\begin{align*}
+  &(\Int \to \Int) && \text{functions from integers to integers;} \\
+  &(\Int \to \Bool) && \text{functions from integers to Boolean values;} \\
+  &(\Int \to (\Int \to \Int)) && \text{functions from integers to functions;} \\
+  &((\Int \to \Int) \to \Int) && \text{functions from functions to integers;} \\
+  &((\Int \to \Int) \to (\Int \to \Int)) && \text{functions from functions to
+    functions.}
+\end{align*}
+In contrast with the~$\lambda$-term application, the~function type is
+right-associative and we will abbreviate accordingly:
+\begin{align*}
+  &\sigma \to \tau  &  &\text{for} &  &(\sigma \to \tau); \\
+  &\rho \to \sigma \to \tau  &  &\text{for} &  &(\rho \to (\sigma \to \tau)); \\
+  &\sigma_1 \to \dotsb \to \sigma_n \to \tau  &  &\text{for} &  
+    &(\sigma_2 \to ( \dotsb \to (\sigma_n \to \tau) \dotsb )); \\
+  &\sigma \times \tau  &  &\text{for} &  &(\sigma \times \tau).
+\end{align*}
+We do not define any order of precedence between the~function and pair types.
+Note that an~expression like $\sigma \to \tau$, which contains Greek-letter type
+variables, is not itself a~type. It is only a~name in the~metalanguage for
+a~type of unspecified functions.
+
+A~pair type, or a~\emph{product type}, $(\sigma \times \tau)$ denotes
+the~Cartesian product of the~sets denoted by $\sigma$ and $\tau$. For example,
+$((\Int \to \Int) \times \Bool)$ denotes the~set of ordered pairs $(f, b)$,
+where $f$ is a~function from integers to integers, and $b$ is a Boolean value.
+
+There is also a~dual notion of a~pair type, the~\emph{sum type} $(\sigma +
+\tau)$, which is used to denote the~set of members of either $\sigma$, or
+$\tau$. In this text however, we are focused on the~pair type, so we will not be
+working with the~sum type further.
+
+\sectionwithtoc{Type judgment}
+
+When we apply the~natural deduction in the~context of types, we are able to
+formulate deduction trees that assign types to terms.
+
+\begin{definition}
+  For any $\lambda$-term $M$ and type $\tau$, define a~\emph{type assignment}
+  formula as
+  \[
+    M \is{} \tau.
+  \]
+\end{definition}
+
+The~formula $M \is{} \tau$ can be read informally as `$M$ has type $\tau$', or
+`we assign to $M$ the~type $\tau$'. Then, \emph{type judgment} is the~formula
+\[
+  \Gamma \vdash M \is{} \tau,
+\]
+which is defined to mean that there is a~deduction-tree, whose root formula is
+$M \is{} \tau$, and whose leaves are members of $\Gamma$. When type judgment
+has no assumptions, we say so explicitly by writing
+\[
+  \vdash M \is{} \tau.
+\]
+
+\sectionwithtoc{Simply typed \lc}\label{sec:stlc}
+
+Generally, there are two ways we can attach types to terms. The~\emph{implicit},
+or \emph{Curry-style}, semantics use the~$\lambda$-terms as we have seen them
+in \autoref{def:lambda_calculus} and assign type to a~term after it had been
+built. The~type then sits next to the~term. In the~other approach, called
+\emph{explicit}, or \emph{Church-style}, the~term's type is a~built-in part of
+the~term itself.
+
+We expect to present complex enough systems later, for which finding the types
+in the~implicit version may not be computable~\cite{wells_1999}, hence we will
+use the~explicit semantics.
+
+\begin{definition}[Typed variables]
+  Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
+  \mathbf{v}_1, \mathbf{v}_2, \cdots$ called \emph{untyped variables}. We make
+  \emph{typed variables $x^\tau$} by attaching type-superscripts to untyped
+  variables, in such a~way that
+  \begin{enumerate}
+    \item \label{def:typed_var:a_item} no untyped variable receives more than
+      one type;
+    \item \label{def:typed_var:b_item} every type $\tau$ is attached to
+      an~infinite sequence of variables.
+  \end{enumerate}
+\end{definition}
+We call $x^\tau$ a~\emph{variable of type $\tau$}. It denotes an~arbitrary
+member of the~set denoted by $\tau$.
+
+Condition \ref{def:typed_var:a_item} ensures that there are no $x^\tau$,
+$x^\sigma$ with $\tau \not\equiv \sigma$. For example, if we make a~typed
+variable $x^\Int$, to denote an~arbitrary integer, we cannot also make
+$x^{\Int \to \Int}$, which would denote a~function.
+
+Condition \ref{def:typed_var:b_item} ensures that, for every type $\tau$, there
+is always enough variables to denote all members of the~set that we wish to
+describe.
+
+\begin{definition}[Simply typed $\lambda$-terms]\label{def:stlc}
+  The~set of \emph{typed $\lambda$-terms} is defined as follows:
+  \begin{enumerate}
+    \item all typed variables $x^\tau$ are typed $\lambda$-terms of type $\tau$;
+    \item \label{def:stlc:b_item} if $M^{\sigma \to \tau}$ and $N^\sigma$ are
+      typed $\lambda$-terms of types $\sigma \to \tau$ and $\sigma$
+      respectively, then the~following is a~typed $\lambda$-term of type $\tau$:
+      \[
+        (M^{\sigma \to \tau} N^\sigma)^\tau;
+      \]
+    \item if $x^\sigma$ is a~variable of type $\sigma$ and $M^\tau$ is a~typed
+      $\lambda$-term of type $\tau$, then the~following is a~typed
+      $\lambda$-term of type $\sigma \to \tau$:
+      \[
+        (\lam {x^\sigma} {M^\tau})^{\sigma \to \tau};
+      \]
+    \item \label{def:stlc:d_item} if $M^\sigma$ and $N^\tau$ are typed
+      $\lambda$-terms of types $\sigma$ and $\tau$ respectively, then
+      the~following is a~typed $\lambda$-term of type $\sigma \times \tau$:
+      \[
+        \mpair {M^\sigma} {N^\tau} ^{\sigma \times \tau};
+      \]
+    \setcounter{stlc_counter}{\value{enumi}}
+    \item \label{def:stlc:e_item} if $x^\sigma$ and $y^\tau$ are variables of
+      types $\sigma$ and $\tau$ respectively, and $M^{\sigma \times \tau}$ and
+      $N^\rho$ are typed $\lambda$-terms of types $\sigma \times \tau$ and
+      $\rho$ respectively, then the~following is a~typed $\lambda$-term of type
+      $\rho$:
+      \[
+        (\textrm{let} \: \mpair {x^\sigma} {y^\tau} = M^{\sigma \times \tau} \:
+        \textrm{in} \: N^{\rho})^\rho.
+      \]
+\end{enumerate}
+\end{definition}
+
+The~typed term $M^\tau$ is intended to denote a~member of the~set denoted by
+$\tau$. For example, in \ref{def:stlc:b_item}, if $M^{\sigma \to \tau}$ denotes
+a~function $\phi$ from $\sigma$ to $\tau$, and $N^\tau$ denotes a~member $a$ of
+$\sigma$, then the~term $(M^{\sigma \to \tau} N^\sigma)^\tau$ denotes $\phi(a)$,
+which is of type $\tau$.
+
+Note that in \ref{def:stlc:e_item}, the~pair $(x,y)$ is just a~part of
+the~syntax; it is not an~instance of a~term constructing a~pair like in
+\ref{def:stlc:d_item}.
+
+When writing typed terms, some of the~type-superscripts can be omitted if it is
+obvious from the~context what they should be. Other notation conventions will be
+the~same as in \autoref{cha:lambdacalculus}.
+
+For example, for every pair of types $\sigma$ and $\tau$,
+\[
+  (\lam {x^\sigma} {(\lam {y^\tau} {\mpair {x^\sigma} {y^\tau} ^{\sigma \times
+    \tau}})^{\tau \to (\sigma \times \tau)}})^{\sigma \to (\tau \to (\sigma
+    \times \tau))}
+\]
+is a~typed term and it can be written as
+\begin{align*}
+  &(\lam {xy} {\mpair x y})^{\sigma \to (\tau \to (\sigma \times \tau))},  &
+  &\text{or}  &  &\lam {x^\sigma y^\tau} {\mpair x y}.
+\end{align*}
+
+The~substitution $[N^\sigma/x^\sigma](M^\tau)$ is defined in the~same way as
+the~substitution of pure $\lambda$-terms in \autoref{def:substitution}.
+Note that we do not define substitution $[N^\rho/x^\sigma](M^\tau)$ when 
+$\rho \not\equiv \sigma$. \todo{[NEEDS REWRITE TO MENTION PAIRS]}
+
+Finally, we will use the~simply typed \lc to construct a~formal theory where
+the~deduction assigns types to terms. This is called a~\emph{type-assignment
+system}. A~system with simply typed $\lambda$-terms usually has the~following
+rules:
+\begin{mathpar}
+  \inferrule*[right=Var]
+  { }
+  {\Gamma_1, x \is{} \tau, \Gamma_2 \vdash x \is{} \tau} \\
+
+  \inferrule*[right=App]
+  {\Gamma \vdash M \is{} \sigma \to \tau \\ \Gamma \vdash N \is{} \sigma}
+  {\Gamma \vdash M \: N \is{} \tau}
+
+  \inferrule*[right=Lam]
+  {\Gamma, x \is{} \sigma \vdash M \is{} \tau}
+  {\Gamma \vdash \lam {x^\sigma} M \is{} \sigma \to \tau}
+
+  \inferrule*[right=Let]
+  {
+    \Gamma \vdash M \is{} \sigma \times \tau \\
+    \Gamma, x \is{} \sigma, y \is{} \tau \vdash N \is{} \sigma
+  }
+  {
+    \Gamma \vdash \textrm{let} \: \mpair {x^\sigma} {y^\tau} = M \: \textrm{in}
+    \: N \is{} \rho
+  }
+
+  \inferrule*[right=Pair]
+  {\Gamma \vdash M \is{} \sigma \\ \Gamma \vdash N \is{} \tau}
+  {\Gamma \vdash \mpair M N \is{} \sigma \times \tau}.
+\end{mathpar}
+
+\sectionwithtoc{Dependent types}
+
+The Church-style system from the~previous chapter has lost some of
+the~versatility of the~pure \lc. The~term $\lam {x^\tau} {x^\tau}$ represents
+the~one operation of doing nothing, the~identity function, yet for different
+types $\tau$ this one operation is represented by distinct terms. We want our
+formalism to keep track of the~fact that identity does the~same thing regardless
+of the~type. This can be expressed with the~ability to universally quantify
+the~types. With universal quantification, we are able to say that the~type of
+the~identity function should, in effect, be `for all types $\tau$, $\tau \to
+\tau$'.
+
+In this chapter we will replace the~function and pair types with their dependent
+variants. The~dependent analogue of the~type $\sigma \to \tau$ is
+the~\emph{dependent function type}, in the~academic literature usually written
+as ${(\Pi x \is{} \sigma \, . \: \tau(x))}$, but we will write:
+\[
+  \dep x \sigma {\tau(x)}.
+\]
+It can be informally read as ``for all $x$ in $\sigma$, $\tau(x)$''. Here,
+$\sigma$ is a~type, but $\tau(x)$ is a~function whose argument is of type
+$\sigma$ and it produces value that is a~type. Hence, a~term of type $\dep x
+\sigma {\tau(x)}$ represents function that for an~argument $N$ of type $\sigma$
+produces a~value of type $\tau(N)$.
+
+Thus, in the~special case that $\tau(x)$ is a~constant function whose value is
+always the~type $\rho$, $\dep x \sigma {\tau(x)}$ is the~type $\sigma
+\to \rho$.
+
+The~dependent analogue of type $\sigma \times \tau$ is the~\emph{dependent pair
+type}, denoted:
+\[
+  (x \is{} \sigma) \times \tau(x).
+\]
+The~type of the~second element of a~pair may be determined by the~value of its
+first element.
+
+In dependent types, terms can occur in place of types so we must scrap
+the~distinction between terms and types. Thus, we will define
+\emph{pseudo-terms} which will subsume both the~terms from \autoref{def:stlc}
+and types.
+
+Now that types will be just a~special kind of terms, we will make two changes to
+the~notation of the~typed $\lambda$-abstraction. First, we will write
+\[
+  \lam {x \is{} \tau} M,
+\]
+instead of $\lam {x^\tau} M$, analogously to the~way we write the~dependent
+function type. Second, to denote types, we will use $S, T$, etc. instead of
+$\sigma, \tau.$
+
+\sectionwithtoc{Pseudo-terms}
+
+For the~following type systems, we will use the~general notion of
+\emph{pseudo-terms}. First, we define a~generous \emph{pseudo-terms} grammar and
+then we will construct typing rules, that identify the~well-typed terms within
+pseudo-terms.
+
+\begin{definition}\label{def:pseudo-term}
+  The~set of all \emph{pseudo-terms} is defined inductively as follows:
+  \begin{enumerate}
+    \item every variable is a~pseudo-term;
+    \item every atomic type is a~pseudo-term;
+    \item if $M$ and $N$ are pseudo-terms, then $(M N)$ is a~pseudo-term;
+    \item if $x$ is a~variable, and $M$ and $N$ are pseudo-terms, then
+      $(\lam {x \is{} M} N)$ is a~pseudo-term.
+    \item if $M$ and $N$ are pseudo-terms and $x$ is a~variable which does not
+      occur free in $M$, then $\dep x M N$ is a~pseudo-term.
+    \item if $M$ and $N$ are pseudo-terms, then $\mpair M N$ is a~pseudo-term.
+    \item if $M$ and $N$ are pseudo-terms and $x$ is a~variable which does not
+      occur free in $M$, then $(x \is{} M) \times N$ is a~pseudo-term.
+  \end{enumerate}
+\end{definition}
+
+The~reduction on pseudo-terms is defined by replacing the~$\beta$-reduction on
+pure $\lambda$-terms with one of the~form: \todo{[WHAT ABOUT PAIRS?]}
+\[
+  (\lam {x \is{} S} M) N \triangleright [N/x]M.
+\]
+
+Barendregt~\cite{barendregt_1993} introduced a~group of eight typing systems,
+which are known as the~\emph{$\lambda$-cube} due to their mutual relationships.
+All these systems are based on the~pseudo-terms, the~dependent function type,
+and two atomic types, $\star$ and $\square$, related by the~rule
+\begin{mathpar}
+  \inferrule*
+  { }
+  {\vdash \star \is{} \square}.
+\end{mathpar}
+
+The~two distinct atomic types are required for the~type system to by consistent
+when used as a~system of logic~\todo{[CITE?]}. This is not necessary for our
+needs however, so we will simplify by having a~single atomic type and indeed
+formulate an~inconsistent type system~\todo{[CITE?]}.
+This means that every type contains some value, or is \emph{inhabited}.
+
+Thus, we define only one atomic type \univ, analogous to Barendregt's $\star$,
+with a~rule
+\begin{mathpar}
+  \inferrule*
+  { }
+  {\vdash \univ \is{} \univ}.
+\end{mathpar}
+
+The~atomic type \univ represents the~type of types. It is called
+the~\emph{universe}.
+
+\sectionwithtoc{Precontexts}
+
+With dependent types in mind, we need to revisit the~semantics of the~judgement
+$\Gamma \vdash M \is{} S$. In typing systems, the~list of assumptions $\Gamma$,
+henceforth called \emph{context}, contains only type assignments. We, however,
+need to make sure that these assignments are well-formed; that is, for every
+$x \is{} S$ in $\Gamma$, we want to make sure that $S$ is a~proper type. For
+example, we want to reject the~list:
+\[
+  a \is{} \univ, \; f \is{} \dep x b a,
+\]
+because we do not know the~type of the~variable $b$. A~valid context would be:
+\[
+  a \is{} \univ, \; b \is{} \univ, \; f \is{} \dep x b a.
+\]
+Hence, we first define \emph{precontexts} and then identify the~contexts within.
+
+\begin{definition}
+  A~\emph{precontext} is a~sequence of formulas of the~form
+  \[
+    x_1 \is{} S_1, \dotsc , x_n \is{} S_n,
+  \]
+  where $x_1, \dotsc , x_n$ are distinct variables and $S_1, \dotsc, S_n$ are
+  pseudo-terms.
+\end{definition}
+
+Empty precontext is denoted by $\diamond$, or it is omitted when no confusion is
+likely.
+
+\sectionwithtoc{Dependently typed \lc}
+
+Using pseudo-terms and precontexts, we are able to define a~type-assignment
+system, that assigns the~dependent types, and is thus more expressive then
+the~simply typed \lc, since we can model the~simple type $S \to T$ by defining
+it as $\dep x S T$, where $x \notin \fv T$.
+
+The~increased expressiveness of dependent types lies in the~ability to quantify
+over \univ. We will see an~example of this after we formalise the~type judgment
+rules.
+
+The~rules that identify contexts within precontexts and terms within
+pseudo-terms are mutually recursive. Contexts are identified by the~judgement
+$\Gamma \vdash$, defined by the~following rules:
+\begin{mathpar}
+  \inferrule*
+  { }
+  {\diamond \vdash}
+
+  \inferrule*
+  {\Gamma \vdash \\ \Gamma \vdash S : \univ}
+  {\Gamma, x \is{} S \vdash}
+\end{mathpar}
+and terms are identified by the~judgement $\Gamma \vdash M \is{} S$, defined by
+rules:
+\begin{mathpar}
+  \inferrule*[right=Fun]
+  {\Gamma \vdash S \is{} \univ \\ \Gamma, x \is{} S \vdash T \is{} \univ}
+  {\Gamma \vdash \dep x S T \is{} \univ}
+
+  \inferrule*[right=App$'$]
+  {
+    \Gamma \vdash M \is{} \dep x S T \\
+    \Gamma \vdash N \is{} S \\
+  }
+  {\Gamma \vdash M \: N \is{} [N/x]T}
+
+  \inferrule*[right=Lam$'$]
+  {
+    \Gamma, x \is{} S \vdash M \is{} T \\
+    \Gamma \vdash \dep x S T \is{} \univ
+  }
+  {\Gamma \vdash (\lam {x \is{} S} M) \is{} \dep x S T}
+\end{mathpar}
+
+Now we can look at an~example of quantification over \univ. For example,
+although
+\begin{equation}\label{eq:pi_type}
+  s \is{} \univ \vdash \dep x s s \is{} \univ
+\end{equation}
+and
+\begin{equation}\label{eq:id_lam}
+  s \is{} \univ \vdash (\lam {x \is{} s} x) \is{} \dep x s s
+\end{equation}
+can be expressed with just simple types, to be able to successfully derive
+the~type of an~identity function that works for any type, we need dependent
+function types. Meaning, we can combine judgments (\ref{eq:pi_type}) and
+(\ref{eq:id_lam}) and deduce:
+\begin{mathpar}
+  \inferrule*[right=Lam$'$]
+  {
+    \text{(\ref{eq:id_lam})} \\
+    \inferrule*[right=Fun]
+    {
+      \inferrule*
+      { }
+      {\vdash \univ \is{} \univ} \\
+      \text{(\ref{eq:pi_type})}
+    }
+    {\vdash \dep s \univ {\dep x s s} \is{} \univ}
+  }
+  {
+    \vdash (\lam {s \is{} \univ} {\lam {x \is{} s} x}) \is{}
+      \dep s \univ {\dep x s s}
+  }.
+\end{mathpar}
+
+Now $\lam {x \is{} s} x$ is the~identity function on type $s$. Hence
+\[
+  \lam {s \is{} \univ} {\lam {x \is{} s} x}
+\]
+is a~function which, when applied to any type of type \univ, gives the~identity
+function over that type.
+

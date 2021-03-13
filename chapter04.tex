@@ -1,0 +1,147 @@
+\chapter{Quantitative Type Theory}
+
+In this work, we extend the~Quantitative Type Theory (QTT) as first described by
+McBride~\cite{mcbride_2016} and Atkey~\cite{atkey_2018}, with modifications by
+Weirich~\cite{weirich_2020}.
+
+Contexts are identified within precontexts by the~judgement $\Gamma \vdash$,
+defined by the~following rules:
+\begin{mathpar}
+  \inferrule*[right=Emp]
+  { }
+  {\diamond \vdash}
+
+  \inferrule*[right=Ext]
+  {\Gamma \vdash \\ 0\Gamma \vdash S}
+  {\Gamma, x \is\sigma S \vdash}
+\end{mathpar}
+
+\sectionwithtoc{Dependent function types}
+
+\begin{mathpar}
+  \inferrule*[right=Pi]
+  {0\Gamma \vdash S \is0 \univ \\ 0\Gamma, x \is0 S \vdash T \is 0 \univ}
+  {0\Gamma \vdash \depq x \pi S T \is 0 \univ}
+
+  \inferrule*[right=Lam]
+  {\Gamma, x \is{\sigma\pi} S \vdash M \is\sigma T}
+  {\Gamma \vdash \lambda x . M \is\sigma \depq x \pi S T}
+
+  \inferrule*[right=App$_0$]
+  {
+    \Gamma_1 \vdash M \is\sigma \depq x \pi S T \\
+    \Gamma_2 \vdash N \is0 S \\
+    0\Gamma_1 = 0\Gamma_2 \\
+    \pi \cdot \sigma = 0
+  }
+  {\Gamma_1 \vdash M \: N \is\sigma T}
+
+  \inferrule*[right=App]
+  {
+    \Gamma_1 \vdash M \is\sigma \depq x \pi S T \\
+    \Gamma_2 \vdash N \is1 S \\
+    0\Gamma_1 = 0\Gamma_2 \\
+  }
+  {\Gamma_1 + \pi\sigma\Gamma_2 \vdash M \: N \is\sigma T}
+\end{mathpar}
+
+\sectionwithtoc{Dependent multiplicative pair types}
+
+\begin{mathpar}
+  \inferrule*[right=$\otimes$]
+  {
+    0\Gamma \vdash S \is 0 \univ \\
+    0\Gamma, x \is 0 S \vdash T \is 0 \univ
+  }
+  {0\Gamma \vdash (x \is \pi S) \otimes T \is 0 \univ}
+
+  \inferrule*[right=$\otimes$-I$_0$]
+  {
+    \Gamma_1 \vdash M \is 0 S \\
+    \Gamma_2 \vdash N \is \sigma T[M/x] \\
+    0\Gamma_1 = 0\Gamma_2 \\
+    \pi \cdot \sigma = 0
+  }
+  {\Gamma_2 \vdash (M, N) \is \sigma (x \is \pi S) \otimes T }
+
+  \inferrule*[right=$\otimes$-I]
+  {
+    \Gamma_1 \vdash M \is 1 S \\
+    \Gamma_2 \vdash N \is \sigma T[M/x] \\
+    0\Gamma_1 = 0\Gamma_2
+  }
+  {\pi \sigma \Gamma_1 + \Gamma_2 \vdash (M, N) \is \sigma (x \is \pi S) \otimes T}
+
+  \inferrule*[right=$\otimes$-E]
+  {
+    0\Gamma_1, p \is 0 (x \is \pi S) \otimes T \vdash O \is 0 \univ \\
+    \Gamma_1 \vdash M \is \sigma (x \is \pi S) \otimes T \\
+    \Gamma_2, x \is{\sigma \pi} S, y \is \sigma T \vdash N \is \sigma O[(x,y)/p] \\
+    0\Gamma_1 = 0\Gamma_2
+  }
+  {
+    \Gamma_1 + \Gamma_2 \vdash \textrm{let}_{O}(x, y) \: \textrm{=}
+    \: M \: \textrm{in} \: N \is \sigma O[M/p]
+  }
+\end{mathpar}
+
+\sectionwithtoc{Multiplicative unit type}
+
+We use the~usual linear logic notation for the~multiplicative unit type, \1.
+Although there should be no confusion, note the~difference between $1$, a~member of a~rig, and \1, a~multiplicative unit type.
+
+\begin{mathpar}
+  \inferrule*[right=\1]
+  {0\Gamma \vdash}
+  {0\Gamma \vdash \1 \is 0 \univ}
+
+  \inferrule*[right=\1-I]
+  {0\Gamma \vdash}
+  {0\Gamma \vdash \munit \is \sigma \1}
+
+  \inferrule*[right=\1-E]
+  {
+    0\Gamma_1, u \is 0 \1 \vdash O \is 0 \univ \\
+    \Gamma_1 \vdash M \is \sigma \1 \\
+    \Gamma_2 \vdash N \is \sigma O[\munit/u] \\
+    0\Gamma_1 = 0\Gamma_2
+  }
+  {
+    \Gamma_1 + \Gamma_2 \vdash \textrm{let}_{O} \: \munit \: \textrm{=}
+    \: M \: \textrm{in} \: N \is \sigma O[M/u]
+  }
+\end{mathpar}
+
+\sectionwithtoc{Dependent additive pair types}
+
+\begin{mathpar}
+  \inferrule*[right=$\with$]
+  {0\Gamma \vdash S \is 0 \univ \\ 0\Gamma, x \is 0 S \vdash T \is 0 \univ}
+  {0\Gamma \vdash (x \is{} S) \with T \is 0 \univ}
+
+  \inferrule*[right=$\with$-I]
+  {\Gamma \vdash M \is \sigma S \\ \Gamma \vdash N \is \sigma T[M/x]}
+  {\Gamma \vdash \langle M, N \rangle \is \sigma (x \is{} S) \with T}
+
+  \inferrule*[right=$\with$-Efst]
+  {\Gamma \vdash M \is \sigma (x \is{} S) \with T}
+  {\Gamma \vdash \textrm{fst} \: M \is \sigma S}
+
+  \inferrule*[right=$\with$-Esnd]
+  {\Gamma \vdash M \is \sigma (x \is{} S) \with T}
+  {\Gamma \vdash \textrm{snd} \: M \is \sigma T[\textrm{fst}\: M /x]}
+\end{mathpar}
+
+\sectionwithtoc{Additive unit type}
+
+\begin{mathpar}
+  \inferrule*[right=$\top$]
+  {0\Gamma \vdash}
+  {0\Gamma \vdash \top \is 0 \univ}
+
+  \inferrule*[right=$\top$-I]
+  {0\Gamma \vdash}
+  {0\Gamma \vdash \aunit \is \sigma \top}
+
+\end{mathpar}
+

@@ -1,0 +1,85 @@
+%%% This file contains definitions of various useful macros and environments %%%
+%%% Please add more macros here instead of cluttering other files with them. %%%
+
+%%% Minor tweaks of style
+
+% These macros employ a little dirty trick to convince LaTeX to typeset
+% chapter headings sanely, without lots of empty space above them.
+% Feel free to ignore.
+\makeatletter
+\def\@makechapterhead#1{
+  {\parindent \z@ \raggedright \normalfont
+   \Huge\bfseries \thechapter. #1
+   \par\nobreak
+   \vskip 20\p@
+}}
+\def\@makeschapterhead#1{
+  {\parindent \z@ \raggedright \normalfont
+   \Huge\bfseries #1
+   \par\nobreak
+   \vskip 20\p@
+}}
+\makeatother
+
+% This macro defines a chapter, which is not numbered, but is included
+% in the table of contents.
+\newcommand{\chapwithtoc}[1]{
+\chapter*{#1}
+\addcontentsline{toc}{chapter}{#1}
+}
+
+\newcommand{\sectionwithtoc}[1]{
+  \section*{#1}
+  \addcontentsline{toc}{section}{#1}
+}
+
+% Draw black "slugs" whenever a line overflows, so that we can spot it easily.
+\overfullrule=1mm
+
+%%% Macros for definitions, theorems, claims, examples, ... (requires amsthm package)
+\declaretheorem[numberwithin=chapter]{theorem}
+\declaretheorem[numberlike=theorem]{conjecture}
+\declaretheorem[numberlike=theorem]{proposition}
+\declaretheorem[numberlike=theorem]{lemma}
+\declaretheorem[numberlike=theorem]{corollary}
+\declaretheorem[numberlike=theorem]{example}
+\declaretheorem[numberlike=theorem,style=definition]{definition}
+\declaretheorem[numberlike=theorem]{remark}
+
+% Default label style for enumerate is (a)
+\setlist[enumerate]{label=(\alph*)}
+
+% Capitalised words in chapter references
+\renewcommand{\chapterautorefname}{Chapter}
+\renewcommand{\definitionautorefname}{Definition}
+
+%%% An environment for typesetting of program code and input/output
+%%% of programs. (Requires the fancyvrb package -- fancy verbatim.)
+
+\DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small, frame=single}
+
+\newcommand{\lc}{\ensuremath{\lambda}-calculus\xspace}
+\newcommand{\fv}[1]{\ensuremath{\mathrm{FV}(#1)}\xspace}
+\newcommand{\ir}[1]{\mbox{\textsc{#1}}\xspace}
+%% Types
+% Constructors
+\newcommand{\lam}[2]{\ensuremath{\lambda #1 \, . \: #2}\xspace}
+\newcommand{\dep}[3]{\ensuremath{(#1 : #2) \to #3}\xspace}
+\newcommand{\is}[1]{\stackrel{#1}:}
+\newcommand{\depq}[4]{\ensuremath{(#1 \is #2 #3) \to #4}\xspace}
+
+% Atoms
+\newcommand{\univ}{\ensuremath{\mathcal{U}}\xspace}
+\newcommand{\Int}{\ensuremath{\mathbb{Z}}\xspace}
+\newcommand{\Bool}{\ensuremath{\mathbb{B}}\xspace}
+\newcommand{\1}{\ensuremath{\mathbf{1}}\xspace}
+\newcommand{\mpair}[2]{\ensuremath{(#1, \, #2)}\xspace}
+\newcommand{\apair}[2]{\ensuremath{\langle #1, \, #2\rangle}\xspace}
+\newcommand{\munit}{\ensuremath{( \, )}\xspace}
+\newcommand{\aunit}{\ensuremath{\langle \, \rangle}\xspace}
+
+\newcommand{\todo}[1]{\textcolor{red}{#1}} % TODO: remove
+
+% A counter that saves a list enumeration to then recall it when replacing
+% the 'let' case with 'fst' and 'snd'
+\newcounter{stlc_counter}

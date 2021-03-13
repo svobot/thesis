@@ -1,0 +1,145 @@
+\chapter{Linear Type System}
+
+So far, our type systems were based on the~traditional \emph{intuitionistic}
+logic via the~\emph{Curry-Howard isomorphism}, which views propositions of logic
+as types in a~program. Under this correspondence, proof of a~proposition is
+a~correctly-typed term in a~given calculus. In this section we will consider
+a~type system that is based on a~different logic. It is called \emph{linear
+logic} and it was first described by Jean-Yves Girard in
+1987~\cite{girard_1987}. In the~same way that the~intuitionistic logic is well
+suited for reasoning about truth, the~linear logic is useful for reasoning about
+resource usage. While until now we could freely duplicate, or discard
+assumptions, in linear logic we give up this freedom. When we formulate the~type
+system based on this logic, we will be able to reject expressions that take
+an~overly cavalier approach to the~preservation of resources.
+
+As an~example, we may want to reject the~deduction of judgments like
+\begin{align}\label{eq:linear_examples}
+  x \is{} S \vdash (x, x) \is{} (S \times S)&  &  &\text{or}  &
+    &y \is{} S, z \is{} T \vdash z \is{} T,
+\end{align}
+because $x$ could represent an~extensive computer memory region and copying
+the~data would be costly, or $y$ may represent a~persistent resource, like 
+a~file handle, and we want to make sure that when we stop using the~file,
+the~handle is released.
+
+\sectionwithtoc{Structural properties}
+
+Typing rules come in three kinds. First, we have \emph{axioms}, the~rules
+without antecedents. Axiom is, for example:
+\begin{mathpar}
+  \inferrule*{ }{\vdash \univ \is{} \univ}.
+\end{mathpar}
+
+Second, there are the~\emph{logical} rules. These come in pairs of
+\emph{introduction} and \emph{elimination} rules. For example, in the~simply
+typed \lc, the~introduction rule \ir{Lam} deduces a~judgment assigning
+a~function type to a~newly formed term, while the~elimination rule \ir{App}
+expects term of a~function type as one of its antecedents.
+
+Third, there are three \emph{structural} rules, \emph{exchange},
+\emph{contraction}, and \emph{weakening}. The~way we defined the~typing systems
+in \autoref{cha:typesystems}, however, hides the~usage of these rules and since
+the~structural rules are what differentiates the~intuitionistic and linear
+logics, we will first reformulate the~intuitionistic rules such that
+the~structural rules are emphasised.
+
+The~following rules are equivalent \todo{[PROOF?]} to the~ones we defined in
+the~\nameref{sec:stlc} section:
+\begin{mathpar}
+  \inferrule*[right=Id]
+  { }
+  {x \is{} S \vdash x \is{} S}
+
+  \inferrule*[right=Ex]
+  {\Gamma_1, \Gamma_2 \vdash M \is{} S}
+  {\Gamma_2, \Gamma_1 \vdash M \is{} S}
+
+  \inferrule*[right=Cont]
+  {\Gamma, y \is{} S, z \is{} S \vdash M \is{} T}
+  {\Gamma, x \is{} S \vdash [x/y][x/z]M \is{} T}
+
+  \inferrule*[right=Weak]
+  {\Gamma \vdash M \is{} T}
+  {\Gamma, x \is{} S \vdash M \is{} T}
+
+  \inferrule*[right=$\to$-I]
+  {\Gamma, x \is{} S \vdash M \is{} T}
+  {\Gamma \vdash \lam x M \is{} S \to T}
+
+  \inferrule*[right=$\to$-E]
+  {\Gamma_1 \vdash M \is{} S \to T \\ \Gamma_2 \vdash N \is{} S}
+  {\Gamma_1, \Gamma_2 \vdash M \: N \is{} T}
+
+  \inferrule*[right=$\times$-I]
+  {\Gamma_1 \vdash M \is{} S \\ \Gamma_2 \vdash N \is{} T}
+  {\Gamma_1, \Gamma_2 \vdash \mpair M N \is{} S \times T}
+
+  \inferrule*[right=$\times$-E]
+  {
+    \Gamma_1 \vdash M \is{} S \times T \\
+    \Gamma_2, x \is{} S, y \is{} T \vdash N \is{} U
+  }
+  {
+    \Gamma_1, \Gamma_2 \vdash \textrm{let} \: \mpair x y = M \:
+      \textrm{in} \: N \is{} U
+  }
+\end{mathpar}
+
+In this set of rules, the~first, \ir{Id}, is an~axiom; the~following three are
+the~structural rules, exchange \ir{Ex}, contraction \ir{Cont}, and weakening
+\ir{Weak}; and the~rest are the~logical rules, where the~-I suffix in a~name of
+a~rule stands for \emph{introduction} and -E for \emph{elimination}.
+
+The~\ir{Ex} rule expresses that the order of assumptions is irrelevant,
+\ir{Cont} expresses that any assumption may be duplicated, and \ir{Weak}
+expresses that any assumption may be discarded.
+
+\sectionwithtoc{Alternative pair rules}
+
+Consider that instead of the~\emph{let} term in
+\autoref{def:stlc}\ref{def:stlc:e_item}, which binds new variables to both
+elements of a~pair at the~same time, we could introduce two new terms that would
+each bind a~variable to only one element of a~pair. We can modify
+the~\autoref{def:stlc} such that:
+\begin{enumerate}
+  \setcounter{enumi}{\value{stlc_counter}}
+  \item if $M^{\sigma \times \tau}$ is typed $\lambda$-term of type $\sigma
+    \times \tau$, then the~following typed $\lambda$-terms have types $\sigma$
+    and $\tau$, respectively:
+    \begin{align*}
+      (\pi_1 \: M^{\sigma \times \tau})^\sigma&  &
+        &(\pi_2 \: M^{\sigma \times \tau})^\tau.
+    \end{align*}
+\end{enumerate}
+
+The~introduction and elimination rules for pair values can also be expressed in
+an~alternative form:
+\begin{mathpar}
+  \inferrule*[right=$\times$-I$'$]
+  {\Gamma \vdash M \is{} S \\ \Gamma \vdash N \is{} T}
+  {\Gamma \vdash \mpair M N \is{} S \times T} \\
+
+  \inferrule*[right=$\times$-E$'_1$]
+  {\Gamma \vdash M \is{} S \times T}
+  {\Gamma \vdash \pi_1 \: M \is{} S}
+
+  \inferrule*[right=$\times$-E$'_2$]
+  {\Gamma \vdash M \is{} S \times T}
+  {\Gamma \vdash \pi_2 \: M \is{} T}
+\end{mathpar}
+
+We can establish equivalence between these rules and the~old \ir{$\times$-I}
+and \ir{$\times$-E} with a~few applications of the~structural
+rules~\cite{wadler_1993}. Hence, the~terms can also be expressed using each
+other; the~new $\pi_1$ and $\pi_2$ can be defined using the~\emph{let} term:
+\begin{align*}
+  \pi_1 \: M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: x \\
+  \pi_2 \: M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: y,
+\end{align*}
+and conversely \emph{let} can be defined using $\pi_1$ and $\pi_2$:
+\[
+  \textrm{let} \: \mpair x y = M \: \textrm{in} \: N := (\lam x {\lam y N}) \:
+    (\pi_1 \: M) \: (\pi_2 \: M).
+\]
+
