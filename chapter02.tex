@@ -50,12 +50,12 @@ hold, then the~conclusion follows. An~example of a~rule may be the~rule of
 implication elimination, or \emph{modus ponens}, which can be stated as:
 \begin{mathpar}
   \inferrule*[right=Mp]
-  {P \to Q \\ P}
+  {P \supset Q \\ P}
   {Q}.
 \end{mathpar}
-It says that if ``$P$ implies $Q$,'' and ``$P$,'' then ``$Q$.'' Note that some
-rules have a~name, which is attached to the~right side of the~horizontal line.
-In our example the~name is \ir{Mp}.
+It says that if ``$P$ implies $Q$,'' written $P \supset Q$, and ``$P$,'' then
+``$Q$.'' Note that some rules have a~name, which is attached to the~right side
+of the~horizontal line. In our example the~name is \ir{Mp}.
 
 Given a~set of rules, we are able to combine them to form a~tree, where every
 node is an~instance of a~rule. We say we can \emph{deduce}, or \emph{derive},
@@ -83,19 +83,19 @@ and given $P$, one may deduce both $P$ and $Q$:
   {
     \inferrule*
     { }
-    { P \to Q, P \vdash P } \\
+    { P \supset Q, P \vdash P } \\
     \inferrule*[right=Mp]
     {
       \inferrule*
       { }
-      {P \to Q, P \vdash P \to Q} \\
+      {P \supset Q, P \vdash P \supset Q} \\
       \inferrule*
       { }
-      {P \to Q, P \vdash P }
+      {P \supset Q, P \vdash P }
     }
-    { P \to Q, P \vdash Q }
+    { P \supset Q, P \vdash Q }
   }
-  { P \to Q, P \vdash P \wedge Q }.
+  { P \supset Q, P \vdash P \wedge Q }.
 \end{mathpar}
 
 Notice that in the~definition of \ir{Mp} we have elided the~ambient
@@ -103,21 +103,25 @@ assumptions that could have been added to every judgment, i.e. we could have
 written:
 \begin{mathpar}
   \inferrule*[right=Mp$'$]
-  {\Gamma_1 \vdash P \to Q \\ \Gamma_2 \vdash P}
+  {\Gamma_1 \vdash P \supset Q \\ \Gamma_2 \vdash P}
   {\Gamma_1, \Gamma_2 \vdash Q}.
 \end{mathpar}
 
 \sectionwithtoc{Simple types}
 
+We will present a~few different type systems throughout the~text, each
+an~extension of some previous ones. So to start at the~beginning, we will
+define a~basic type system that utilises the~\emph{simple types}.
+
 \begin{definition}
   Assume that we are given a finite or infinite sequence of symbols called
-  \emph{atomic types}; then we define \emph{types} as follows:
+  \emph{atomic types}; then we define \emph{simple types} as follows:
   \begin{enumerate}
-    \item every atomic type is a type;
-    \item if $\sigma$ and $\tau$ are types, then $(\sigma \to \tau)$ is a~type,
-      called a~\emph{function type};
-    \item if $\sigma$ and $\tau$ are types, then $(\sigma \times \tau)$ is
-      a~type, called a~\emph{pair type};
+    \item every atomic type is a~simple type;
+    \item if $\sigma$ and $\tau$ are simple types, then $(\sigma \to \tau)$ is
+      a~simple type, called a~\emph{function type};
+    \item if $\sigma$ and $\tau$ are simple types, then $(\sigma \times \tau)$
+      is a~simple type, called a~\emph{pair type};
   \end{enumerate}
 \end{definition}
 
@@ -131,8 +135,8 @@ input a~member of its \emph{domain}, the~set denoted by $\sigma$, and produce
 an~output in its \emph{range}, a~subset of the~set denoted by $\tau$. The~exact
 set of functions denoted by $(\sigma \to \tau)$ depends on the~intended use
 of the~type system we are trying to build. It might be the~set of \emph{all}
-functions from $\sigma$ to $\tau$, or just some subset. Some examples of types
-are:
+functions from $\sigma$ to $\tau$, or just some subset. Some examples of simple
+types are:
 \begin{align*}
   &(\Int \to \Int) && \text{functions from integers to integers;} \\
   &(\Int \to \Bool) && \text{functions from integers to Boolean values;} \\
@@ -332,35 +336,67 @@ the~versatility of the~pure \lc. The~term $\lam {x^\tau} {x^\tau}$ represents
 the~one operation of doing nothing, the~identity function, yet for different
 types $\tau$ this one operation is represented by distinct terms. We want our
 formalism to keep track of the~fact that identity does the~same thing regardless
-of the~type. This can be expressed with the~ability to universally quantify
-the~types. With universal quantification, we are able to say that the~type of
-the~identity function should, in effect, be `for all types $\tau$, $\tau \to
-\tau$'.
+of the~type. An~ability to universally quantify the~types, which we will gain
+with the~introduction of dependent types, will allow us to express this; then
+the~type of an~identity function will, in effect, be `for all types $\tau$,
+$\tau \to \tau$'.
 
-In this chapter we will replace the~function and pair types with their dependent
-variants. The~dependent analogue of the~type $\sigma \to \tau$ is
-the~\emph{dependent function type}, in the~academic literature usually written
-as ${(\Pi x \is{} \sigma \, . \: \tau(x))}$, but we will write:
+To properly talk about dependent types, we feel we need to first touch on one
+important observation; it is the~correspondence between computer programs and
+mathematical proofs, known as the~\emph{Curry–Howard isomorphism}. In 1934,
+Curry observed that every type of a~function, $\sigma \to \tau$, can be read as
+a~proposition of an~implication, $\sigma \supset \tau$~\cite{curry_1934}.
+Then there exists a~function of a~given type if and only if, the~corresponding
+proposition is provable. Curry and Feys later extended the~observation to also
+include the~correspondence between terms and proofs~\cite{curry_1958}. Finally,
+in 1969, in manuscript not published until 1980~\cite{howard_1980}, Howard
+described the relation between the~natural deduction and the~simply typed \lc,
+as well as shown that the~simplification of proofs corresponds to the~evaluation
+of programs.
+
+Now we will generalise the~simple types into their dependent counterparts and we
+will use the~Curry–Howard correspondence to form a~better intuition around them.
+
+The~dependent analogue of the~type $\sigma \to \tau$ is the~\emph{dependent
+function type}, in the~academic literature usually written as ${(\Pi x \is{}
+\sigma \, . \: \tau(x))}$, but we will write:
 \[
   \dep x \sigma {\tau(x)}.
 \]
-It can be informally read as ``for all $x$ in $\sigma$, $\tau(x)$''. Here,
-$\sigma$ is a~type, but $\tau(x)$ is a~function whose argument is of type
-$\sigma$ and it produces value that is a~type. Hence, a~term of type $\dep x
+Here, $\sigma$ is a~type, but $\tau(x)$ is a~function whose argument is of type
+$\sigma$ and it produces value that is a~type. Thus, a~term of type $\dep x
 \sigma {\tau(x)}$ represents function that for an~argument $N$ of type $\sigma$
-produces a~value of type $\tau(N)$.
+produces a~value of type $\tau(N)$. In the~special case that $\tau(x)$ is
+a~constant function whose value is always the~type $\rho$, $\dep x \sigma
+{\tau(x)}$ is the~type $\sigma \to \rho$.
 
-Thus, in the~special case that $\tau(x)$ is a~constant function whose value is
-always the~type $\rho$, $\dep x \sigma {\tau(x)}$ is the~type $\sigma
-\to \rho$.
+On the~logic side, the~dependent function type corresponds to a~universal
+quantification; hence, we can read it as ``for all $x$ in $\sigma$, $\tau(x)$''.
+The~$\Pi$ in the~notation of the~dependent function type references the~fact
+that we can interpret it as a~\emph{product} of $\tau(x)$, for every $x \in
+\sigma$; that is, a~value of type $\dep x \sigma {\tau(x)}$ can be interpreted
+as a~tuple of size $|\sigma|$, where the~$x$th element is of type $\tau(x)$.
 
 The~dependent analogue of type $\sigma \times \tau$ is the~\emph{dependent pair
-type}, denoted:
+type}, again, usually written as ${(\Sigma x \is{} \sigma \, . \: \tau(x))}$,
+but we will write:
 \[
   (x \is{} \sigma) \times \tau(x).
 \]
-The~type of the~second element of a~pair may be determined by the~value of its
-first element.
+The value of this type is a~pair $\mpair x y$, where $x$ is of type $\sigma$ and
+$y$ is of type $\tau(x)$; hence, the~type of the~second element is determined by
+the~value of the~first.
+
+This type corresponds to the~existential quantification in logic. It uses
+$\Sigma$ in its notation because we can interpret it as a~\emph{disjoint union}
+of all $\tau(x)$, with an~index from $\sigma$; meaning, a~value of type $(x
+\is{} \sigma) \times \tau(x)$ can be interpreted as a~member of the~set
+\[
+  \bigcup_{x \in \sigma} \{ \mpair x y \mid y \in \tau(x) \}.
+\]
+By having a~value of this dependent pair type, we are therefore \emph{proving}
+that ``there exists an~$x \in \sigma$, such that $\tau(x)$ is inhabited,'' where
+\emph{inhabited} means that the~type contains some value.
 
 In dependent types, terms can occur in place of types so we must scrap
 the~distinction between terms and types. Thus, we will define
@@ -415,22 +451,20 @@ and two atomic types, $\star$ and $\square$, related by the~rule
   {\vdash \star \is{} \square}.
 \end{mathpar}
 
-The~two distinct atomic types are required for the~type system to by consistent
-when used as a~system of logic~\todo{[CITE?]}. This is not necessary for our
-needs however, so we will simplify by having a~single atomic type and indeed
-formulate an~inconsistent type system~\todo{[CITE?]}.
-This means that every type contains some value, or is \emph{inhabited}.
+The~two distinct atomic types are required for the~type system to by
+\emph{consistent} when interpreted as a~logic under the~Curry–Howard
+correspondence~\todo{[CITE?]}. A~logic is inconsistent when we can derive
+a~contraction in it, which for types means that every type is inhabited.
+Because we do not utilise the~logic interpretation, we can simplify here and
+keep on using a~single atomic type.
 
-Thus, we define only one atomic type \univ, analogous to Barendregt's $\star$,
-with a~rule
+For our atomic type we choose \univ, called the~\emph{universe}, with
+the~following rule:
 \begin{mathpar}
   \inferrule*
   { }
   {\vdash \univ \is{} \univ}.
 \end{mathpar}
-
-The~atomic type \univ represents the~type of types. It is called
-the~\emph{universe}.
 
 \sectionwithtoc{Precontexts}
 

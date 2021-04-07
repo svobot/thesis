@@ -1,9 +1,7 @@
 \chapter{Linear Type System}
 
-So far, our type systems were based on the~traditional \emph{intuitionistic}
-logic via the~\emph{Curry-Howard isomorphism}, which views propositions of logic
-as types in a~program. Under this correspondence, proof of a~proposition is
-a~correctly-typed term in a~given calculus. In this section we will consider
+So far, our type systems corresponded via the~Curry-Howard isomorphism to
+the~traditional \emph{intuitionistic} logic. In this section we will consider
 a~type system that is based on a~different logic. It is called \emph{linear
 logic} and it was first described by Jean-Yves Girard in
 1987~\cite{girard_1987}. In the~same way that the~intuitionistic logic is well
@@ -135,9 +133,9 @@ rules~\cite{wadler_1993}. Hence, the~terms can also be expressed using each
 other; the~new $\pi_1$ and $\pi_2$ can be defined using the~\emph{let} term:
 \begin{align*}
   \pi_1 \: M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: x \\
-  \pi_2 \: M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: y,
+  \pi_2 \: M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: y
 \end{align*}
-and conversely \emph{let} can be defined using $\pi_1$ and $\pi_2$:
+and, conversely, \emph{let} can be defined using $\pi_1$ and $\pi_2$:
 \[
   \textrm{let} \: \mpair x y = M \: \textrm{in} \: N := (\lam x {\lam y N}) \:
     (\pi_1 \: M) \: (\pi_2 \: M).
