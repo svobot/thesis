@@ -158,10 +158,11 @@ the~system:
     rules and uses only the~exchange rule;
   \item an~\emph{ordered} type system omits all three structural rules.
 \end{itemize}
-Rather then getting rid of contraction and weakening outright, we want to
-formulate a~type system, that lets us embed within the~unrestricted type systems
-we developed in the~\autoref{cha:typesystems} while also giving us control over
-when contraction and weakening can be used.
+We will focus on the~linear type system, but rather then getting rid of
+contraction and weakening outright, we want to formulate a~type system, that
+lets us embed within it the~unrestricted type systems we developed in
+the~\autoref{cha:typesystems} while also giving us control over when contraction
+and weakening can be used.
 
 Recall the~problematic judgments (\ref{eq:linear_examples}) we saw at
 the~beginning of this chapter and notice how the~deduction trees make use of
@@ -201,4 +202,11 @@ in linear type systems, \ir{$\times$-I} and \ir{$\times$-E} define a~different
 kind of pair from \ir{$\times$-I$'$}, \ir{$\times$-E$'_1$}, and
 \ir{$\times$-E$'_2$}. To distinguish between these, we will use two different
 conectives, $\otimes$ for the~former pair definition and $\with$ for the~latter.
+
+We will now formulate a~type system that is based on linear logic, but we will
+not be using dependent types, which would needlessly complicate things for now,
+and stick with simple types. We will combine the~notions of linear and dependent
+types in \autoref{cha:qtt}. Works that combine linear and dependent types
+include the~ones by Cervesato and Pfenning~\cite{cervesato_pfenning_2002}, or
+Krishnaswami \textit{et~al.}~\cite{krishnaswami_et_al_2015}.
 
