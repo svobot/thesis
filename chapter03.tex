@@ -76,11 +76,11 @@ the~\nameref{sec:stlc} section:
   \inferrule*[right=$\times$-E]
   {
     \Gamma_1 \vdash M \is{} S \times T \\
-    \Gamma_2, x \is{} S, y \is{} T \vdash N \is{} U
+    \Gamma_2, x \is{} S, y \is{} T \vdash N \is{} R
   }
   {
     \Gamma_1, \Gamma_2 \vdash \textrm{let} \: \mpair x y = M \:
-      \textrm{in} \: N \is{} U
+      \textrm{in} \: N \is{} R
   }
 \end{mathpar}
 
@@ -106,8 +106,8 @@ the~\autoref{def:stlc} such that:
     \times \tau$, then the~following typed $\lambda$-terms have types $\sigma$
     and $\tau$, respectively:
     \begin{align*}
-      (\pi_1 \: M^{\sigma \times \tau})^\sigma&  &
-        &(\pi_2 \: M^{\sigma \times \tau})^\tau.
+      (\fst M^{\sigma \times \tau})^\sigma&  &
+        &(\snd \: M^{\sigma \times \tau})^\tau.
     \end{align*}
 \end{enumerate}
 
@@ -120,25 +120,27 @@ an~alternative form:
 
   \inferrule*[right=$\times$-E$'_1$]
   {\Gamma \vdash M \is{} S \times T}
-  {\Gamma \vdash \pi_1 \: M \is{} S}
+  {\Gamma \vdash \fst M \is{} S}
 
   \inferrule*[right=$\times$-E$'_2$]
   {\Gamma \vdash M \is{} S \times T}
-  {\Gamma \vdash \pi_2 \: M \is{} T}
+  {\Gamma \vdash \snd M \is{} T}
 \end{mathpar}
 
 We can establish equivalence between these rules and the~old \ir{$\times$-I}
 and \ir{$\times$-E} with a~few applications of the~structural
 rules~\cite{wadler_1993}. Hence, the~terms can also be expressed using each
-other; the~new $\pi_1$ and $\pi_2$ can be defined using the~\emph{let} term:
+other; the~new \emph{\fst{}} and \emph{\snd{}} can be defined using
+the~\emph{let} term:
 \begin{align*}
-  \pi_1 \: M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: x \\
-  \pi_2 \: M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: y
+  \fst M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: x \\
+  \snd M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: y
 \end{align*}
-and, conversely, \emph{let} can be defined using $\pi_1$ and $\pi_2$:
+and, conversely, \emph{let} can be defined using \emph{\fst{}} and
+\emph{\snd{}}:
 \[
   \textrm{let} \: \mpair x y = M \: \textrm{in} \: N := (\lam x {\lam y N}) \:
-    (\pi_1 \: M) \: (\pi_2 \: M).
+    (\fst M) \: (\snd M).
 \]
 
 \sectionwithtoc{Substructural type system}
