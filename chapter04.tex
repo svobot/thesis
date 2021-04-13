@@ -1,10 +1,166 @@
-\chapter{Quantitative Type Theory}
+\chapter{Quantitative Type Theory}\label{cha:qtt}
 
-In this work, we extend the~Quantitative Type Theory (QTT) as first described by
-McBride~\cite{mcbride_2016} and Atkey~\cite{atkey_2018}, with modifications by
-Weirich~\cite{weirich_2020}.
+In the~type systems in the~previous two chapters, we have seen variables used
+for two distinct purposes: it is either used during type checking and not
+available for the~computation of the~program, for example, the~term $\Int \times
+x$ depends on $x$ to form a~valid type; or, in the~linear type system, as
+a~resource that is consumed during the~program runtime.
 
-Contexts are identified within precontexts by the~judgement $\Gamma \vdash$,
+The~linear type system in the~previous chapter tracks the~distinction between
+variable purposes by separating the~context into two parts, intuitionistic and
+linear,
+\[
+  x_1 \is{} S_1, \dotsc, x_n \is{} S_n \mid y_1 \is{} T_1, \dotsc, y_m \is{} T_m
+    \vdash M \is{} U.
+\]
+The~unrestricted variables $x_i$ may be used zero, one, or more times.
+The~linear variables $y_i$, however, must be used exactly once. Type systems
+that adhere to the~linear logic interpretation, which equates resource usage
+with the~presence of a~variable in (the~second part of) a~context, are
+restricted in what kinds of \emph{use} they can express: either variable is used
+or it is not.
+
+Another kind of restriction is that our linear type system does not integrate
+dependent types. Although we mentioned systems that combine the~two, they do so
+by allowing the~linear variable types to dependent on intuitionistic variables.
+This solution, however, would still not allow us to formulate types that depend
+on linear variables.
+
+Our new type system removes these two restrictions. The~context does not get
+separated into two parts, instead we track how a~variable can be used by
+annotating it with an~element of some semiring. Several authors have used
+semiring annotations of variables to attach information on how they can be used,
+but McBride~\cite{mcbride_2016} was first to use the~annotations to indicate
+whether variables are available for computation or only available in
+the~formation of types. Atkey fixed an~issue in McBride's idea and presented it
+as the~Quantitative Type Theory (QTT)~\cite{atkey_2018}. Weirich provided
+further commentary on the~topic~\cite{weirich_2020}.
+
+\sectionwithtoc{Resource semirings}
+
+In quantitative type theory, the~typing judgement takes the~form:
+\[
+  x_1 \is{\rho_1} S_1, \dotsc, x_n \is{\rho_n} S_n \vdash M \is{\sigma} T,
+\]
+where the~$\rho_1, \dotsc, \rho_n$ are elements of the~semiring indicating
+how the~corresponding variable may be used. The~annotation $\rho_i$ tracks
+the~computational usage of a~variable. The~usage $0$ indicates that the~variable
+can only be used to form a~type and it has no presence in an~executing program.
+The~output is annotated with usage $\sigma$, which is restricted to be either
+the~$0$, or the~$1$ of the~semiring due to the~admissibility of substitution, as
+Atkey shows.
+
+\begin{definition}
+  A~\emph{semiring} $\mathcal{R}$ is a~set equipped with two binary operations,
+  addition ($+$) and multiplication ($\cdot$), and constants $0, 1 \in
+  \mathcal{R}$, such that ($\mathcal{R}, +, 0$) is a~commutative monoid, i.e.
+  for every $\rho, \pi, \phi \in \mathcal{R}$:
+  \begin{align*}
+    (\rho+\pi)+\phi = \rho+(\pi+\phi),&  &  &0 + \rho = \rho,&  &
+    &\rho + \pi = \pi + \rho;
+  \end{align*}
+  ($\mathcal{R}, \cdot, 1$) is a~monoid, i.e. for every $\rho, \pi, \phi
+  \in \mathcal{R}$:
+  \begin{align*}
+    (\rho \cdot \pi) \cdot \phi = \rho \cdot (\pi \cdot \phi),&  &
+    &1 \cdot \rho = \rho \cdot 1 = \rho;
+  \end{align*}
+  multiplication left and right distributes over addition, i.e. for every $\rho,
+  \pi, \phi \in \mathcal{R}$:
+  \begin{align*}
+    \rho \cdot (\pi + \phi) = (\rho \cdot \pi) + (\rho \cdot \phi),&  &
+    &(\rho + \pi) \cdot \phi = (\rho \cdot \phi) + (\pi \cdot \phi);
+  \end{align*}
+  and for every $\rho \in \mathcal{R}$:
+  \[
+    0 \cdot \rho = \rho \cdot 0 = 0.
+  \]
+\end{definition}
+As usual, we omit the~symbol $\cdot$ from notation and write $\rho\pi$ instead
+of $\rho\cdot\pi$. For the~use of in annotations, we also require that
+the~semiring is \emph{positive}, meaning that $\rho + \pi = 0$ implies that
+$\rho = 0$ and $\pi = 0$, and has the~\emph{zero-product} property:
+$\rho\pi = 0$ implies $\rho = 0$ or $\pi = 0$. These two properties are required
+for the~admissibility of substitution in the~system we will define.
+
+The~properties of semirings make $0$ well suited for identifying the~use in
+types. Since adding $0$ to an~existing use, $0 + \rho = \rho$, retains
+the~original, we can always combine a~computational usage with a~use in a~type;
+and because $0\rho = 0$, nesting an~otherwise computational use within a~type
+results in the~whole usage being noncomputational.
+
+Semirings that form type systems with interesting properties include:
+\begin{itemize}
+  \item the~singleton $\{0\}$, which produces the~intuitionistic type system we
+    saw in \autoref{cha:typesystems};
+  \item the~semiring $\{0, 1\}$ corresponds to the~linear type system from
+    \autoref{cha:linear};
+  \item the~natural numbers with addition and multiplication give us
+    \todo{[WHAT?]};
+  \item the~zero-one-many semiring $\{0, 1, \omega\}$, where $\rho + \omega =
+    \omega$ and $\omega \cdot \omega = \omega$. The~$0$ value restricts
+    the~resource usage to types only, $1$ requires linear usage, and $\omega$
+    has no usage restrictions.
+\end{itemize}
+
+\sectionwithtoc{Terms \& contexts}
+
+As with previous systems, we will start with pseudo-contexts and pseudo-terms,
+and then we will use the~deduction rules to identify which terms are properly
+typed.
+
+\begin{definition}
+  The~set of all \emph{pseudo-terms} of a~quantitative-type \lc is defined
+  inductively: every variable is a~pseudo-term; $\munit, \: \1, \: \aunit,
+  \: \top$, and $\univ$ are pseudo-terms; and if $M, N$ are pseudo-terms and
+  $x, y$ are variables, then the~following are pseudo-terms:
+  \begin{mathpar}
+    (\lam {x \is\pi M} N) \and (M N) \and \depq x \pi M N \\
+    \mpair M N \and \textrm{let}_O \: \mpair x y = M \: \textrm{in} \: N \and
+      (x \is\pi M) \otimes N \\
+    \textrm{let}_O \: \munit \: \textrm{=} \: M \: \textrm{in} \: N \\
+    \apair M N \and (\fst M) \and (\snd M) \and
+      (x \is{} M) \with N
+  \end{mathpar}
+\end{definition}
+We use the~usual linear logic notation for the~multiplicative unit type, \1.
+Although there should be no confusion, note the~difference between a~semiring
+element, $1$, and a~multiplicative unit type, \1.
+
+Pseudo-contexts are now sequences of the~form:
+\[
+  x_1 \is{\rho_1} S_1, \dotsc, x_n \is{\rho_n} S_n,
+\]
+where $\rho_1, \dotsc, \rho_n$ are arbitrary elements of the~semiring. We define
+scaling of pseudo-contexts by a~semiring element and an~addition of
+pseudo-contexts:
+\begin{definition}
+  Given a~pseudo-context $\Gamma$ and a~semiring element $\pi$,
+  the~\emph{scaling} $\pi\Gamma$ is defined by:
+  \begin{align*}
+    \pi (\diamond) = \diamond&  &  &\pi(\Gamma, x \is\rho S) = \pi\Gamma,
+    x \is{\pi\rho} S
+  \end{align*}
+  The~\emph{addition} $\Gamma_1 + \Gamma_2$ is the~pseudo-context that contains
+  $x \is\pi S$, if:
+  \begin{enumerate}
+    \item $x \is{\rho_1} S$ is in $\Gamma_1$ and $x \is{\rho_2} S$ is in
+      $\Gamma_2$, and $\pi = \rho_1 + \rho_2$;
+    \item $x \is\pi S$ is in $\Gamma_1$, and $x \is\rho T$ is not in $\Gamma_2$;
+    \item $x \is\pi S$ is in $\Gamma_2$, and $x \is\rho T$ is not in $\Gamma_1$.
+  \end{enumerate}
+\end{definition}
+The~zeroing $0\Gamma$ sets all the~annotations to $0$, due to the~semiring laws.
+We do not define the~addition $\Gamma_1 + \Gamma_2$ if, for some $x \is\rho S$
+in $\Gamma_1$ and $x \is\pi T$ in $\Gamma_2$, $S \not\equiv T$.
+
+\sectionwithtoc{Typing rules}
+
+As we have done in the~\nameref{sec:dtlc} section, we formulate mutually
+recursive rules that define how are the~well-formed contexts and
+well-typed terms derived.
+
+Contexts are identified within pseudo-contexts by the~judgement $\Gamma \vdash$,
 defined by the~following rules:
 \begin{mathpar}
   \inferrule*[right=Emp]
@@ -12,84 +168,154 @@ defined by the~following rules:
   {\diamond \vdash}
 
   \inferrule*[right=Ext]
-  {\Gamma \vdash \\ 0\Gamma \vdash S}
-  {\Gamma, x \is\sigma S \vdash}
+  {\Gamma \vdash \\ 0\Gamma \vdash S \is0 \univ}
+  {\Gamma, x \is\rho S \vdash}
 \end{mathpar}
+The~rule \ir{Emp} determines empty pseudo-context as valid. The~rule \ir{Ext}
+extends the~context $\Gamma$ with a~new variable $x$ of type $S$, with usage
+annotation $\rho$, which means that the~new context provides for a~$\rho$ uses
+of $x$.
 
-\sectionwithtoc{Dependent function types}
+The~rules that derive a~valid typing judgment take the form:
+\[
+  \Gamma \vdash M \is\sigma S,
+\]
+where $\sigma$ is either $0$, or $1$. When $\sigma = 0$, we are indicating that
+the~constructed term has no computational content; thus, all the~usage
+annotations in the~context are necessarily also $0$. Stated as a~lemma, taken
+from Atkey's Lemma 2.3:
+\begin{lemma}[Zero needs nothing]\label{lem:zero_needs_nothing}
+  If $\Gamma \vdash M \is0 S$, then $0\Gamma = \Gamma$.
+\end{lemma}
 
+All type formation rules bellow yield well-formedness judgments $\Gamma \vdash S
+\is0 \univ$, meaning that type formation requires no computational resources.
+When $\sigma = 1$, the~annotation indicates that we are constructing
+computationally relevant data.
+
+The~rules for variables and type conversion are:
 \begin{mathpar}
-  \inferrule*[right=Pi]
+  \inferrule*[right=Var]
+  {0\Gamma_1, x \is\sigma S, 0\Gamma_2 \vdash}
+  {0\Gamma_1, x \is\sigma S, 0\Gamma_2 \vdash x \is\sigma S}
+
+  \inferrule*[right=Conv]
+  {
+    \Gamma \vdash M \is\sigma S \\\\
+    0\Gamma \vdash S \equiv T
+  }
+  {\Gamma \vdash M \is\sigma T}
+
+  \inferrule*[right=Univ]
+  {0\Gamma \vdash}
+  {0\Gamma \vdash \univ \is0 \univ}
+\end{mathpar}
+The~variable rule, \ir{Var}, selects a~single variable from the~context and all
+the~other variables that do not take a~computational part in this judgment are
+marked with $0$ usage. The~conversion rule, \ir{Conv}, is almost identical to
+one in the~intuitionistic type theory \todo{[EXPLAIN]}, except that the~type
+equality $S \equiv T$ is always judged in a~context with no resources.
+The~type-in-type axiom, \ir{Univ}, is only available if $\sigma = 0$; we cannot
+construct a~type that has a~runtime presence. In the~same vein, every type
+formation rule in the~upcoming paragraphs, \ir{$\to$}, \ir{$\otimes$}, \ir{\1},
+\ir{$\with$}, and \ir{$\top$}, forms a~type with usage $\sigma =0$ and thus
+assumes a~zeroed-out context, consequence of \autoref{lem:zero_needs_nothing}.
+
+The~\emph{dependent function types} \depq x \pi S T add an~annotation $\pi$,
+which records how the~function will use its argument. The formation,
+introduction, and elimination rules are:
+\begin{mathpar}
+  \inferrule*[right=$\to$]
   {0\Gamma \vdash S \is0 \univ \\ 0\Gamma, x \is0 S \vdash T \is 0 \univ}
   {0\Gamma \vdash \depq x \pi S T \is 0 \univ}
 
-  \inferrule*[right=Lam]
+  \inferrule*[right=$\to$-I]
   {\Gamma, x \is{\sigma\pi} S \vdash M \is\sigma T}
   {\Gamma \vdash \lambda x . M \is\sigma \depq x \pi S T}
 
-  \inferrule*[right=App$_0$]
+  \inferrule*[right=$\to$-E$_0$]
   {
-    \Gamma_1 \vdash M \is\sigma \depq x \pi S T \\
-    \Gamma_2 \vdash N \is0 S \\
-    0\Gamma_1 = 0\Gamma_2 \\
-    \pi \cdot \sigma = 0
+    \Gamma \vdash M \is\sigma \depq x \pi S T \\\\
+    0\Gamma \vdash N \is0 S \\
+    \sigma\pi = 0
   }
-  {\Gamma_1 \vdash M \: N \is\sigma T}
+  {\Gamma \vdash M \: N \is\sigma T}
 
-  \inferrule*[right=App]
+  \inferrule*[right=$\to$-E$_1$]
   {
-    \Gamma_1 \vdash M \is\sigma \depq x \pi S T \\
-    \Gamma_2 \vdash N \is1 S \\
-    0\Gamma_1 = 0\Gamma_2 \\
+    \Gamma_1 \vdash M \is\sigma \depq x \pi S T \\\\
+    \Gamma_2 \vdash N \is1 S
   }
-  {\Gamma_1 + \pi\sigma\Gamma_2 \vdash M \: N \is\sigma T}
+  {\Gamma_1 + \sigma\pi\Gamma_2 \vdash M \: N \is\sigma T}
 \end{mathpar}
+In the~type formation rule \ir{$\to$}, the~annotation $\pi$ is not use used to
+judge the~well-formedness of the~type, which follows from all type formation
+rules being judged in a~context of $0$ usage. The~introduction rule uses $\pi$
+to track how the~parameter $x$ is used and the~multiplication by $\sigma$
+enforces the~zero-needs-nothing property of \autoref{lem:zero_needs_nothing};
+namely, if we use the~function $0$-times, we also need $x$ $0$-times.
+We have two distinct elimination rules, except for the~semiring $\{0\}$ where
+the~rules are identical. The~rule \ir{$\to$-E$_0$} is applicable if $M \: N$ is
+already being judged with $0$ usage ($\sigma = 0$), or if the~function does not
+use its argument ($\pi = 0$). The~rule \ir{$\to$-E$_1$} is applicable otherwise,
+but since the~term has a~computational usage ($\sigma \neq 0$), we must make
+sure that the~$\sigma$ function uses have $\pi$ arguments' worth of resources,
+hence the~$\sigma\pi$ scaling of the~context of the~function argument.
 
-\sectionwithtoc{Dependent multiplicative pair types}
-
+The~\emph{dependent multiplicative pair types} $(x \is \pi S) \otimes T$, like
+the~function types, add an~annotation $\pi$ which records how many times
+the~first element may be used. The formation, introduction, and elimination
+rules are:
 \begin{mathpar}
   \inferrule*[right=$\otimes$]
   {
     0\Gamma \vdash S \is 0 \univ \\
     0\Gamma, x \is 0 S \vdash T \is 0 \univ
   }
-  {0\Gamma \vdash (x \is \pi S) \otimes T \is 0 \univ}
+  {0\Gamma \vdash (x \is \pi S) \otimes T \is 0 \univ} \\
 
   \inferrule*[right=$\otimes$-I$_0$]
   {
-    \Gamma_1 \vdash M \is 0 S \\
-    \Gamma_2 \vdash N \is \sigma T[M/x] \\
-    0\Gamma_1 = 0\Gamma_2 \\
-    \pi \cdot \sigma = 0
+    0\Gamma \vdash M \is 0 S \\
+    \sigma\pi = 0 \\\\
+    \Gamma \vdash N \is \sigma T[M/x]
   }
-  {\Gamma_2 \vdash (M, N) \is \sigma (x \is \pi S) \otimes T }
+  {\Gamma \vdash \mpair M N \is \sigma (x \is \pi S) \otimes T}
 
-  \inferrule*[right=$\otimes$-I]
+  \inferrule*[right=$\otimes$-I$_1$]
   {
     \Gamma_1 \vdash M \is 1 S \\
-    \Gamma_2 \vdash N \is \sigma T[M/x] \\
-    0\Gamma_1 = 0\Gamma_2
+    \Gamma_2 \vdash N \is \sigma T[M/x]
   }
-  {\pi \sigma \Gamma_1 + \Gamma_2 \vdash (M, N) \is \sigma (x \is \pi S) \otimes T}
+  {
+    \sigma\pi \Gamma_1 + \Gamma_2
+    \vdash \mpair M N \is \sigma (x \is \pi S) \otimes T
+  }
 
   \inferrule*[right=$\otimes$-E]
   {
-    0\Gamma_1, p \is 0 (x \is \pi S) \otimes T \vdash O \is 0 \univ \\
+    0\Gamma_1, z \is 0 (x \is \pi S) \otimes T \vdash O \is 0 \univ \\
     \Gamma_1 \vdash M \is \sigma (x \is \pi S) \otimes T \\
-    \Gamma_2, x \is{\sigma \pi} S, y \is \sigma T \vdash N \is \sigma O[(x,y)/p] \\
-    0\Gamma_1 = 0\Gamma_2
+    \Gamma_2, x \is{\sigma \pi} S, y \is \sigma T
+      \vdash N \is \sigma O[\mpair x y /z]
   }
   {
-    \Gamma_1 + \Gamma_2 \vdash \textrm{let}_{O}(x, y) \: \textrm{=}
-    \: M \: \textrm{in} \: N \is \sigma O[M/p]
+    \Gamma_1 + \Gamma_2 \vdash \textrm{let}_O \: \mpair x y \: \textrm{=}
+    \: M \: \textrm{in} \: N \is \sigma O[M/z]
   }
 \end{mathpar}
+Dependent pair type being a~dual of dependent function type, the~introduction
+rules \ir{$\otimes$-I$_i$} are analogous to the~elimination rules
+\ir{$\to$-E$_i$}. The~rule \ir{$\otimes$-I$_0$} is applicable, if $\mpair M N$
+is already being judged with $0$ usage ($\sigma = 0$), or if the~pair does not
+use its first element computationally ($\pi = 0$). If $M$ has a~computational
+presence, applying rule \ir{$\otimes$-I$_1$}, we have to scale $\Gamma_1$ by
+$\sigma\pi$ to ensure that enough resources is available for $\sigma$ uses of
+the~pair, each with $\pi$ uses of the~first element. The~elimination rule
+ensures that both parts of the~pair are used.
 
-\sectionwithtoc{Multiplicative unit type}
-
-We use the~usual linear logic notation for the~multiplicative unit type, \1.
-Although there should be no confusion, note the~difference between $1$, a~member of a~rig, and \1, a~multiplicative unit type.
-
+The~\emph{multiplicative unit type} \1 has a~single value, \munit, and
+the~following type formation, introduction, and elimination rules:
 \begin{mathpar}
   \inferrule*[right=\1]
   {0\Gamma \vdash}
@@ -101,19 +327,22 @@ Although there should be no confusion, note the~difference between $1$, a~member
 
   \inferrule*[right=\1-E]
   {
-    0\Gamma_1, u \is 0 \1 \vdash O \is 0 \univ \\
+    0\Gamma_1, u \is 0 \1 \vdash O \is 0 \univ \\\\
     \Gamma_1 \vdash M \is \sigma \1 \\
-    \Gamma_2 \vdash N \is \sigma O[\munit/u] \\
-    0\Gamma_1 = 0\Gamma_2
+    \Gamma_2 \vdash N \is \sigma O[\munit/u]
   }
   {
-    \Gamma_1 + \Gamma_2 \vdash \textrm{let}_{O} \: \munit \: \textrm{=}
+    \Gamma_1 + \Gamma_2 \vdash \textrm{let}_O \: \munit \: \textrm{=}
     \: M \: \textrm{in} \: N \is \sigma O[M/u]
   }
 \end{mathpar}
+Constructing an~element of type \1 requires no resources. The~elimination of
+elements of a~unit type must be done explicitly, via the~\emph{let} term, but is
+otherwise straightforward.
 
-\sectionwithtoc{Dependent additive pair types}
-
+The~\emph{dependent additive pair types} $(x \is{} S) \with T$ are without
+the~semiring annotation on $x$~\todo{[EXPLAIN]}. The formation, introduction,
+and elimination rules are:
 \begin{mathpar}
   \inferrule*[right=$\with$]
   {0\Gamma \vdash S \is 0 \univ \\ 0\Gamma, x \is 0 S \vdash T \is 0 \univ}
@@ -125,15 +354,15 @@ Although there should be no confusion, note the~difference between $1$, a~member
 
   \inferrule*[right=$\with$-Efst]
   {\Gamma \vdash M \is \sigma (x \is{} S) \with T}
-  {\Gamma \vdash \textrm{fst} \: M \is \sigma S}
+  {\Gamma \vdash \fst M \is \sigma S}
 
   \inferrule*[right=$\with$-Esnd]
   {\Gamma \vdash M \is \sigma (x \is{} S) \with T}
-  {\Gamma \vdash \textrm{snd} \: M \is \sigma T[\textrm{fst}\: M /x]}
+  {\Gamma \vdash \snd M \is \sigma T[\fst M/x]}
 \end{mathpar}
 
-\sectionwithtoc{Additive unit type}
-
+The~\emph{additive unit type}
+The~formation and introduction are:
 \begin{mathpar}
   \inferrule*[right=$\top$]
   {0\Gamma \vdash}
@@ -142,6 +371,8 @@ Although there should be no confusion, note the~difference between $1$, a~member
   \inferrule*[right=$\top$-I]
   {0\Gamma \vdash}
   {0\Gamma \vdash \aunit \is \sigma \top}
-
 \end{mathpar}
+Additive unit type has no elimination rule. We can never do anything interesting
+with a~value of this type, except to incorporate it into a~larger value. We can
+think about the~unit \aunit as a~\emph{garbage collection} for linear~resources.
 
