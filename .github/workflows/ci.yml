@@ -6,10 +6,24 @@ jobs:
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v2
-      - name: Compile LaTeX document
+      - name: Install Iosevka font
+        run: |
+          wget https://github.com/be5invis/Iosevka/releases/download/v6.0.0-preview.3/ttf-iosevka-6.0.0-preview.3.zip -O /tmp/iosevka.zip
+          mkdir iosevka
+          unzip /tmp/iosevka.zip -d iosevka
+      - name: Compile LaTeX document in colour
         uses: xu-cheng/latex-action@v2
         with:
           root_file: thesis.tex
+          pre_compile: |
+            mkdir ~/.fonts
+            cp iosevka/*.ttf ~/.fonts/
+            fc-cache -fv
+      - name: Compile LaTeX document in black and white
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: thesis_grayscale.tex
+          pre_compile: sed '/colourflag/d' thesis.tex > thesis_grayscale.tex
       - name: Remove older releases
         uses: dev-drprasad/delete-tag-and-release@v0.2.0
         with:
@@ -21,7 +35,9 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           name: Latest
-          files: thesis.pdf
+          files: |
+            thesis.pdf
+            thesis_grayscale.pdf
           tag_name: release
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

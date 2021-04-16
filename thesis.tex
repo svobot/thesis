@@ -1,9 +1,13 @@
 %%% The main file. It contains definitions of basic parameters and includes all other parts.
 
+% Configuration flag for printing in colour or black/white
+% Comment out for black/white
+\newcommand*{\colourflag}{}
+
 %% Settings for single-side (simplex) printing
 % Margins: left 40mm, right 25mm, top and bottom 25mm
 % (but beware, LaTeX adds 1in implicitly)
-\documentclass[12pt,a4paper]{report}
+\documentclass[12pt,a4paper,x11names]{report}
 \setlength\textwidth{145mm}
 \setlength\textheight{247mm}
 \setlength\oddsidemargin{15mm}
@@ -25,35 +29,25 @@
 % \setlength\headheight{0mm}
 % \let\openright=\cleardoublepage
 
-%% Generate PDF/A-2u
-\usepackage[a-2u]{pdfx}
-
-%% Character encoding: usually latin2, cp1250 or utf8:
-\usepackage[utf8]{inputenc}
-
-%% Prefer Latin Modern fonts
-\usepackage{lmodern}
-
+\usepackage[a-2u]{pdfx}     % generate PDF/A-2u
 \usepackage{graphicx}       % embedding of pictures
 \usepackage{fancyvrb}       % improved verbatim environment
 \usepackage[nottoc]{tocbibind} % makes sure that bibliography, etc. are in TOC
-%\usepackage{dcolumn}        % improved alignment of table columns
-%\usepackage{booktabs}       % improved horizontal lines in tables
-%\usepackage{paralist}       % improved enumerate and itemize
 
 \usepackage{mathpartir} % mathpar environment, \inferrule macro, etc.
-\usepackage{cmll}       % Linear logic symbols with proper spacing, \with, etc.
+\usepackage{cmll}       % linear logic symbols with proper spacing, \with, etc.
 \usepackage{amsmath}
-\usepackage{amssymb}    % Blackboard bold font (integers)
+\usepackage{amssymb}    % blackboard bold font (integers)
 \usepackage{amsthm}
-\usepackage{xspace}     % Define commands that appear not to eat spaces
+\usepackage{xspace}     % define commands that appear not to eat spaces
 \usepackage{hyperref}   % \autoref
 \usepackage{enumitem}   % Custom enumeration labels
 \usepackage{thmtools}   % Theorem, definition, etc. styles
-\usepackage{xcolor}     % TODO: remove. Provides textcolor
+\usepackage{xcolor}     % text colour
+\usepackage{fontspec}
+\setmonofont{Iosevka}[Scale=0.9] % font for the code printing
 
 %%% Basic information on the thesis
-
 \def\ThesisTitle{Additive Pairs in Quantitative Type Theory}
 \def\ThesisAuthor{Tomáš Svoboda}
 \def\YearSubmitted{2021}
