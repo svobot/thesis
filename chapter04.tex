@@ -116,9 +116,9 @@ typed.
   $x, y$ are variables, then the~following are pseudo-terms:
   \begin{mathpar}
     (\lam {x \is\pi M} N) \and (M N) \and \depq x \pi M N \\
-    \mpair M N \and \textrm{let}_O \: \mpair x y = M \: \textrm{in} \: N \and
+    \mpair M N \and \textrm{let} \: \mpair x y = M \: \textrm{in} \: N \and
       (x \is\pi M) \otimes N \\
-    \textrm{let}_O \: \munit \: \textrm{=} \: M \: \textrm{in} \: N \\
+    \textrm{let} \: \munit \: \textrm{=} \: M \: \textrm{in} \: N \\
     \apair M N \and (\fst M) \and (\snd M) \and
       (x \is{} M) \with N
   \end{mathpar}
@@ -231,7 +231,7 @@ introduction, and elimination rules are:
 
   \inferrule*[right=$\to$-I]
   {\Gamma, x \is{\sigma\pi} S \vdash M \is\sigma T}
-  {\Gamma \vdash \lambda x . M \is\sigma \depq x \pi S T}
+  {\Gamma \vdash \lam x M \is\sigma \depq x \pi S T}
 
   \inferrule*[right=$\to$-E$_0$]
   {
@@ -300,7 +300,7 @@ rules are:
       \vdash N \is \sigma O[\mpair x y /z]
   }
   {
-    \Gamma_1 + \Gamma_2 \vdash \textrm{let}_O \: \mpair x y \: \textrm{=}
+    \Gamma_1 + \Gamma_2 \vdash \textrm{let} \: \mpair x y \: \textrm{=}
     \: M \: \textrm{in} \: N \is \sigma O[M/z]
   }
 \end{mathpar}
@@ -332,7 +332,7 @@ the~following type formation, introduction, and elimination rules:
     \Gamma_2 \vdash N \is \sigma O[\munit/u]
   }
   {
-    \Gamma_1 + \Gamma_2 \vdash \textrm{let}_O \: \munit \: \textrm{=}
+    \Gamma_1 + \Gamma_2 \vdash \textrm{let} \: \munit \: \textrm{=}
     \: M \: \textrm{in} \: N \is \sigma O[M/u]
   }
 \end{mathpar}
