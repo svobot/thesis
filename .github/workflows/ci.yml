@@ -11,7 +11,7 @@ jobs:
           wget https://github.com/be5invis/Iosevka/releases/download/v6.0.0-preview.3/ttf-iosevka-6.0.0-preview.3.zip -O /tmp/iosevka.zip
           mkdir iosevka
           unzip /tmp/iosevka.zip -d iosevka
-      - name: Compile LaTeX document in colour
+      - name: Compile thesis in colour
         uses: xu-cheng/latex-action@v2
         with:
           root_file: thesis.tex
@@ -19,11 +19,15 @@ jobs:
             mkdir ~/.fonts
             cp iosevka/*.ttf ~/.fonts/
             fc-cache -fv
-      - name: Compile LaTeX document in black and white
+      - name: Compile thesis in black and white
         uses: xu-cheng/latex-action@v2
         with:
           root_file: thesis_grayscale.tex
           pre_compile: sed '/colourflag/d' thesis.tex > thesis_grayscale.tex
+      - name: Compile English abstract
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: abstract.tex
       - name: Remove older releases
         uses: dev-drprasad/delete-tag-and-release@v0.2.0
         with:
@@ -38,6 +42,7 @@ jobs:
           files: |
             thesis.pdf
             thesis_grayscale.pdf
+            abstract.pdf
           tag_name: release
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

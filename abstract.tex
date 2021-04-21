@@ -1,18 +1,23 @@
 %%% A template for a simple PDF/A file like a stand-alone abstract of the thesis.
+\include{common}
 
 \documentclass[12pt]{report}
 
 \usepackage[a4paper, hmargin=1in, vmargin=1in]{geometry}
 \usepackage[a-2u]{pdfx}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{lmodern}
+\usepackage{fancyvrb}       % improved verbatim environment
 \usepackage{textcomp}
+
+\begin{VerbatimOut}{\jobname.xmpdata}
+  \Title{\ThesisTitle}
+  \Author{\ThesisAuthor}
+  \Language{\ThesisLanguage}
+  \Subject{\Abstract}
+  \Publisher{\ThesisPublisher}
+\end{VerbatimOut}
 
 \begin{document}
 
-%% Do not forget to edit abstract.xmpdata.
-
-This is an example abstract.
+\Abstract
 
 \end{document}
