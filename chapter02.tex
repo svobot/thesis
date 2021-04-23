@@ -468,7 +468,7 @@ the~following rule:
 
 \sectionwithtoc{Precontexts}
 
-With dependent types in mind, we need to revisit the~semantics of the~judgement
+With dependent types in mind, we need to revisit the~semantics of the~judgment
 $\Gamma \vdash M \is{} S$. In typing systems, the~list of assumptions $\Gamma$,
 henceforth called \emph{context}, contains only type assignments. We, however,
 need to make sure that these assignments are well-formed; that is, for every
@@ -507,7 +507,7 @@ over \univ. We will see an~example of this after we formalise the~type judgment
 rules.
 
 The~rules that identify contexts within precontexts and terms within
-pseudo-terms are mutually recursive. Contexts are identified by the~judgement
+pseudo-terms are mutually recursive. Contexts are identified by the~judgment
 $\Gamma \vdash$, defined by the~following rules:
 \begin{mathpar}
   \inferrule*
@@ -518,7 +518,7 @@ $\Gamma \vdash$, defined by the~following rules:
   {\Gamma \vdash \\ \Gamma \vdash S : \univ}
   {\Gamma, x \is{} S \vdash}
 \end{mathpar}
-and terms are identified by the~judgement $\Gamma \vdash M \is{} S$, defined by
+and terms are identified by the~judgment $\Gamma \vdash M \is{} S$, defined by
 rules:
 \begin{mathpar}
   \inferrule*[right=Fun]
