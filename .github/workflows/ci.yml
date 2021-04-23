@@ -8,7 +8,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Install Iosevka font
         run: |
-          wget https://github.com/be5invis/Iosevka/releases/download/v6.0.0-preview.3/ttf-iosevka-6.0.0-preview.3.zip -O /tmp/iosevka.zip
+          wget https://github.com/be5invis/Iosevka/releases/download/v6.0.0-preview.4/ttf-iosevka-fixed-6.0.0-preview.4.zip -O /tmp/iosevka.zip
           mkdir iosevka
           unzip /tmp/iosevka.zip -d iosevka
       - name: Compile thesis in colour
