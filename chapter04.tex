@@ -304,11 +304,9 @@ rules are:
     \: M \: \textrm{in} \: N \is \sigma O[M/z]
   }
 \end{mathpar}
-Dependent pair type being a~dual of dependent function type, the~introduction
-rules \ir{$\otimes$-I$_i$} are analogous to the~elimination rules
-\ir{$\to$-E$_i$}. The~rule \ir{$\otimes$-I$_0$} is applicable, if $\mpair M N$
-is already being judged with $0$ usage ($\sigma = 0$), or if the~pair does not
-use its first element computationally ($\pi = 0$). If $M$ has a~computational
+The~introduction rule \ir{$\otimes$-I$_0$} is applicable, if $\mpair M N$ is
+already being judged with $0$ usage ($\sigma = 0$), or if the~pair does not use
+its first element computationally ($\pi = 0$). If $M$ has a~computational
 presence, applying rule \ir{$\otimes$-I$_1$}, we have to scale $\Gamma_1$ by
 $\sigma\pi$ to ensure that enough resources is available for $\sigma$ uses of
 the~pair, each with $\pi$ uses of the~first element. The~elimination rule
@@ -373,6 +371,5 @@ The~formation and introduction are:
   {0\Gamma \vdash \aunit \is \sigma \top}
 \end{mathpar}
 Additive unit type has no elimination rule. We can never do anything interesting
-with a~value of this type, except to incorporate it into a~larger value. We can
-think about the~unit \aunit as a~\emph{garbage collection} for linear~resources.
+with a~value of this type, except to incorporate it into a~larger value.
 
