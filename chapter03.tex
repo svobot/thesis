@@ -13,8 +13,8 @@ of resources.
 
 As an~example, we may want to reject the~deduction of judgments like
 \begin{align}\label{eq:linear_examples}
-  x \is{} \sigma \vdash (x, x) \is{} (\sigma \times \sigma)&  &  &\text{or}  &
-    &y \is{} \sigma, z \is{} \tau \vdash z \is{} \tau,
+  x \is{} S \vdash (x, x) \is{} (S \times S)&  &  &\text{or}  &
+    &y \is{} S, z \is{} T \vdash z \is{} T,
 \end{align}
 because $x$ could represent an~extensive computer memory region and copying
 the~data would be costly, or $y$ may represent a~persistent resource, like 
@@ -39,16 +39,16 @@ Third, there are three \emph{structural} rules, \emph{Exchange} \ir{Ex},
 \emph{Contraction} \ir{Cont}, and \emph{Weakening} \ir{Weak}:
 \begin{mathpar}
   \inferrule*[right=Ex]
-  {\Gamma_1, \Gamma_2 \vdash M \is{} \sigma}
-  {\Gamma_2, \Gamma_1 \vdash M \is{} \sigma}
+  {\Gamma_1, \Gamma_2 \vdash M \is{} S}
+  {\Gamma_2, \Gamma_1 \vdash M \is{} S}
 
   \inferrule*[right=Cont]
-  {\Gamma, y \is{} \sigma, z \is{} \sigma \vdash M \is{} \tau}
-  {\Gamma, x \is{} \sigma \vdash [x/y][x/z]M \is{} \tau}
+  {\Gamma, y \is{} S, z \is{} S \vdash M \is{} T}
+  {\Gamma, x \is{} S \vdash [x/y][x/z]M \is{} T}
 
   \inferrule*[right=Weak]
-  {\Gamma \vdash M \is{} \tau}
-  {\Gamma, x \is{} \sigma \vdash M \is{} \tau}
+  {\Gamma \vdash M \is{} T}
+  {\Gamma, x \is{} S \vdash M \is{} T}
 \end{mathpar}
 
 The~rule \ir{Ex} expresses that the~order of assumptions is irrelevant,
@@ -66,28 +66,28 @@ that both sets of rules assign a~type to the~same set of terms.
 \begin{mathpar}
   \inferrule*[right=Id]
   { }
-  {x \is{} \sigma \vdash x \is{} \sigma} \\
+  {x \is{} S \vdash x \is{} S} \\
 
   \inferrule*[right=$\to$-I]
-  {\Gamma, x \is{} \sigma \vdash M \is{} \tau}
-  {\Gamma \vdash \lam {x^\sigma} M \is{} \sigma \to \tau}
+  {\Gamma, x \is{} S \vdash M \is{} T}
+  {\Gamma \vdash \lam {x^S} M \is{} S \to T}
 
   \inferrule*[right=$\to$-E]
-  {\Gamma_1 \vdash M \is{} \sigma \to \tau \\ \Gamma_2 \vdash N \is{} \sigma}
-  {\Gamma_1, \Gamma_2 \vdash M \: N \is{} \tau}
+  {\Gamma_1 \vdash M \is{} S \to T \\ \Gamma_2 \vdash N \is{} S}
+  {\Gamma_1, \Gamma_2 \vdash M \: N \is{} T}
 
   \inferrule*[right=$\times$-I]
-  {\Gamma_1 \vdash M \is{} \sigma \\ \Gamma_2 \vdash N \is{} \tau}
-  {\Gamma_1, \Gamma_2 \vdash \mpair M N \is{} \sigma \times \tau}
+  {\Gamma_1 \vdash M \is{} S \\ \Gamma_2 \vdash N \is{} T}
+  {\Gamma_1, \Gamma_2 \vdash \mpair M N \is{} S \times T}
 
   \inferrule*[right=$\times$-E]
   {
-    \Gamma_1 \vdash M \is{} \sigma \times \tau \\\\
-    \Gamma_2, x \is{} \sigma, y \is{} \tau \vdash N \is{} \rho
+    \Gamma_1 \vdash M \is{} S \times T \\\\
+    \Gamma_2, x \is{} S, y \is{} T \vdash N \is{} U
   }
   {
     \Gamma_1, \Gamma_2 \vdash \textrm{let} \: \mpair x y = M \:
-      \textrm{in} \: N \is{} \rho
+      \textrm{in} \: N \is{} U
   }
 \end{mathpar}
 
@@ -104,12 +104,11 @@ each bind a~variable to only one element of a~pair. We can modify
 the~definition such that:
 \begin{enumerate}
   \setcounter{enumi}{\value{stlc_counter}}
-  \item if $M^{\sigma \times \tau}$ is a~typed $\lambda$-term of type $\sigma
-    \times \tau$, then the~following are typed $\lambda$-terms of types $\sigma$
-    and $\tau$, respectively:
+  \item if $M^{S \times T}$ is a~typed $\lambda$-term of type $S \times T$, then
+    the~following are typed $\lambda$-terms of types $S$ and $T$, respectively:
     \begin{mathpar}
-      (\fst M^{\sigma \times \tau})^\sigma \and
-      (\snd \: M^{\sigma \times \tau})^\tau.
+      (\fst M^{S \times T})^S \and
+      (\snd \: M^{S \times T})^T.
     \end{mathpar}
 \end{enumerate}
 
@@ -117,16 +116,16 @@ The~introduction and elimination rules \ir{$\times$-I} and \ir{$\times$-E} can
 then be replaced by the~following:
 \begin{mathpar}
   \inferrule*[right=$\times$-I$'$]
-  {\Gamma \vdash M \is{} \sigma \\ \Gamma \vdash N \is{} \tau}
-  {\Gamma \vdash \mpair M N \is{} \sigma \times \tau} \\
+  {\Gamma \vdash M \is{} S \\ \Gamma \vdash N \is{} T}
+  {\Gamma \vdash \mpair M N \is{} S \times T} \\
 
   \inferrule*[right=$\times$-E$'_1$]
-  {\Gamma \vdash M \is{} \sigma \times \tau}
-  {\Gamma \vdash \fst M \is{} \sigma}
+  {\Gamma \vdash M \is{} S \times T}
+  {\Gamma \vdash \fst M \is{} S}
 
   \inferrule*[right=$\times$-E$'_2$]
-  {\Gamma \vdash M \is{} \sigma \times \tau}
-  {\Gamma \vdash \snd M \is{} \tau}
+  {\Gamma \vdash M \is{} S \times T}
+  {\Gamma \vdash \snd M \is{} T}
 \end{mathpar}
 
 The~equivalence between the~old rules \ir{$\times$-I} and \ir{$\times$-E}, and
@@ -178,24 +177,24 @@ the~structural rules:
     {
       \inferrule*[right=Id]
       { }
-      {x \is{} \sigma \vdash x \is{} \sigma} \\
+      {x \is{} S \vdash x \is{} S} \\
       \inferrule*[Right=Id]
       { }
-      {x \is{} \sigma \vdash x \is{} \sigma}
+      {x \is{} S \vdash x \is{} S}
     }
     {
-      x \is{} \sigma, x \is{} \sigma \vdash (x, x) \is{} (\sigma \times \sigma)
+      x \is{} S, x \is{} S \vdash (x, x) \is{} (S \times S)
     }
   }
-  {x \is{} \sigma \vdash (x, x) \is{} (\sigma \times \sigma)}
+  {x \is{} S \vdash (x, x) \is{} (S \times S)}
 
   \inferrule*[Right=Weak]
   {
     \inferrule*[Right=Id]
     { }
-    {z \is{} \tau \vdash z \is{} \tau}
+    {z \is{} T \vdash z \is{} T}
   }
-  {y \is{} \sigma, z \is{} \tau \vdash z \is{} \tau}
+  {y \is{} S, z \is{} T \vdash z \is{} T}
 \end{mathpar}
 We can now see that without the~\ir{Cont} and \ir{Weak} rules, we would be
 unable to deduce these judgments.
@@ -219,24 +218,23 @@ Linear types are an~extension of the~simple types in \autoref{def:simple_type}.
 \begin{definition}
   Assume that we are given a~finite or infinite sequence of symbols called
   \emph{atomic types}; then we define \emph{linear types} inductively: every
-  atomic type is a~linear type and if $\sigma$ and $\tau$ are linear types, then
+  atomic type is a~linear type and if $S$ and $T$ are linear types, then
   the~following are also linear types:
   \begin{enumerate}
-    \item a~\emph{linear function type} $\sigma \multimap \tau$;
-    \item a~\emph{multiplicative pair type} $\sigma \otimes \tau$;
-    \item an~\emph{additive pair type} $\sigma \with \tau$;
-    \item an~\emph{exponential type} $\oc \sigma$;
+    \item a~\emph{linear function type} $S \multimap T$;
+    \item a~\emph{multiplicative pair type} $S \otimes T$;
+    \item an~\emph{additive pair type} $S \with T$;
+    \item an~\emph{exponential type} $\oc S$.
   \end{enumerate}
 \end{definition}
 
 Without Contraction and Weakening the~type connectives have very different
-meaning from their simple-type analogues. A~linear function $\sigma \multimap
-\tau$ can be read as ``consume $\sigma$ yielding $\tau$.'' As noted previously,
-there are now two distinct ways of defining a~pair type; these are written
-$\sigma \otimes \tau$, pronounced ``both $\sigma$ and $\tau$,'' and $\sigma
-\with \tau$, pronounced ``choose from $\sigma$ and $\tau$.'' A~new type
-$\oc \sigma$, pronounced ``of course $\sigma$,'' is used to indicate whether
-Contraction or Weakening may be used.
+meaning from their simple-type analogues. A~linear function $S \multimap T$ can
+be read as ``consume $S$ yielding $T$.'' As noted previously, there are now two
+distinct ways of defining a~pair type; these are written $S \otimes T$,
+pronounced ``both $S$ and $T$,'' and $S \with T$, pronounced ``choose from $S$
+and $T$.'' The~new type $\oc S$, pronounced ``of course $S$,'' is used to
+indicate whether Contraction or Weakening may be used.
 
 \sectionwithtoc{Linear terms \& contexts}
 
@@ -248,8 +246,8 @@ called \emph{linear}, does not. We will split the~context of our typing
 judgments into two parts, separated by a~vertical bar, with intuitionistic
 assumptions in the~first part and linear in the~second:
 \[
-  x_1 \is{} \sigma_1, \dotsc, x_n \is{} \sigma_n \mid y_1 \is{} \tau_1, \dotsc,
-    y_m \is{} \tau_m \vdash M \is{} \rho.
+  x_1 \is{} S_1, \dotsc, x_n \is{} S_n \mid y_1 \is{} T_1, \dotsc, y_m \is{} T_m
+    \vdash M \is{} U.
 \]
 
 Like before, $\diamond$ denotes an~empty list of assumptions and $\Gamma,
@@ -267,47 +265,44 @@ terms.
 \begin{definition}
   The~set of all terms of a~linear type system is defined inductively:
   \begin{enumerate}
-    \item all typed variables $x^\tau$ are terms of type $\tau$;
-    \item if $M^{\sigma \multimap \tau}$ and $N^\sigma$ are terms of types
-      $\sigma \multimap \tau$ and $\sigma$ respectively, then the~following is
-      a~term of type $\tau$:
+    \item all typed variables $x^T$ are terms of type $T$;
+    \item if $M^{S \multimap T}$ and $N^S$ are terms of types
+      $S \multimap T$ and $S$ respectively, then the~following is a~term of type
+      $T$:
       \[
-        (M^{\sigma \multimap \tau} \: N^\sigma)^\tau;
+        (M^{S \multimap T} \: N^S)^T;
       \]
-    \item if $x^\sigma$ is a~typed variable and $M^\tau$ is a~term of type
-      $\tau$, then the~following is a~term of type $\sigma \multimap \tau$:
+    \item if $x^S$ is a~typed variable and $M^T$ is a~term of type $T$, then
+      the~following is a~term of type $S \multimap T$:
       \[
-        (\lam {x^\sigma} {M^\tau})^{\sigma \multimap \tau};
+        (\lam {x^S} {M^T})^{S \multimap T};
       \]
-    \item if $M^\sigma$ and $N^\tau$ are terms of types $\sigma$ and $\tau$
-      respectively, then the~following is a~term of type $\sigma \otimes
-      \tau$:
+    \item if $M^S$ and $N^T$ are terms of types $S$ and $T$ respectively, then
+      the~following is a~term of type $S \otimes T$:
       \[
-        \mpair {M^\sigma} {N^\tau} ^{\sigma \otimes \tau};
+        \mpair {M^S} {N^T} ^{S \otimes T};
       \]
-    \item if $x^\sigma$ and $y^\tau$ are typed variables and $M^{\sigma \otimes
-      \tau}$ and $N^\rho$ are terms of type $\sigma \otimes \tau$ and $\rho$
-      respectively, then the~following is a~term of type $\rho$:
+    \item if $x^S$ and $y^T$ are typed variables and $M^{S \otimes T}$ and $N^U$
+      are terms of type $S \otimes T$ and $U$ respectively, then the~following
+      is a~term of type $U$:
       \[
-        (\textrm{let} \: \mpair {x^\sigma} {y^\tau} = M^{\sigma \otimes \tau} \:
-        \textrm{in} \: N^{\rho})^\rho;
+        (\textrm{let} \: \mpair {x^S} {y^T} = M^{S \otimes T} \: \textrm{in} \:
+        N^U)^U;
       \]
-    \item if $M^\sigma$ and $N^\tau$ are terms of types $\sigma$ and $\tau$
-      respectively, then the~following is a~term of type $\sigma \with
-      \tau$:
+    \item if $M^S$ and $N^T$ are terms of types $S$ and $T$ respectively, then
+      the~following is a~term of type $S \with T$:
       \[
-        \apair {M^\sigma} {N^\tau} ^{\sigma \with \tau};
+        \apair {M^S} {N^T} ^{S \with T};
       \]
-    \item if $M^{\sigma \with \tau}$ is a~term of type $\sigma \with \tau$, then
-      the~following are terms of type $\sigma$ and $\tau$ respectively:
+    \item if $M^{S \with T}$ is a~term of type $S \with T$, then the~following
+      are terms of type $S$ and $T$ respectively:
       \begin{align*}
-        (\fst M^{\sigma \with \tau})^\sigma&  &
-          &(\snd M^{\sigma \with \tau})^\tau;
+        (\fst M^{S \with T})^S&  &  &(\snd M^{S \with T})^T;
       \end{align*}
-    \item if $M^\sigma$ is a~term of type $\sigma$, then the~following is a~term
-      of type $\oc \sigma$:
+    \item if $M^S$ is a~term of type $S$, then the~following is a~term of type
+      $\oc S$:
       \[
-        (\oc M)^{\oc \sigma}.
+        (\oc M)^{\oc S}.
       \]
   \end{enumerate}
 \end{definition}
@@ -324,30 +319,30 @@ assumptions list.
 \begin{mathpar}
   \inferrule*[right=Id$_1$]
   { }
-  {x \is{} \sigma \mid \diamond \vdash x \is{} \sigma}
+  {x \is{} S \mid \diamond \vdash x \is{} S}
 
   \inferrule*[right=Id$_2$]
   { }
-  {\Gamma \mid x \is{} \sigma \vdash x \is{} \sigma}
+  {\Gamma \mid x \is{} S \vdash x \is{} S}
 
   \inferrule*[right=Ex]
-  {\Gamma_1, \Gamma_2 \mid \Delta_1, \Delta_2 \vdash M \is{} \sigma}
-  {\Gamma_2, \Gamma_1 \mid \Delta_2, \Delta_1 \vdash M \is{} \sigma}
+  {\Gamma_1, \Gamma_2 \mid \Delta_1, \Delta_2 \vdash M \is{} S}
+  {\Gamma_2, \Gamma_1 \mid \Delta_2, \Delta_1 \vdash M \is{} S}
 
   \inferrule*[right=Cont]
-  {\Gamma, y \is{} \sigma, z \is{} \sigma \mid \Delta \vdash M \is{} \tau}
-  {\Gamma, x \is{} \sigma \mid \Delta \vdash [x/y][x/z]M \is{} \tau}
+  {\Gamma, y \is{} S, z \is{} S \mid \Delta \vdash M \is{} T}
+  {\Gamma, x \is{} S \mid \Delta \vdash [x/y][x/z]M \is{} T}
 
   \inferrule*[right=Weak]
-  {\Gamma \mid \Delta \vdash M \is{} \tau}
-  {\Gamma, x \is{} \sigma \mid \Delta \vdash M \is{} \tau}
+  {\Gamma \mid \Delta \vdash M \is{} T}
+  {\Gamma, x \is{} S \mid \Delta \vdash M \is{} T}
 \end{mathpar}
 With Contraction and Weakening available in the~intuitionistic part of
-the~context, the~intuitionistic assumption $x \is{} \sigma$ can be thought of as
-supplying an~unlimited number of occurrences of $\sigma$; with Contraction used,
-we can supply multiple occurrences of $\sigma$, and with Weakening, we can
-supply no occurrences. The~linear assumption $x \is{} \sigma$, on the~other
-hand, supplies exactly one occurrence of $\sigma$.
+the~context, the~intuitionistic assumption $x \is{} S$ can be thought of as
+supplying an~unlimited number of occurrences of $S$; with Contraction used, we
+can supply multiple occurrences of $S$, and with Weakening, we can supply no
+occurrences. The~linear assumption $x \is{} S$, on the~other hand, supplies
+exactly one occurrence of $S$.
 
 In the~introduction rule for linear functions, the~binding variable referencing
 the~function parameter forms a~linear hypothesis in the~premise; hence,
@@ -356,15 +351,15 @@ the~function application must consume the~same resources as both the~function
 and its argument put together.
 \begin{mathpar}
   \inferrule*[right=$\multimap$-I]
-  {\Gamma \mid \Delta, x \is{} \sigma \vdash M \is{} \tau}
-  {\Gamma \mid \Delta \vdash \lam {x^\sigma} M \is{} \sigma \multimap \tau}
+  {\Gamma \mid \Delta, x \is{} S \vdash M \is{} T}
+  {\Gamma \mid \Delta \vdash \lam {x^S} M \is{} S \multimap T}
 
   \inferrule*[right=$\multimap$-E]
   {
-    \Gamma \mid \Delta_1 \vdash M \is{} \sigma \multimap \tau \\\\
-    \Gamma \mid \Delta_2 \vdash N \is{} \sigma
+    \Gamma \mid \Delta_1 \vdash M \is{} S \multimap T \\\\
+    \Gamma \mid \Delta_2 \vdash N \is{} S
   }
-  {\Gamma \mid \Delta_1, \Delta_2 \vdash M \: N \is{} \tau}
+  {\Gamma \mid \Delta_1, \Delta_2 \vdash M \: N \is{} T}
 \end{mathpar}
 
 In the~rules for terms of multiplicative pair types, the~introduction rule is
@@ -376,21 +371,21 @@ both be used in $N$.
 \begin{mathpar}
   \inferrule*[right=$\otimes$-I]
   {
-    \Gamma \mid \Delta_1 \vdash M \is{} \sigma \\\\
-    \Gamma \mid \Delta_2 \vdash N \is{} \tau
+    \Gamma \mid \Delta_1 \vdash M \is{} S \\\\
+    \Gamma \mid \Delta_2 \vdash N \is{} T
   }
   {
-    \Gamma \mid \Delta_1, \Delta_2 \vdash \mpair M N \is{} \sigma \otimes \tau
+    \Gamma \mid \Delta_1, \Delta_2 \vdash \mpair M N \is{} S \otimes T
   }
 
   \inferrule*[right=$\otimes$-E]
   {
-    \Gamma \mid \Delta_1 \vdash M \is{} \sigma \otimes \tau \\\\
-    \Gamma \mid \Delta_2, x \is{} \sigma, y \is{} \tau \vdash N \is{} \rho
+    \Gamma \mid \Delta_1 \vdash M \is{} S \otimes T \\\\
+    \Gamma \mid \Delta_2, x \is{} S, y \is{} T \vdash N \is{} U
   }
   {
     \Gamma \mid \Delta_1, \Delta_2
-    \vdash \textrm{let} \: \mpair x y = M \: \textrm{in} \: N \is{} \rho
+    \vdash \textrm{let} \: \mpair x y = M \: \textrm{in} \: N \is{} U
   }
 \end{mathpar}
 
@@ -400,29 +395,29 @@ the~elimination rules ensure that only one of the~elements can be extracted.
 \begin{mathpar}
   \inferrule*[right=$\with$-I]
   {
-    \Gamma \mid \Delta \vdash M \is{} \sigma \\
-    \Gamma \mid \Delta \vdash N \is{} \tau
+    \Gamma \mid \Delta \vdash M \is{} S \\
+    \Gamma \mid \Delta \vdash N \is{} T
   }
-  {\Gamma \mid \Delta \vdash \apair M N \is{} \sigma \with \tau} \\
+  {\Gamma \mid \Delta \vdash \apair M N \is{} S \with T} \\
 
   \inferrule*[right=$\with$-E$_1$]
-  {\Gamma \mid \Delta \vdash M \is{} \sigma \with \tau}
-  {\Gamma \mid \Delta \vdash \fst M \is{} \sigma}
+  {\Gamma \mid \Delta \vdash M \is{} S \with T}
+  {\Gamma \mid \Delta \vdash \fst M \is{} S}
 
   \inferrule*[right=$\with$-E$_2$]
-  {\Gamma \mid \Delta \vdash M \is{} \sigma \with \tau}
-  {\Gamma \mid \Delta \vdash \snd M \is{} \tau}
+  {\Gamma \mid \Delta \vdash M \is{} S \with T}
+  {\Gamma \mid \Delta \vdash \snd M \is{} T}
 \end{mathpar}
 
 Before we define the~remaining typing rules of the~system, the~two logical rules
 that involve the~exponential type, we will examine the~differences between
 the~additive and multiplicative pair types, quoting an~example due to
-\citet{wadler_1993}. Under the~Curry-Howard correspondence, take $\sigma$ to be
-the~proposition ``I have 10 euro,'' $\tau$ to be the~proposition ``I have
-a~pizza,'' and $\rho$ to be the~proposition ``I have a~cake.'' The~judgments
+\citet{wadler_1993}. Under the~Curry-Howard correspondence, take $S$ to be
+the~proposition ``I have 10 euro,'' $T$ to be the~proposition ``I have
+a~pizza,'' and $U$ to be the~proposition ``I have a~cake.'' The~judgments
 \begin{mathpar}
-  \diamond \mid x \is{} \sigma \vdash M \is{} \tau \and
-  \diamond \mid x \is{} \sigma \vdash N \is{} \rho
+  \diamond \mid x \is{} S \vdash M \is{} T \and
+  \diamond \mid x \is{} S \vdash N \is{} U
 \end{mathpar}
 express that for 10 euro we may buy a~pizza, and for 10 euro we may buy a~cake.
 With the~rule \ir{$\otimes$-I}, we can derive
@@ -431,14 +426,14 @@ With the~rule \ir{$\otimes$-I}, we can derive
   {
     \inferrule*
     {}
-    {\diamond \mid x_1 \is{} \sigma \vdash M \is{} \tau} \\
+    {\diamond \mid x_1 \is{} S \vdash M \is{} T} \\
     \inferrule*
     {}
-    {\diamond \mid x_2 \is{} \sigma \vdash N \is{} \rho}
+    {\diamond \mid x_2 \is{} S \vdash N \is{} U}
   }
   {
-    \diamond \mid x_1 \is{} \sigma, x_2 \is{} \sigma
-    \vdash \mpair M N \is{} \tau \otimes \rho
+    \diamond \mid x_1 \is{} S, x_2 \is{} S
+    \vdash \mpair M N \is{} T \otimes U
   }
 \end{mathpar}
 meaning that for 20 euro we can buy both a~pizza and a~cake. With the~rule
@@ -448,42 +443,41 @@ meaning that for 20 euro we can buy both a~pizza and a~cake. With the~rule
   {
     \inferrule*
     {}
-    {\diamond \mid x \is{} \sigma \vdash M \is{} \tau} \\
+    {\diamond \mid x \is{} S \vdash M \is{} T} \\
     \inferrule*
     {}
-    {\diamond \mid x \is{} \sigma \vdash N \is{} \rho}
+    {\diamond \mid x \is{} S \vdash N \is{} U}
   }
   {
-    \diamond \mid x \is{} \sigma \vdash \apair M N \is{} \tau \with \rho
+    \diamond \mid x \is{} S \vdash \apair M N \is{} T \with U
   }
 \end{mathpar}
 meaning that for 10 euro we can buy whichever we choose from a~pizza or a~cake.
 
-Note that $\tau \with \rho$ represents our \emph{choice} of either pizza or
-cake, which is different from \emph{having} one of pizza or cake. To say that we
-have either a~pizza or a~cake, we would use the~sum type $\tau \oplus \rho$. We
-have not formally presented the~sum type $\tau \oplus \rho$ before, because we
-shall not use it outside of this example and we mention it here only to point
-out the~difference from $\tau \with \rho$. With the~sum type $\tau \oplus \rho$
-we can derive
+Note that $T \with U$ represents our \emph{choice} of either pizza or cake,
+which is different from \emph{having} one of pizza or cake. To say that we have
+either a~pizza or a~cake, we would use the~sum type $T \oplus U$. We have not
+formally presented the~sum type $T \oplus U$ before, because we shall not use it
+outside of this example and we mention it here only to point out the~difference
+from $T \with U$. With the~sum type $T \oplus U$ we can derive
 \begin{mathpar}
   \inferrule*[right=$\oplus$-I$_1$]
-  {\diamond \mid x \is{} \sigma \vdash M \is{} \tau}
-  {\diamond \mid x \is{} \sigma \vdash M \is{} \tau \oplus \rho}
+  {\diamond \mid x \is{} S \vdash M \is{} T}
+  {\diamond \mid x \is{} S \vdash M \is{} T \oplus U}
 
   \inferrule*[right=$\oplus$-I$_2$]
-  {\diamond \mid x \is{} \sigma \vdash N \is{} \rho}
-  {\diamond \mid x \is{} \sigma \vdash N \is{} \tau \oplus \rho}
+  {\diamond \mid x \is{} S \vdash N \is{} U}
+  {\diamond \mid x \is{} S \vdash N \is{} T \oplus U}
 \end{mathpar}
 The first derivation means that if 10 euro buys us a~pizza, then it also buys us
 a~pizza or a~cake. The~second derivation is analogous, starting with a~cake.
 
-Now consider the~implications of having a~pair as a~hypothesis. Take $\phi$ to
-be the~proposition ``I am happy.'' Then the~judgments
+Now consider the~implications of having a~pair as a~hypothesis. Take $P$ to be
+the~proposition ``I am happy.'' Then the~judgments
 \begin{mathpar}
-  \diamond \mid x \is{} \tau \otimes \rho \vdash M \is{} \phi \and
-  \diamond \mid x \is{} \tau \with \rho \vdash M \is{} \phi \and
-  \diamond \mid x \is{} \tau \oplus \rho \vdash M \is{} \phi
+  \diamond \mid x \is{} T \otimes U \vdash M \is{} P \and
+  \diamond \mid x \is{} T \with U \vdash M \is{} P \and
+  \diamond \mid x \is{} T \oplus U \vdash M \is{} P
 \end{mathpar}
 mean that, first, I will be happy given \emph{both} a~pizza and a~cake; second,
 I will be happy given \emph{my choice} from a~pizza and a~cake; and, third, I
@@ -492,16 +486,16 @@ will be happy given \emph{either} a~pizza or a~cake, I do not care which.
 With this intuition, we can examine how the~pair types relate to each other.
 Neither of the~following judgments is provable:
 \begin{mathpar}
-  \diamond \mid x \is{} \tau \otimes \rho \vdash M \is{} \tau \with \rho \and
-  \diamond \mid x \is{} \tau \with \rho \vdash M \is{} \tau \otimes \rho
+  \diamond \mid x \is{} T \otimes U \vdash M \is{} T \with U \and
+  \diamond \mid x \is{} T \with U \vdash M \is{} T \otimes U
 \end{mathpar}
 Having a~pizza and a~cake, we cannot choose to have one of pizza or cake,
 because that would mean we threw away the~other thing, which is not admissible
 without the~\ir{Weak} rule~\todo{[CORRECT?]}. On the~other hand, having
 the~choice of either a~pizza or a~cake does not mean we have both.
 
-There are two proofs of $\diamond \mid x \is{} \tau \with \rho \vdash M \is{}
-\tau \oplus \rho$:
+There are two proofs of $\diamond \mid x \is{} T \with U \vdash M \is{}
+T \oplus U$:
 \begin{mathpar}
   \inferrule*
   {
@@ -509,11 +503,11 @@ There are two proofs of $\diamond \mid x \is{} \tau \with \rho \vdash M \is{}
     {
       \inferrule*[Right=Id$_2$]
       { }
-      {\diamond \mid x \is{} \tau \with \rho \vdash x \is{} \tau \with \rho}
+      {\diamond \mid x \is{} T \with U \vdash x \is{} T \with U}
     }
-    {\diamond \mid x \is{} \tau \with \rho \vdash \fst x \is{} \tau}
+    {\diamond \mid x \is{} T \with U \vdash \fst x \is{} T}
   }
-  {\diamond \mid x \is{} \tau \with \rho \vdash \fst x \is{} \tau \oplus \rho}
+  {\diamond \mid x \is{} T \with U \vdash \fst x \is{} T \oplus U}
 
   \inferrule*
   {
@@ -521,56 +515,55 @@ There are two proofs of $\diamond \mid x \is{} \tau \with \rho \vdash M \is{}
     {
       \inferrule*[Right=Id$_2$]
       { }
-      {\diamond \mid x \is{} \tau \with \rho \vdash x \is{} \tau \with \rho}
+      {\diamond \mid x \is{} T \with U \vdash x \is{} T \with U}
     }
-    {\diamond \mid x \is{} \tau \with \rho \vdash \snd x \is{} \rho}
+    {\diamond \mid x \is{} T \with U \vdash \snd x \is{} U}
   }
-  {\diamond \mid x \is{} \tau \with \rho \vdash \snd x \is{} \tau \oplus \rho}
+  {\diamond \mid x \is{} T \with U \vdash \snd x \is{} T \oplus U}
 \end{mathpar}
 We can either choose the~pizza, or the~cake. There is, however, no proof of
-the~converse, $\diamond \mid x \is{} \tau \oplus \rho \vdash M \is{} \tau \with
-\rho$; having a~pizza or a~cake does not constitute having the~\emph{choice} of
-a~pizza or a~cake.
+the~converse, $\diamond \mid x \is{} T \oplus U \vdash M \is{} T \with U$;
+having a~pizza or a~cake does not constitute having the~\emph{choice} of a~pizza
+or a~cake.
 
 Now we return to the~remaining typing rules of our system. They are
 the~introduction and elimination rules of the~exponential type. Notice that, in
 this system, the~logical rules have so far all been defined in terms of linear
 assumptions. To make use of our intuitionistic assumptions, we need to turn them
 into linear ones, which is done using the~\oc{} connective; in fact,
-an~intuitionistic assumption $x \is{} \sigma$ is in a~sense equivalent to linear
-$\oc x \is{} \oc \sigma$.
+an~intuitionistic assumption $x \is{} S$ is in a~sense equivalent to linear
+$\oc x \is{} \oc S$.
 
 The~introduction rule is applicable when the~context contains only
-intuitionistic assumptions and it states that if we can prove $M \is{} \sigma$
-in this context, we can also prove $\oc M \is{} \oc \sigma$ in the same context;
-meaning, if we can derive a~single instance of $\sigma$ from the~unlimited
-resources $\Gamma$, we can also derive an~unlimited number of instances of
-$\sigma$.
+intuitionistic assumptions and it states that if we can prove $M \is{} S$ in
+this context, we can also prove $\oc M \is{} \oc S$ in the same context;
+meaning, if we can derive a~single instance of $S$ from the~unlimited resources
+$\Gamma$, we can also derive an~unlimited number of instances of $S$.
 
-The~elimination rule states that we can use an~instance of type $\oc \sigma$ to
-satisfy the~intuitionistic assumption $x \is{} \sigma$.
+The~elimination rule states that we can use an~instance of type $\oc S$ to
+satisfy the~intuitionistic assumption $x \is{} S$.
 \begin{mathpar}
   \inferrule*[right=$\oc{}$-I]
-  {\Gamma \mid \diamond \vdash M \is{} \sigma}
-  {\Gamma \mid \diamond \vdash \oc M \is{} \oc \sigma}
+  {\Gamma \mid \diamond \vdash M \is{} S}
+  {\Gamma \mid \diamond \vdash \oc M \is{} \oc S}
 
   \inferrule*[right=$\oc{}$-E]
   {
-    \Gamma \mid \Delta_1 \vdash M \is{} \oc \sigma \\
-    \Gamma, x \is{} \sigma \mid \Delta_2 \vdash N \is{} \tau
+    \Gamma \mid \Delta_1 \vdash M \is{} \oc S \\
+    \Gamma, x \is{} S \mid \Delta_2 \vdash N \is{} T
   }
   {
     \Gamma \mid \Delta_1, \Delta_2
-    \vdash \textrm{let} \: \oc x = M \: \textrm{in} \: N \is{} \tau
+    \vdash \textrm{let} \: \oc x = M \: \textrm{in} \: N \is{} T
   }
 \end{mathpar}
 
-The~difference between intuitionistic assumption $x \is{} \sigma$ and linear
-assumption $\oc x \is{} \oc \sigma$ is that the~linear assumption still must be
+The~difference between intuitionistic assumption $x \is{} S$ and linear
+assumption $\oc x \is{} \oc S$ is that the~linear assumption still must be
 used exactly once in the~derivation tree, while the~intuitionistic one may be
 used any number of times. They are equivalent, however, in the~sense that
-$\Gamma \mid \Delta, x \is{} \oc \sigma \vdash M \is{} \tau$ is provable if
-and only if $\Gamma, x \is{} \sigma \mid \Delta \vdash N \is{} \tau$ is
+$\Gamma \mid \Delta, x \is{} \oc S \vdash M \is{} T$ is provable if
+and only if $\Gamma, x \is{} S \mid \Delta \vdash N \is{} T$ is
 provable. This is shown by the~following derivation trees:
 \begin{mathpar}
   \inferrule*[Right=$\multimap$-E]
@@ -578,15 +571,15 @@ provable. This is shown by the~following derivation trees:
     \inferrule*[right=Weak]
     {
       \inferrule*[Right=$\multimap$-I]
-      {\Gamma \mid \Delta, x \is{} \oc \sigma \vdash M \is{} \tau}
+      {\Gamma \mid \Delta, x \is{} \oc S \vdash M \is{} T}
       {
         \Gamma \mid \Delta
-        \vdash \lam {x^{\oc \sigma}} M \is{} \oc \sigma \multimap \tau
+        \vdash \lam {x^{\oc S}} M \is{} \oc S \multimap T
       }
     }
     {
-      \Gamma, x \is{} \sigma \mid \Delta
-      \vdash \lam {x^{\oc \sigma}} M \is{} \oc \sigma \multimap \tau
+      \Gamma, x \is{} S \mid \Delta
+      \vdash \lam {x^{\oc S}} M \is{} \oc S \multimap T
     } \\
     \inferrule*[Right=$\oc{}$-I]
     {
@@ -596,35 +589,32 @@ provable. This is shown by the~following derivation trees:
         {
           \inferrule*[Right=Id$_1$]
           { }
-          {x \is{} \sigma \mid \diamond \vdash x \is{} \sigma}
+          {x \is{} S \mid \diamond \vdash x \is{} S}
         }
         {\vdots}
       }
-      {\Gamma, x \is{} \sigma \mid \diamond \vdash x \is{} \sigma}
+      {\Gamma, x \is{} S \mid \diamond \vdash x \is{} S}
     }
-    {\Gamma, x \is{} \sigma \mid \diamond \vdash \oc x \is{} \oc \sigma}
+    {\Gamma, x \is{} S \mid \diamond \vdash \oc x \is{} \oc S}
   }
   {
-    \Gamma, x \is{} \sigma \mid \Delta
-    \vdash (\lam {x^{\oc \sigma}} M) \: \oc x \is{} \tau
+    \Gamma, x \is{} S \mid \Delta
+    \vdash (\lam {x^{\oc S}} M) \: \oc x \is{} T
   }
-\end{mathpar}
 
-\begin{mathpar}
   \inferrule*[Right=$\oc{}$-E]
   {
     \inferrule*[right=Id$_2$]
     { }
-    {\diamond \mid x \is{} \oc \sigma \vdash x \is{} \oc \sigma} \\
-    \Gamma, x \is{} \sigma \mid \Delta \vdash N \is{} \tau
+    {\diamond \mid x \is{} \oc S \vdash x \is{} \oc S} \\
+    \Gamma, x \is{} S \mid \Delta \vdash N \is{} T
   }
   {
-    \Gamma \mid \Delta, x \is{} \oc \sigma
-    \vdash \textrm{let} \: \oc x = x \: \textrm{in} \: N \is{} \tau
+    \Gamma \mid \Delta, x \is{} \oc S
+    \vdash \textrm{let} \: \oc x = x \: \textrm{in} \: N \is{} T
   }
 \end{mathpar}
 
-The~reason why we indeed need separate intuitionistic assumptions $x \is{}
-\sigma$ and cannot use $\oc x \is{} \oc \sigma$ instead is explained by
-\citet{wadler_1993}.
+The~reason why we indeed need separate intuitionistic assumptions $x \is{} S$
+and cannot use $\oc x \is{} \oc S$ instead is explained by \citet{wadler_1993}.
 

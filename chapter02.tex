@@ -118,10 +118,10 @@ define a~basic type system that utilises the~\emph{simple types}.
   \emph{atomic types}; then we define \emph{simple types} as follows:
   \begin{enumerate}
     \item every atomic type is a~simple type;
-    \item if $\sigma$ and $\tau$ are simple types, then $(\sigma \to \tau)$ is
-      a~simple type, called a~\emph{function type};
-    \item if $\sigma$ and $\tau$ are simple types, then $(\sigma \times \tau)$
-      is a~simple type, called a~\emph{pair type};
+    \item if $S$ and $T$ are simple types, then $(S \to T)$ is a~simple type,
+      called a~\emph{function type};
+    \item if $S$ and $T$ are simple types, then $(S \times T)$ is a~simple type,
+      called a~\emph{pair type};
   \end{enumerate}
 \end{definition}
 
@@ -129,14 +129,13 @@ Atomic types are intended to denote a~particular set. For example we may have
 the~atomic type \Int for the~set of integers, and \Bool for the~set of Boolean
 values $\{ \mathtt{true}, \mathtt{false} \}$.
 
-A~function type $(\sigma \to \tau)$ is intended to denote some given set of
-\emph{functions from $\sigma$ to $\tau$}. That is, functions that accept as
-input a~member of its \emph{domain}, the~set denoted by $\sigma$, and produce
-an~output in its \emph{range}, a~subset of the~set denoted by $\tau$. The~exact
-set of functions denoted by $(\sigma \to \tau)$ depends on the~intended use
-of the~type system we are trying to build. It might be the~set of \emph{all}
-functions from $\sigma$ to $\tau$, or just some subset. Some examples of simple
-types are:
+A~function type $(S \to T)$ is intended to denote some given set of
+\emph{functions from $S$ to $T$}. That is, functions that accept as input
+a~member of its \emph{domain}, the~set denoted by $S$, and produce an~output in
+its \emph{range}, a~subset of the~set denoted by $T$. The~exact set of functions
+denoted by $(S \to T)$ depends on the~intended use of the~type system we are
+trying to build. It might be the~set of \emph{all} functions from $S$ to $T$, or
+just some subset. Some examples of simple types are:
 \begin{align*}
   &(\Int \to \Int) && \text{functions from integers to integers;} \\
   &(\Int \to \Bool) && \text{functions from integers to Boolean values;} \\
@@ -148,26 +147,26 @@ types are:
 In contrast with the~$\lambda$-term application, the~function type is
 right-associative and we will abbreviate accordingly:
 \begin{align*}
-  &\sigma \to \tau  &  &\text{for} &  &(\sigma \to \tau); \\
-  &\rho \to \sigma \to \tau  &  &\text{for} &  &(\rho \to (\sigma \to \tau)); \\
-  &\sigma_1 \to \dotsb \to \sigma_n \to \tau  &  &\text{for} &  
-    &(\sigma_2 \to ( \dotsb \to (\sigma_n \to \tau) \dotsb )); \\
-  &\sigma \times \tau  &  &\text{for} &  &(\sigma \times \tau).
+  &S \to T  &  &\text{for} &  &(S \to T); \\
+  &S \to T \to U  &  &\text{for} &  &(S \to (T \to U)); \\
+  &S_1 \to \dotsb \to S_n \to T  &  &\text{for} &
+    &(S_2 \to ( \dotsb \to (S_n \to T) \dotsb )); \\
+  &S \times T  &  &\text{for} &  &(S \times T).
 \end{align*}
 We do not define any order of precedence between the~function and pair types.
-Note that an~expression like $\sigma \to \tau$, which contains Greek-letter type
+Note that an~expression like $S \to T$, which contains Greek-letter type
 variables, is not itself a~type. It is only a~name in the~metalanguage for
 a~type of unspecified functions.
 
-A~pair type, or a~\emph{product type}, $(\sigma \times \tau)$ denotes
-the~Cartesian product of the~sets denoted by $\sigma$ and $\tau$. For example,
-$((\Int \to \Int) \times \Bool)$ denotes the~set of ordered pairs $(f, b)$,
-where $f$ is a~function from integers to integers, and $b$ is a Boolean value.
+A~pair type, or a~\emph{product type}, $(S \times T)$ denotes the~Cartesian
+product of the~sets denoted by $S$ and $T$. For example, $((\Int \to \Int)
+\times \Bool)$ denotes the~set of ordered pairs $(f, b)$, where $f$ is
+a~function from integers to integers, and $b$ is a Boolean value.
 
-There is also a~dual notion of a~pair type, the~\emph{sum type} $(\sigma +
-\tau)$, which is used to denote the~set of members of either $\sigma$, or
-$\tau$. In this text however, we are focused on the~pair type, so we will not be
-working with the~sum type further.
+There is also a~dual notion of a~pair type, the~\emph{sum type} $(S + T)$, which
+is used to denote the~set of members of either $S$, or $T$. In this text
+however, we are focused on the~pair type, so we will not be working with the~sum
+type further.
 
 \sectionwithtoc{Type judgment}
 
@@ -175,23 +174,23 @@ When we apply the~natural deduction in the~context of types, we are able to
 formulate deduction trees that assign types to terms.
 
 \begin{definition}
-  For any $\lambda$-term $M$ and type $\tau$, define a~\emph{type assignment}
+  For any $\lambda$-term $M$ and type $T$, define a~\emph{type assignment}
   formula as
   \[
-    M \is{} \tau.
+    M \is{} T.
   \]
 \end{definition}
 
-The~formula $M \is{} \tau$ can be read informally as `$M$ has type $\tau$', or
-`we assign to $M$ the~type $\tau$'. Then, \emph{type judgment} is the~formula
+The~formula $M \is{} T$ can be read informally as ``$M$ has type $T$'', or ``we
+assign to $M$ the~type $T$''. Then, \emph{type judgment} is the~formula
 \[
-  \Gamma \vdash M \is{} \tau,
+  \Gamma \vdash M \is{} T,
 \]
 which is defined to mean that there is a~deduction-tree, whose root formula is
-$M \is{} \tau$, and whose leaves are members of $\Gamma$. When type judgment
-has no assumptions, we say so explicitly by writing
+$M \is{} T$, and whose leaves are members of $\Gamma$. When type judgment has no
+assumptions, we say so explicitly by writing
 \[
-  \vdash M \is{} \tau.
+  \vdash M \is{} T.
 \]
 
 \sectionwithtoc{Simply typed \lc}\label{sec:stlc}
@@ -209,70 +208,70 @@ use the~explicit semantics.
 
 \begin{definition}[Typed variables]
   Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
-  \mathbf{v}_1, \mathbf{v}_2, \cdots$ called \emph{untyped variables}. We make
-  \emph{typed variables $x^\tau$} by attaching type-superscripts to untyped
-  variables, in such a~way that
+  \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{untyped variables}; then
+  the~\emph{typed variable $x^T$} is an~untyped variable $x$ with attached
+  type-superscript, such that:
   \begin{enumerate}
     \item \label{def:typed_var:a_item} no untyped variable receives more than
       one type;
-    \item \label{def:typed_var:b_item} every type $\tau$ is attached to
-      an~infinite sequence of variables.
+    \item \label{def:typed_var:b_item} every type $T$ is attached to an~infinite
+      sequence of variables.
   \end{enumerate}
 \end{definition}
-We call $x^\tau$ a~\emph{variable of type $\tau$}. It denotes an~arbitrary
-member of the~set denoted by $\tau$.
+We call $x^T$ a~\emph{variable of type $T$}. It denotes an~arbitrary member of
+the~set denoted by $T$.
 
-Condition \ref{def:typed_var:a_item} ensures that there are no $x^\tau$,
-$x^\sigma$ with $\tau \not\equiv \sigma$. For example, if we make a~typed
-variable $x^{\Int}$, to denote an~arbitrary integer, we cannot also make
-$x^{\Int \to \Int}$, which would denote a~function.
+Condition \ref{def:typed_var:a_item} ensures that there are no $x^T$, $x^S$ with
+$T \not\equiv S$. For example, if we make a~typed variable $x^{\Int}$, to denote
+an~arbitrary integer, we cannot also make $x^{\Int \to \Int}$, which would
+denote a~function.
 
-Condition \ref{def:typed_var:b_item} ensures that, for every type $\tau$, there
+Condition \ref{def:typed_var:b_item} ensures that, for every type $T$, there
 is always enough variables to denote all members of the~set that we wish to
 describe.
 
 \begin{definition}[Simply typed $\lambda$-terms]\label{def:stlc}
   The~set of \emph{typed $\lambda$-terms} is defined as follows:
   \begin{enumerate}
-    \item all typed variables $x^\tau$ are typed $\lambda$-terms of type $\tau$;
-    \item \label{def:stlc:b_item} if $M^{\sigma \to \tau}$ and $N^\sigma$ are
-      typed $\lambda$-terms of types $\sigma \to \tau$ and $\sigma$
-      respectively, then the~following is a~typed $\lambda$-term of type $\tau$:
+    \item all typed variables $x^T$ are typed $\lambda$-terms of type $T$;
+    \item \label{def:stlc:b_item} if $M^{S \to T}$ and $N^S$ are
+      typed $\lambda$-terms of types $S \to T$ and $S$
+      respectively, then the~following is a~typed $\lambda$-term of type $T$:
       \[
-        (M^{\sigma \to \tau} N^\sigma)^\tau;
+        (M^{S \to T} N^S)^T;
       \]
-    \item if $x^\sigma$ is a~variable of type $\sigma$ and $M^\tau$ is a~typed
-      $\lambda$-term of type $\tau$, then the~following is a~typed
-      $\lambda$-term of type $\sigma \to \tau$:
+    \item if $x^S$ is a~variable of type $S$ and $M^T$ is a~typed
+      $\lambda$-term of type $T$, then the~following is a~typed
+      $\lambda$-term of type $S \to T$:
       \[
-        (\lam {x^\sigma} {M^\tau})^{\sigma \to \tau};
+        (\lam {x^S} {M^T})^{S \to T};
       \]
-    \item \label{def:stlc:d_item} if $M^\sigma$ and $N^\tau$ are typed
-      $\lambda$-terms of types $\sigma$ and $\tau$ respectively, then
-      the~following is a~typed $\lambda$-term of type $\sigma \times \tau$:
+    \item \label{def:stlc:d_item} if $M^S$ and $N^T$ are typed
+      $\lambda$-terms of types $S$ and $T$ respectively, then
+      the~following is a~typed $\lambda$-term of type $S \times T$:
       \[
-        \mpair {M^\sigma} {N^\tau} ^{\sigma \times \tau};
+        \mpair {M^S} {N^T} ^{S \times T};
       \]
     \setcounter{stlc_counter}{\value{enumi}}
-    \item \label{def:stlc:e_item} if $x^\sigma$ and $y^\tau$ are variables of
-      types $\sigma$ and $\tau$ respectively, and $M^{\sigma \times \tau}$ and
-      $N^\rho$ are typed $\lambda$-terms of types $\sigma \times \tau$ and
-      $\rho$ respectively, then the~following is a~typed $\lambda$-term of type
-      $\rho$:
+    \item \label{def:stlc:e_item} if $x^S$ and $y^T$ are variables of
+      types $S$ and $T$ respectively, and $M^{S \times T}$ and
+      $N^U$ are typed $\lambda$-terms of types $S \times T$ and
+      $U$ respectively, then the~following is a~typed $\lambda$-term of type
+      $U$:
       \[
-        (\textrm{let} \: \mpair {x^\sigma} {y^\tau} = M^{\sigma \times \tau} \:
-        \textrm{in} \: N^{\rho})^\rho.
+        (\textrm{let} \: \mpair {x^S} {y^T} = M^{S \times T} \:
+        \textrm{in} \: N^{U})^U.
       \]
 \end{enumerate}
 \end{definition}
 
-The~typed term $M^\tau$ is intended to denote a~member of the~set denoted by
-$\tau$. For example, in \ref{def:stlc:b_item}, if $M^{\sigma \to \tau}$ denotes
-a~function $\phi$ from $\sigma$ to $\tau$, and $N^\tau$ denotes a~member $a$ of
-$\sigma$, then the~term $(M^{\sigma \to \tau} N^\sigma)^\tau$ denotes $\phi(a)$,
-which is of type $\tau$.
+The~typed term $M^T$ is intended to denote a~member of the~set denoted by
+$T$. For example, in \ref{def:stlc:b_item}, if $M^{S \to T}$ denotes
+a~function $f$ from $S$ to $T$, and $N^T$ denotes a~member $a$ of
+$S$, then the~term $(M^{S \to T} N^S)^T$ denotes $f(a)$,
+which is of type $T$.
 
-Note that in \ref{def:stlc:e_item}, the~pair $(x,y)$ is just a~part of
+Note that in \ref{def:stlc:e_item}, the~pair $(x^S, y^T)$ is just a~part of
 the~syntax; it is not an~instance of a~term constructing a~pair like in
 \ref{def:stlc:d_item}.
 
@@ -280,22 +279,22 @@ When writing typed terms, some of the~type-superscripts can be omitted if it is
 obvious from the~context what they should be. Other notation conventions will be
 the~same as in \autoref{cha:lambdacalculus}.
 
-For example, for every pair of types $\sigma$ and $\tau$,
+For example, for every pair of types $S$ and $T$,
 \[
-  (\lam {x^\sigma} {(\lam {y^\tau} {\mpair {x^\sigma} {y^\tau} ^{\sigma \times
-    \tau}})^{\tau \to (\sigma \times \tau)}})^{\sigma \to (\tau \to (\sigma
-    \times \tau))}
+  (\lam {x^S} {(\lam {y^T} {\mpair {x^S} {y^T} ^{S \times
+    T}})^{T \to (S \times T)}})^{S \to (T \to (S
+    \times T))}
 \]
 is a~typed term and it can be written as
 \begin{align*}
-  &(\lam {xy} {\mpair x y})^{\sigma \to (\tau \to (\sigma \times \tau))},  &
-  &\text{or}  &  &\lam {x^\sigma y^\tau} {\mpair x y}.
+  &(\lam {xy} {\mpair x y})^{S \to (T \to (S \times T))},  &
+  &\text{or}  &  &\lam {x^S y^T} {\mpair x y}.
 \end{align*}
 
-The~substitution $[N^\sigma/x^\sigma](M^\tau)$ is defined in the~same way as
+The~substitution $[N^S/x^S](M^T)$ is defined in the~same way as
 the~substitution of pure $\lambda$-terms in \autoref{def:substitution}.
-Note that we do not define substitution $[N^\rho/x^\sigma](M^\tau)$ when 
-$\rho \not\equiv \sigma$. \todo{[NEEDS REWRITE TO MENTION PAIRS]}
+Note that we do not define substitution $[N^U/x^S](M^T)$ when 
+$U \not\equiv S$. \todo{[NEEDS REWRITE TO MENTION PAIRS]}
 
 Finally, we will use the~simply typed \lc to construct a~formal theory where
 the~deduction assigns types to terms. This is called a~\emph{type-assignment
@@ -304,98 +303,96 @@ rules:
 \begin{mathpar}
   \inferrule*[right=Var]
   { }
-  {\Gamma_1, x \is{} \tau, \Gamma_2 \vdash x \is{} \tau} \\
+  {\Gamma_1, x \is{} T, \Gamma_2 \vdash x \is{} T} \\
 
   \inferrule*[right=App]
-  {\Gamma \vdash M \is{} \sigma \to \tau \\ \Gamma \vdash N \is{} \sigma}
-  {\Gamma \vdash M \: N \is{} \tau}
+  {\Gamma \vdash M \is{} S \to T \\ \Gamma \vdash N \is{} S}
+  {\Gamma \vdash M \: N \is{} T}
 
   \inferrule*[right=Lam]
-  {\Gamma, x \is{} \sigma \vdash M \is{} \tau}
-  {\Gamma \vdash \lam {x^\sigma} M \is{} \sigma \to \tau}
+  {\Gamma, x \is{} S \vdash M \is{} T}
+  {\Gamma \vdash \lam {x^S} M \is{} S \to T}
 
   \inferrule*[right=Let]
   {
-    \Gamma \vdash M \is{} \sigma \times \tau \\
-    \Gamma, x \is{} \sigma, y \is{} \tau \vdash N \is{} \sigma
+    \Gamma \vdash M \is{} S \times T \\
+    \Gamma, x \is{} S, y \is{} T \vdash N \is{} S
   }
   {
-    \Gamma \vdash \textrm{let} \: \mpair {x^\sigma} {y^\tau} = M \: \textrm{in}
-    \: N \is{} \rho
+    \Gamma \vdash \textrm{let} \: \mpair {x^S} {y^T} = M \: \textrm{in}
+    \: N \is{} U
   }
 
   \inferrule*[right=Pair]
-  {\Gamma \vdash M \is{} \sigma \\ \Gamma \vdash N \is{} \tau}
-  {\Gamma \vdash \mpair M N \is{} \sigma \times \tau}.
+  {\Gamma \vdash M \is{} S \\ \Gamma \vdash N \is{} T}
+  {\Gamma \vdash \mpair M N \is{} S \times T}.
 \end{mathpar}
 
 \sectionwithtoc{Dependent types}
 
 The Church-style system from the~previous chapter has lost some of
-the~versatility of the~pure \lc. The~term $\lam {x^\tau} {x^\tau}$ represents
+the~versatility of the~pure \lc. The~term $\lam {x^T} {x^T}$ represents
 the~one operation of doing nothing, the~identity function, yet for different
-types $\tau$ this one operation is represented by distinct terms. We want our
+types $T$ this one operation is represented by distinct terms. We want our
 formalism to keep track of the~fact that identity does the~same thing regardless
 of the~type. An~ability to universally quantify the~types, which we will gain
 with the~introduction of dependent types, will allow us to express this; then
-the~type of an~identity function will, in effect, be `for all types $\tau$,
-$\tau \to \tau$'.
+the~type of an~identity function will, in effect, be ``for all types $T$,\,
+$T \to T$.''
 
 To properly talk about dependent types, we feel we need to first touch on one
 important observation; it is the~correspondence between computer programs and
 mathematical proofs, known as the~\emph{Curry–Howard isomorphism}.
-\citet{curry_1934} observed that every type of a~function, $\sigma \to \tau$,
-can be read as a~proposition of an~implication, $\sigma \supset \tau$. Then
-there exists a~function of a~given type if and only if, the~corresponding
-proposition is provable. \citet{curry_1958} later extended the~observation to
-also include the~correspondence between terms and proofs. Finally, in 1969, in
-manuscript not published until much later, \citet{howard_1980} described
-the~relation between the~natural deduction and the~simply typed \lc, as well as
-shown that the~simplification of proofs corresponds to the~evaluation of
-programs. \citet{wadler_2015} provides a~detailed yet approachable introduction
-to the~topic. Now we will generalise the~simple types into their dependent
+\citet{curry_1934} observed that every type of a~function, $S \to T$,
+can be read as a~proposition of an~implication, $S \supset T$. Then there exists
+a~function of a~given type if and only if, the~corresponding proposition is
+provable. \citet{curry_1958} later extended the~observation to also include
+the~correspondence between terms and proofs. Finally, in 1969, in manuscript not
+published until much later, \citet{howard_1980} described the~relation between
+the~natural deduction and the~simply typed \lc, as well as shown that
+the~simplification of proofs corresponds to the~evaluation of programs.
+\citet{wadler_2015} provides a~detailed yet approachable introduction to
+the~topic. Now we will generalise the~simple types into their dependent
 counterparts and use the~Curry–Howard correspondence to form a~better intuition
 around them.
 
-The~dependent analogue of the~type $\sigma \to \tau$ is the~\emph{dependent
+The~dependent analogue of the~type $S \to T$ is the~\emph{dependent
 function type}, in the~academic literature usually written as ${(\Pi x \is{}
-\sigma \, . \: \tau(x))}$, but we will write:
+S \, . \: T(x))}$, but we will write:
 \[
-  \dep x \sigma {\tau(x)}.
+  \dep x S {T(x)}.
 \]
-Here, $\sigma$ is a~type, but $\tau(x)$ is a~function whose argument is of type
-$\sigma$ and it produces value that is a~type. Thus, a~term of type $\dep x
-\sigma {\tau(x)}$ represents function that for an~argument $N$ of type $\sigma$
-produces a~value of type $\tau(N)$. In the~special case that $\tau(x)$ is
-a~constant function whose value is always the~type $\rho$, $\dep x \sigma
-{\tau(x)}$ is the~type $\sigma \to \rho$.
+Here, $S$ is a~type, but \,$T(x)$ is a~function whose argument is of type $S$
+and it produces value that is a~type. Thus, a~term of type $\dep x S {T(x)}$
+represents function that for an~argument $N$ of type $S$ produces a~value of
+type \,$T(N)$. In the~special case that \,$T(x)$ is a~constant function whose
+value is always the~type $U$, $\dep x S {T(x)}$ is the~type $S \to U$.
 
 On the~logic side, the~dependent function type corresponds to a~universal
-quantification; hence, we can read it as ``for all $x$ in $\sigma$, $\tau(x)$''.
+quantification; hence, we can read it as ``for all $x$ in $S$, $T(x)$.''
 The~$\Pi$ in the~notation of the~dependent function type references the~fact
-that we can interpret it as a~\emph{product} of $\tau(x)$, for every $x \in
-\sigma$; that is, a~value of type $\dep x \sigma {\tau(x)}$ can be interpreted
-as a~tuple of size $|\sigma|$, where the~$x$th element is of type $\tau(x)$.
+that we can interpret it as a~\emph{product} of \,$T(x)$, for every $x \in S$;
+that is, a~value of type $\dep x S {T(x)}$ can be interpreted as a~tuple of size
+$|S|$, where the~$x$th element is of type \,$T(x)$.
 
-The~dependent analogue of type $\sigma \times \tau$ is the~\emph{dependent pair
-type}, again, usually written as ${(\Sigma x \is{} \sigma \, . \: \tau(x))}$,
-but we will write:
+The~dependent analogue of type $S \times T$ is the~\emph{dependent pair type},
+again, usually written as ${(S x \is{} S \, . \: T(x))}$, but we will write:
 \[
-  (x \is{} \sigma) \times \tau(x).
+  (x \is{} S) \times T(x).
 \]
-The value of this type is a~pair $\mpair x y$, where $x$ is of type $\sigma$ and
-$y$ is of type $\tau(x)$; hence, the~type of the~second element is determined by
+The value of this type is a~pair $\mpair x y$, where $x$ is of type $S$ and $y$
+is of type $T(x)$; hence, the~type of the~second element is determined by
 the~value of the~first.
 
-This type corresponds to the~existential quantification in logic. It uses
-$\Sigma$ in its notation because we can interpret it as a~\emph{disjoint union}
-of all $\tau(x)$, with an~index from $\sigma$; meaning, a~value of type $(x
-\is{} \sigma) \times \tau(x)$ can be interpreted as a~member of the~set
+This type corresponds to the~existential quantification in logic. It uses $S$ in
+its notation because we can interpret it as a~\emph{disjoint union} of all
+$T(x)$, with an~index from $S$; meaning, a~value of type $(x \is{} S) \times
+T(x)$ can be interpreted as a~member of the~set
 \[
-  \bigcup_{x \in \sigma} \{ \mpair x y \mid y \in \tau(x) \}.
+  \bigcup_{x \in S} \{ \mpair x y \mid y \in T(x) \}.
 \]
 By having a~value of this dependent pair type, we are therefore \emph{proving}
-that ``there exists an~$x \in \sigma$, such that $\tau(x)$ is inhabited,'' where
+that ``there exists an~$x \in S$, such that $T(x)$ is inhabited,'' where
 \emph{inhabited} means that the~type contains some value.
 
 In dependent types, terms can occur in place of types so we must scrap
@@ -403,14 +400,13 @@ the~distinction between terms and types. Thus, we will define
 \emph{pseudo-terms} which will subsume both the~terms from \autoref{def:stlc}
 and types.
 
-Now that types will be just a~special kind of terms, we will make two changes to
-the~notation of the~typed $\lambda$-abstraction. First, we will write
+Now that types will be just a~special kind of terms, we will change the~notation
+of the~typed $\lambda$-abstraction; we will write
 \[
-  \lam {x \is{} \tau} M,
+  \lam {x \is{} T} M,
 \]
-instead of $\lam {x^\tau} M$, analogously to the~way we write the~dependent
-function type. Second, to denote types, we will use $S, T$, etc. instead of
-$\sigma, \tau.$
+instead of $\lam {x^T} M$, analogously to the~way we write the~dependent
+function type.
 
 \sectionwithtoc{Pseudo-terms}
 
