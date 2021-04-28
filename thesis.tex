@@ -31,23 +31,30 @@
 % \setlength\headheight{0mm}
 % \let\openright=\cleardoublepage
 
-\usepackage[a-2u]{pdfx}     % generate PDF/A-2u
-\usepackage{graphicx}       % embedding of pictures
-\usepackage{fancyvrb}       % improved verbatim environment
+\usepackage[a-2u]{pdfx} % generate PDF/A-2u
+\usepackage{graphicx}   % embedding of pictures
+\usepackage{fancyvrb}   % improved verbatim environment
 \usepackage[nottoc]{tocbibind} % makes sure that bibliography, etc. are in TOC
+\usepackage{hyperref}   % hypertext
+\usepackage{enumitem}   % custom enumeration labels
+\usepackage{xspace}     % define commands that appear not to eat spaces
+\usepackage{xcolor}     % text colour
 
-\usepackage{mathpartir} % mathpar environment, \inferrule macro, etc.
-\usepackage{cmll}       % linear logic symbols with proper spacing, \with, etc.
+% Maths
+\usepackage{mathpartir} % inference rules
+\usepackage{cmll}       % linear logic symbols with proper spacing
 \usepackage{amsmath}
 \usepackage{amssymb}    % blackboard bold font (integers)
 \usepackage{amsthm}
-\usepackage{xspace}     % define commands that appear not to eat spaces
-\usepackage{hyperref}   % \autoref
-\usepackage{enumitem}   % Custom enumeration labels
-\usepackage{thmtools}   % Theorem, definition, etc. styles
-\usepackage{xcolor}     % text colour
+\usepackage{thmtools}   % styles for theorem, definition, etc.
+
+% Typography
+\usepackage{microtype}
 \usepackage{fontspec}
+\usepackage{unicode-math}
+\setmainfont{EB Garamond}[RawFeature={+pnum}]
 \setmonofont{Iosevka Fixed}[Scale=0.9] % font for the code printing
+\setmathfont{Garamond-Math}
 
 %%% Basic information on the thesis
 \def\YearSubmitted{2021}

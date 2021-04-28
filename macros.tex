@@ -36,7 +36,7 @@
 % Draw black "slugs" whenever a line overflows, so that we can spot it easily.
 \overfullrule=1mm
 
-%%% Macros for definitions, theorems, claims, examples, ... (requires amsthm package)
+% Number everything consecutively
 \declaretheorem[numberwithin=chapter]{theorem}
 \declaretheorem[numberlike=theorem]{conjecture}
 \declaretheorem[numberlike=theorem]{proposition}
@@ -49,25 +49,20 @@
 % Default label style for enumerate is (a)
 \setlist[enumerate]{label=(\alph*)}
 
-% Capitalised words in chapter references
+% Capitalised words in references
 \renewcommand{\chapterautorefname}{Chapter}
 \renewcommand{\definitionautorefname}{Definition}
 
-%%% An environment for typesetting of program code and input/output
-%%% of programs. (Requires the fancyvrb package -- fancy verbatim.)
-
-\DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small, frame=single}
-
-\newcommand{\lc}{\ensuremath{\lambda}-calculus\xspace}
+\newcommand{\lc}{\mbox{\ensuremath{\lambda}-calculus}\xspace}
 \newcommand{\fv}[1]{\ensuremath{\mathrm{FV}(#1)}\xspace}
 \newcommand{\ir}[1]{\mbox{\textsc{#1}}\xspace}
-\newcommand{\is}[1]{\stackrel{#1}:}
+\newcommand{\is}[1]{\overset{#1}:}
 
 %% Types
 % Constructors
 \newcommand{\lam}[2]{\ensuremath{\lambda #1 \, . \: #2}\xspace}
 \newcommand{\dep}[3]{\ensuremath{(#1 : #2) \to #3}\xspace}
-\newcommand{\depq}[4]{\ensuremath{(#1 \is #2 #3) \to #4}\xspace}
+\newcommand{\depq}[4]{\ensuremath{(#1 \is{#2} #3) \to #4}\xspace}
 \newcommand{\fst}[1]{\ensuremath{\textrm{fst} \: #1}\xspace}
 \newcommand{\snd}[1]{\ensuremath{\textrm{snd} \: #1}\xspace}
 

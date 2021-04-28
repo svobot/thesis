@@ -115,7 +115,7 @@ typed.
   \: \top$, and $\univ$ are pseudo-terms; and if $M, N$ are pseudo-terms and
   $x, y$ are variables, then the~following are pseudo-terms:
   \begin{mathpar}
-    (\lam {x \is\pi M} N) \and (M N) \and \depq x \pi M N \\
+    (\lam {x \is\pi M} N) \and (M \: N) \and \depq x \pi M N \\
     \mpair M N \and \textrm{let} \: \mpair x y = M \: \textrm{in} \: N \and
       (x \is\pi M) \otimes N \\
     \textrm{let} \: \munit \: \textrm{=} \: M \: \textrm{in} \: N \\
@@ -182,10 +182,10 @@ The~rules that derive a~valid typing judgment take the form:
 \]
 where $\sigma$ is either $0$, or $1$. When $\sigma = 0$, we are indicating that
 the~constructed term has no computational content; thus, all the~usage
-annotations in the~context are necessarily also $0$. Stated as a~lemma, taken
-from Atkey's Lemma 2.3:
+annotations in the~context are necessarily also $0$. Stated as
+a~lemma~\cite[Lemma~2.3]{atkey_2018}:
 \begin{lemma}[Zero needs nothing]\label{lem:zero_needs_nothing}
-  If $\Gamma \vdash M \is0 S$, then $0\Gamma = \Gamma$.
+  If $\; \Gamma \vdash M \is0 S$,\; then $\; 0\Gamma = \Gamma$.
 \end{lemma}
 
 All type formation rules bellow yield well-formedness judgments $\Gamma \vdash S
@@ -231,7 +231,7 @@ introduction, and elimination rules are:
 
   \inferrule*[right=$\to$-I]
   {\Gamma, x \is{\sigma\pi} S \vdash M \is\sigma T}
-  {\Gamma \vdash \lam x M \is\sigma \depq x \pi S T}
+  {\Gamma \vdash \lam{x \is{\pi} S} M \is\sigma \depq x \pi S T}
 
   \inferrule*[right=$\to$-E$_0$]
   {
@@ -276,8 +276,8 @@ rules are:
 
   \inferrule*[right=$\otimes$-I$_0$]
   {
-    0\Gamma \vdash M \is 0 S \\
-    \sigma\pi = 0 \\\\
+    \sigma\pi = 0 \\
+    0\Gamma \vdash M \is 0 S \\\\
     \Gamma \vdash N \is \sigma T[M/x]
   }
   {\Gamma \vdash \mpair M N \is \sigma (x \is \pi S) \otimes T}
@@ -294,8 +294,8 @@ rules are:
 
   \inferrule*[right=$\otimes$-E]
   {
-    0\Gamma_1, z \is 0 (x \is \pi S) \otimes T \vdash O \is 0 \univ \\
     \Gamma_1 \vdash M \is \sigma (x \is \pi S) \otimes T \\
+    0\Gamma_1, z \is 0 (x \is \pi S) \otimes T \vdash O \is 0 \univ \\
     \Gamma_2, x \is{\sigma \pi} S, y \is \sigma T
       \vdash N \is \sigma O[\mpair x y /z]
   }
@@ -315,7 +315,7 @@ ensures that both parts of the~pair are used.
 The~\emph{multiplicative unit type} \1 has a~single value, \munit, and
 the~following type formation, introduction, and elimination rules:
 \begin{mathpar}
-  \inferrule*[right=\1]
+  \inferrule*[Right=\1]
   {0\Gamma \vdash}
   {0\Gamma \vdash \1 \is 0 \univ}
 
@@ -325,8 +325,8 @@ the~following type formation, introduction, and elimination rules:
 
   \inferrule*[right=\1-E]
   {
-    0\Gamma_1, u \is 0 \1 \vdash O \is 0 \univ \\\\
-    \Gamma_1 \vdash M \is \sigma \1 \\
+    \Gamma_1 \vdash M \is \sigma \1 \\\\
+    0\Gamma_1, u \is 0 \1 \vdash O \is 0 \univ \\
     \Gamma_2 \vdash N \is \sigma O[\munit/u]
   }
   {
