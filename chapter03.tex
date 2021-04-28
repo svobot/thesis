@@ -3,13 +3,13 @@
 So far, our type systems corresponded via the~Curry-Howard isomorphism to
 the~traditional \emph{intuitionistic logic}. In this section we will consider
 a~type system that is based on a~different logic. It is called \emph{linear
-logic} and it was first described by Jean-Yves Girard in
-1987~\cite{girard_1987}. In the~same way that the~intuitionistic logic is well
-suited for reasoning about truth, the~linear logic is useful for reasoning about
-resource usage. While until now we could freely duplicate, or discard
-assumptions, in linear logic we give up this freedom. When we formulate the~type
-system based on this logic, we will be able to reject expressions that take
-an~overly cavalier approach to the~preservation of resources.
+logic} and it was first described by \citet{girard_1987}. In the~same way that
+the~intuitionistic logic is well suited for reasoning about truth, the~linear
+logic is useful for reasoning about resource usage. While until now we could
+freely duplicate, or discard assumptions, in linear logic we give up this
+freedom. When we formulate the~type system based on this logic, we will be able
+to reject expressions that take an~overly cavalier approach to the~preservation
+of resources.
 
 As an~example, we may want to reject the~deduction of judgments like
 \begin{align}\label{eq:linear_examples}
@@ -132,7 +132,7 @@ then be replaced by the~following:
 The~equivalence between the~old rules \ir{$\times$-I} and \ir{$\times$-E}, and
 the~new \ir{$\times$-I$'$}, \ir{$\times$-E$'_1$}, and \ir{$\times$-E$'_2$} can
 be established with a~few applications of the~structural
-rules~\cite{wadler_1993}. The~terms can also be expressed using each other;
+rules~\citep{wadler_1993}. The~terms can also be expressed using each other;
 the~new \emph{\fst{}} and \emph{\snd{}} terms can be defined using \emph{let}:
 \begin{align*}
   \fst M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: x \\
@@ -207,10 +207,10 @@ kind of pair from \ir{$\times$-I$'$}, \ir{$\times$-E$'_1$}, and
 \ir{$\times$-E$'_2$}. To distinguish between these, we will use two different
 conectives, $\otimes$ for the~former pair definition and $\with$ for the~latter.
 
-While there are some works that build linear type systems with dependent
-types~\cite{cervesato_pfenning_2002, krishnaswami_et_al_2015}, we will first
-present a~linear type system with simple types and only in \autoref{cha:qtt},
-combine the~notions of linear and dependent types.
+There are type systems that combine linear and dependent
+types~\citep{cervesato_pfenning_2002, krishnaswami_et_al_2015}; we will,
+however, first describe a~linear type system with simple types and only in
+\autoref{cha:qtt}, combine the~notions of linear and dependent types.
 
 \sectionwithtoc{Linear types}
 
@@ -240,8 +240,8 @@ Contraction or Weakening may be used.
 
 \sectionwithtoc{Linear terms \& contexts}
 
-Our particular linear type system will be based on Girard's Logic of
-Unity~\cite{girard_1993}, which is a~refinement of linear logic. It simplifies
+Our particular linear type system will be based on Logic of
+Unity~\citep{girard_1993}, which is a~refinement of linear logic. It simplifies
 some things by using two forms of assumptions; the~first form, called
 \emph{intuitionistic}, allows Contraction and Weakening, but the~second form,
 called \emph{linear}, does not. We will split the~context of our typing
@@ -256,9 +256,9 @@ Like before, $\diamond$ denotes an~empty list of assumptions and $\Gamma,
 \Delta$ range over lists of zero or more assumptions.
 
 There is a~way to define a~sound system of linear logic that does not use
-intuitionistic assumptions, such as the~one described by Benton
-\textit{et~al.}~\cite{benton_et_al_1993}, but the~resulting system has
-considerably more complex deduction rules.
+intuitionistic assumptions, such as the~one described by
+\citet{benton_et_al_1993}, but the~resulting system has considerably more
+complex deduction rules.
 
 Like with the~simply typed \lc, the~\lc with linear types has an~inductive
 definition of terms and a~set of judgment rules that assign types to these
@@ -416,9 +416,9 @@ the~elimination rules ensure that only one of the~elements can be extracted.
 
 Before we define the~remaining typing rules of the~system, the~two logical rules
 that involve the~exponential type, we will examine the~differences between
-the~additive and multiplicative pair types, quoting Wadler's
-example~\cite{wadler_1993}. Under the~Curry-Howard correspondence, take $\sigma$
-to be the~proposition ``I have 10 euro,'' $\tau$ to be the~proposition ``I have
+the~additive and multiplicative pair types, quoting an~example due to
+\citet{wadler_1993}. Under the~Curry-Howard correspondence, take $\sigma$ to be
+the~proposition ``I have 10 euro,'' $\tau$ to be the~proposition ``I have
 a~pizza,'' and $\rho$ to be the~proposition ``I have a~cake.'' The~judgments
 \begin{mathpar}
   \diamond \mid x \is{} \sigma \vdash M \is{} \tau \and
@@ -626,5 +626,5 @@ provable. This is shown by the~following derivation trees:
 
 The~reason why we indeed need separate intuitionistic assumptions $x \is{}
 \sigma$ and cannot use $\oc x \is{} \oc \sigma$ instead is explained by
-Wadler~\cite{wadler_1993}.
+\citet{wadler_1993}.
 

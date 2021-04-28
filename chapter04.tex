@@ -30,11 +30,11 @@ Our new type system removes these two restrictions. The~context does not get
 separated into two parts, instead we track how a~variable can be used by
 annotating it with an~element of some semiring. Several authors have used
 semiring annotations of variables to attach information on how they can be used,
-but McBride~\cite{mcbride_2016} was first to use the~annotations to indicate
+but \citet{mcbride_2016} was first to use the~annotations to indicate
 whether variables are available for computation or only available in
-the~formation of types. Atkey fixed an~issue in McBride's idea and presented it
-as the~Quantitative Type Theory (QTT)~\cite{atkey_2018}. Weirich provided
-further commentary on the~topic~\cite{weirich_2020}.
+the~formation of types. \citet{atkey_2018} fixed an~issue in McBride's idea and
+presented it as the~Quantitative Type Theory (QTT). \citet{weirich_2020}
+provided further commentary on the~topic.
 
 \sectionwithtoc{Resource semirings}
 
@@ -183,7 +183,7 @@ The~rules that derive a~valid typing judgment take the form:
 where $\sigma$ is either $0$, or $1$. When $\sigma = 0$, we are indicating that
 the~constructed term has no computational content; thus, all the~usage
 annotations in the~context are necessarily also $0$. Stated as
-a~lemma~\cite[Lemma~2.3]{atkey_2018}:
+a~lemma~\citep[Lemma~2.3]{atkey_2018}:
 \begin{lemma}[Zero needs nothing]\label{lem:zero_needs_nothing}
   If $\; \Gamma \vdash M \is0 S$,\; then $\; 0\Gamma = \Gamma$.
 \end{lemma}

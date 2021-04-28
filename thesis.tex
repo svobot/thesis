@@ -34,6 +34,7 @@
 \usepackage[a-2u]{pdfx} % generate PDF/A-2u
 \usepackage{graphicx}   % embedding of pictures
 \usepackage{fancyvrb}   % improved verbatim environment
+\usepackage[square]{natbib}
 \usepackage[nottoc]{tocbibind} % makes sure that bibliography, etc. are in TOC
 \usepackage{hyperref}   % hypertext
 \usepackage{enumitem}   % custom enumeration labels
@@ -110,10 +111,7 @@ Dedication.
 \include{conclusion}
 
 \renewcommand{\bibname}{Bibliography}
-\bibliographystyle{alpha}
-%\bibliographystyle{plainnat}    %% Author (year)
-%\bibliographystyle{unsrt}     %% [number]
-
+\bibliographystyle{plainnat}    %% Author (year)
 \bibliography{bibliography}
 
 %%% Attachments to the master thesis, if any. Each attachment must be

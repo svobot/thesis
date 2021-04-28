@@ -31,10 +31,10 @@ but to do that effectively, we need to introduce a~bit of new notation first.
 \sectionwithtoc{Natural deduction}\label{sec:natural_deduction}
 
 Conventionally, type systems are presented using \emph{natural deduction}, which
-was first introduced by Gentzen as a~new formulation of
-logic~\cite{gentzen_1935}. Natural deduction is a deductive system and is thus
-specified by a~collection of \emph{judgments} and a~collection of \emph{rules}.
-A~rule takes a~list of judgments and produces a~new judgment.
+was first introduced by \citet{gentzen_1935} as a~new formulation of logic.
+Natural deduction is a deductive system and is thus specified by a~collection of
+\emph{judgments} and a~collection of \emph{rules}. A~rule takes a~list of
+judgments and produces a~new judgment.
 
 \emph{Judgment} is a~proposition in the~metalanguage. For example, in
 first-order logic, judgment can say that a~certain string of symbols $A$ is
@@ -204,7 +204,7 @@ built. The~type then sits next to the~term. In the~other approach, called
 the~term itself.
 
 We expect to present complex enough systems later, for which finding the types
-in the~implicit version may not be computable~\cite{wells_1999}, hence we will
+in the~implicit version may not be computable~\citep{wells_1999}, hence we will
 use the~explicit semantics.
 
 \begin{definition}[Typed variables]
@@ -343,19 +343,19 @@ $\tau \to \tau$'.
 
 To properly talk about dependent types, we feel we need to first touch on one
 important observation; it is the~correspondence between computer programs and
-mathematical proofs, known as the~\emph{Curry–Howard isomorphism}. In 1934,
-Curry observed that every type of a~function, $\sigma \to \tau$, can be read as
-a~proposition of an~implication, $\sigma \supset \tau$~\cite{curry_1934}.
-Then there exists a~function of a~given type if and only if, the~corresponding
-proposition is provable. Curry and Feys later extended the~observation to also
-include the~correspondence between terms and proofs~\cite{curry_1958}. Finally,
-in 1969, in manuscript not published until 1980~\cite{howard_1980}, Howard
-described the relation between the~natural deduction and the~simply typed \lc,
-as well as shown that the~simplification of proofs corresponds to the~evaluation
-of programs. Wadler provides a~detailed yet approachable introduction to
-the~topic~\cite{wadler_2015}. Now we will generalise the~simple types into their
-dependent counterparts and use the~Curry–Howard correspondence to form a~better
-intuition around them.
+mathematical proofs, known as the~\emph{Curry–Howard isomorphism}.
+\citet{curry_1934} observed that every type of a~function, $\sigma \to \tau$,
+can be read as a~proposition of an~implication, $\sigma \supset \tau$. Then
+there exists a~function of a~given type if and only if, the~corresponding
+proposition is provable. \citet{curry_1958} later extended the~observation to
+also include the~correspondence between terms and proofs. Finally, in 1969, in
+manuscript not published until much later, \citet{howard_1980} described
+the~relation between the~natural deduction and the~simply typed \lc, as well as
+shown that the~simplification of proofs corresponds to the~evaluation of
+programs. \citet{wadler_2015} provides a~detailed yet approachable introduction
+to the~topic. Now we will generalise the~simple types into their dependent
+counterparts and use the~Curry–Howard correspondence to form a~better intuition
+around them.
 
 The~dependent analogue of the~type $\sigma \to \tau$ is the~\emph{dependent
 function type}, in the~academic literature usually written as ${(\Pi x \is{}
@@ -441,10 +441,10 @@ pure $\lambda$-terms with one of the~form: \todo{[WHAT ABOUT PAIRS?]}
   (\lam {x \is{} S} M) N \triangleright [N/x]M.
 \]
 
-Barendregt~\cite{barendregt_1993} introduced a~group of eight typing systems,
-which are known as the~\emph{$\lambda$-cube} due to their mutual relationships.
-All these systems are based on the~pseudo-terms, the~dependent function type,
-and two atomic types, $\star$ and $\square$, related by the~rule
+\citet{barendregt_1993} introduced a~group of eight typing systems, which are
+known as the~\emph{$\lambda$-cube} due to their mutual relationships. All these
+systems are based on the~pseudo-terms, the~dependent function type, and two
+atomic types, $\star$ and $\square$, related by the~rule
 \begin{mathpar}
   \inferrule*
   { }
@@ -453,7 +453,7 @@ and two atomic types, $\star$ and $\square$, related by the~rule
 
 The~two distinct atomic types are required for the~type system to by
 \emph{consistent} when interpreted as a~logic under the~Curry–Howard
-correspondence~\todo{[CITE?]}. A~logic is inconsistent when we can derive
+correspondence~\citep{hurkens_1995}. A~logic is inconsistent when we can derive
 a~contraction in it, which for types means that every type is inhabited.
 Because we do not utilise the~logic interpretation, we can simplify here and
 keep on using a~single atomic type.
