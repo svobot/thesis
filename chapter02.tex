@@ -420,7 +420,7 @@ pseudo-terms.
   \begin{enumerate}
     \item every variable is a~pseudo-term;
     \item every atomic type is a~pseudo-term;
-    \item if $M$ and $N$ are pseudo-terms, then $(M N)$ is a~pseudo-term;
+    \item if $M$ and $N$ are pseudo-terms, then $(M \: N)$ is a~pseudo-term;
     \item if $x$ is a~variable, and $M$ and $N$ are pseudo-terms, then
       $(\lam {x \is{} M} N)$ is a~pseudo-term.
     \item if $M$ and $N$ are pseudo-terms and $x$ is a~variable which does not
@@ -434,35 +434,50 @@ pseudo-terms.
 The~reduction on pseudo-terms is defined by replacing the~$\beta$-reduction on
 pure $\lambda$-terms with one of the~form: \todo{[WHAT ABOUT PAIRS?]}
 \[
-  (\lam {x \is{} S} M) N \triangleright [N/x]M.
+  (\lam {x \is{} S} M) \: N \triangleright [N/x]M.
 \]
 
-\citet{barendregt_1993} introduced a~group of eight typing systems, which are
-known as the~\emph{$\lambda$-cube} due to their mutual relationships. All these
-systems are based on the~pseudo-terms, the~dependent function type, and two
-atomic types, $\star$ and $\square$, related by the~rule
+Consider the~possible choices of the~set of atomic types of a~given system.
+First, there are all the~familiar types, like the~type of integers $\Int$, or
+the~type of Boolean values $\Bool$. These depend on the~domain of the~type
+system and they are not theoretically interesting. Conversely, the~second kind
+of atomic types is crucial to the~properties of the~type system; these types are
+called \emph{sorts}. Our type systems will use only one sort, \univ, called
+\emph{Universe}. It represents the~type of types. We will also have the~axiom:
+\begin{mathpar}
+  \inferrule*
+  { }
+  {\vdash \univ \is{} \univ},
+\end{mathpar}
+which states that the~type of types is itself a~type. The~choice of a~single
+sort lets us simplify the~implementation of our type system, but it also has
+some downsides; when interpreted under the~Curry–Howard correspondence, the~type
+system yields an~inconsistent logic, which is a~logic that lets us derive
+a~contraction. This, in the~type-theoretic terms, means that every type is
+inhabited.
+
+For a~type system to correspond to a~consistent logic, we would have to have at
+least two sorts~\citep{hurkens_1995}. \citet{barendregt_1993} introduced a~group
+of eight typing systems, which are known as the~\emph{$\lambda$-cube} due to
+their mutual relationships. All these systems have used the~sorts $\star$ and
+$\square$, related by the~rule:
 \begin{mathpar}
   \inferrule*
   { }
   {\vdash \star \is{} \square}.
 \end{mathpar}
-
-The~two distinct atomic types are required for the~type system to by
-\emph{consistent} when interpreted as a~logic under the~Curry–Howard
-correspondence~\citep{hurkens_1995}. A~logic is inconsistent when we can derive
-a~contraction in it, which for types means that every type is inhabited.
-Because we do not utilise the~logic interpretation, we can simplify here and
-keep on using a~single atomic type.
-
-For our atomic type we choose \univ, called the~\emph{universe}, with
-the~following rule:
+This forms a~type system with the~expressive power of a~second-order
+logic~\todo{[TRUE?]}. Another option is to have an~infinite sequence of sorts
+$\star_0, \star_1, \dots$, related with the~rule:
 \begin{mathpar}
   \inferrule*
   { }
-  {\vdash \univ \is{} \univ}.
+  {\vdash \star_i \is{} \star_{i+1}}.
 \end{mathpar}
+This gives rise to a~type system with the~expressive power of a~higher-order
+logic.
 
-\sectionwithtoc{Precontexts}
+\sectionwithtoc{Pseudo-contexts}
 
 With dependent types in mind, we need to revisit the~semantics of the~judgment
 $\Gamma \vdash M \is{} S$. In typing systems, the~list of assumptions $\Gamma$,
