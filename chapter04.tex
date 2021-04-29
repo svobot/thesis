@@ -112,8 +112,9 @@ typed.
 \begin{definition}
   The~set of all \emph{pseudo-terms} of a~quantitative-type \lc is defined
   inductively: every variable is a~pseudo-term; $\munit, \: \1, \: \aunit,
-  \: \top$, and $\univ$ are pseudo-terms; and if $M, N$ are pseudo-terms and
-  $x, y$ are variables, then the~following are pseudo-terms:
+  \: \top$, and $\univ$ are pseudo-terms; and if $M, N$ are pseudo-terms, $\pi$
+  is a~semiring element, and $x, y$ are variables, then the~following are
+  pseudo-terms:
   \begin{mathpar}
     (\lam {x \is\pi M} N) \and (M \: N) \and \depq x \pi M N \\
     \mpair M N \and \textrm{let} \: \mpair x y = M \: \textrm{in} \: N \and
