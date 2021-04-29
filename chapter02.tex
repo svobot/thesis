@@ -16,14 +16,14 @@ refer to an~abstraction of a~set of values, generally, a~type can be any
 property of a~term, that we can establish without executing it.
 
 We are looking to formulate the~procedure of assigning the~type annotations to
-$\lambda$-terms, such that the~terms for which this procedure fails will be
-deemed invalid. Hence, thanks to the~type system we are able to reject faulty
-programs that exhibit unwanted behaviour before they are executed.
-As a~consequence of the~\emph{Halting Problem} though, the~conclusions a~type
-system can make are necessarily just approximations. Either it must reject
-programs that might have run without an~error, or accept programs that may error
-when executed. With more expressive type systems, we are able to more precisely
-decide whether to reject a~given program.
+\lts, such that the~terms for which this procedure fails will be deemed
+invalid. Hence, thanks to the~type system we are able to reject faulty programs
+that exhibit unwanted behaviour before they are executed. As a~consequence of
+the~\emph{Halting Problem} though, the~conclusions a~type system can make are
+necessarily just approximations. Either it must reject programs that might have
+run without an~error, or accept programs that may error when executed. With more
+expressive type systems, we are able to more precisely decide whether to reject
+a~given program.
 
 In this chapter, we will formulate gradually more expressive type systems,
 but to do that effectively, we need to introduce a~bit of new notation first.
@@ -144,8 +144,8 @@ just some subset. Some examples of simple types are:
   &((\Int \to \Int) \to (\Int \to \Int)) && \text{functions from functions to
     functions.}
 \end{align*}
-In contrast with the~$\lambda$-term application, the~function type is
-right-associative and we will abbreviate accordingly:
+In contrast with the~\lt application, the~function type is right-associative
+and we will abbreviate accordingly:
 \begin{align*}
   &S \to T  &  &\text{for} &  &(S \to T); \\
   &S \to T \to U  &  &\text{for} &  &(S \to (T \to U)); \\
@@ -174,8 +174,7 @@ When we apply the~natural deduction in the~context of types, we are able to
 formulate deduction trees that assign types to terms.
 
 \begin{definition}
-  For any $\lambda$-term $M$ and type $T$, define a~\emph{type assignment}
-  formula as
+  For any \lt $M$ and type $T$, define a~\emph{type assignment} formula as
   \[
     M \is{} T.
   \]
@@ -196,9 +195,9 @@ assumptions, we say so explicitly by writing
 \sectionwithtoc{Simply typed \lc}\label{sec:stlc}
 
 Generally, there are two ways we can attach types to terms. The~\emph{implicit},
-or \emph{Curry-style}, semantics use the~$\lambda$-terms as we have seen them
-in \autoref{def:lambda_calculus} and assign type to a~term after it had been
-built. The~type then sits next to the~term. In the~other approach, called
+or \emph{Curry-style}, semantics use the~\lts as we have seen them in
+\autoref{def:lambda_calculus} and assign type to a~term after it had been built.
+The~type then sits next to the~term. In the~other approach, called
 \emph{explicit}, or \emph{Church-style}, the~term's type is a~built-in part of
 the~term itself.
 
@@ -230,34 +229,32 @@ Condition \ref{def:typed_var:b_item} ensures that, for every type $T$, there
 is always enough variables to denote all members of the~set that we wish to
 describe.
 
-\begin{definition}[Simply typed $\lambda$-terms]\label{def:stlc}
-  The~set of \emph{typed $\lambda$-terms} is defined as follows:
+\begin{definition}[Simply typed \lts]\label{def:stlc}
+  The~set of \emph{typed \lts} is defined as follows:
   \begin{enumerate}
-    \item all typed variables $x^T$ are typed $\lambda$-terms of type $T$;
-    \item \label{def:stlc:b_item} if $M^{S \to T}$ and $N^S$ are
-      typed $\lambda$-terms of types $S \to T$ and $S$
-      respectively, then the~following is a~typed $\lambda$-term of type $T$:
-      \[
-        (M^{S \to T} N^S)^T;
-      \]
-    \item if $x^S$ is a~variable of type $S$ and $M^T$ is a~typed
-      $\lambda$-term of type $T$, then the~following is a~typed
-      $\lambda$-term of type $S \to T$:
+    \item all typed variables $x^T$ are typed \lts of type $T$;
+    \item if $x^S$ is a~variable of type $S$ and $M^T$ is a~typed \lt of type
+      $T$, then the~following is a~typed \lt of type $S \to T$:
       \[
         (\lam {x^S} {M^T})^{S \to T};
       \]
-    \item \label{def:stlc:d_item} if $M^S$ and $N^T$ are typed
-      $\lambda$-terms of types $S$ and $T$ respectively, then
-      the~following is a~typed $\lambda$-term of type $S \times T$:
+    \item \label{def:stlc:c_item} if $M^{S \to T}$ and $N^S$ are typed \lts
+      of types $S \to T$ and $S$ respectively, then the~following is a~typed
+      \lt of type $T$:
+      \[
+        (M^{S \to T} N^S)^T;
+      \]
+    \item \label{def:stlc:d_item} if $M^S$ and $N^T$ are typed \lts of types
+      $S$ and $T$ respectively, then the~following is a~typed \lt of type
+      $S \times T$:
       \[
         \mpair {M^S} {N^T} ^{S \times T};
       \]
     \setcounter{stlc_counter}{\value{enumi}}
-    \item \label{def:stlc:e_item} if $x^S$ and $y^T$ are variables of
-      types $S$ and $T$ respectively, and $M^{S \times T}$ and
-      $N^U$ are typed $\lambda$-terms of types $S \times T$ and
-      $U$ respectively, then the~following is a~typed $\lambda$-term of type
-      $U$:
+    \item \label{def:stlc:e_item} if $x^S$ and $y^T$ are variables of types $S$
+      and $T$ respectively, and $M^{S \times T}$ and $N^U$ are typed \lts of
+      types $S \times T$ and $U$ respectively, then the~following is a~typed
+      \lt of type $U$:
       \[
         (\textrm{let} \: \mpair {x^S} {y^T} = M^{S \times T} \:
         \textrm{in} \: N^{U})^U.
@@ -265,11 +262,10 @@ describe.
 \end{enumerate}
 \end{definition}
 
-The~typed term $M^T$ is intended to denote a~member of the~set denoted by
-$T$. For example, in \ref{def:stlc:b_item}, if $M^{S \to T}$ denotes
-a~function $f$ from $S$ to $T$, and $N^T$ denotes a~member $a$ of
-$S$, then the~term $(M^{S \to T} N^S)^T$ denotes $f(a)$,
-which is of type $T$.
+The~typed term $M^T$ is intended to denote a~member of the~set denoted by $T$.
+For example, in \ref{def:stlc:c_item}, if $M^{S \to T}$ denotes a~function $f$
+from $S$ to $T$, and $N^T$ denotes a~member $a$ of $S$, then the~term
+$(M^{S \to T} N^S)^T$ denotes $f(a)$, which is of type $T$.
 
 Note that in \ref{def:stlc:e_item}, the~pair $(x^S, y^T)$ is just a~part of
 the~syntax; it is not an~instance of a~term constructing a~pair like in
@@ -291,15 +287,14 @@ is a~typed term and it can be written as
   &\text{or}  &  &\lam {x^S y^T} {\mpair x y}.
 \end{align*}
 
-The~substitution $[N^S/x^S](M^T)$ is defined in the~same way as
-the~substitution of pure $\lambda$-terms in \autoref{def:substitution}.
-Note that we do not define substitution $[N^U/x^S](M^T)$ when 
-$U \not\equiv S$. \todo{[NEEDS REWRITE TO MENTION PAIRS]}
+The~substitution $[N^S/x^S](M^T)$ is defined in the~same way as the~substitution
+of pure \lts in \autoref{def:substitution}. Note that we do not define
+substitution $[N^U/x^S](M^T)$ when  $U \not\equiv S$. \todo{[NEEDS REWRITE TO
+MENTION PAIRS]}
 
 Finally, we will use the~simply typed \lc to construct a~formal theory where
 the~deduction assigns types to terms. This is called a~\emph{type-assignment
-system}. A~system with simply typed $\lambda$-terms usually has the~following
-rules:
+system}. A~system with simply typed \lts usually has the~following rules:
 \begin{mathpar}
   \inferrule*[right=Var]
   { }
@@ -376,7 +371,8 @@ that is, a~value of type $\dep x S {T(x)}$ can be interpreted as a~tuple of size
 $|S|$, where the~$x$th element is of type \,$T(x)$.
 
 The~dependent analogue of type $S \times T$ is the~\emph{dependent pair type},
-again, usually written as ${(S x \is{} S \, . \: T(x))}$, but we will write:
+again, usually written as ${(\Sigma x \is{} S \, . \: T(x))}$, but we will
+write:
 \[
   (x \is{} S) \times T(x).
 \]
@@ -401,7 +397,7 @@ the~distinction between terms and types. Thus, we will define
 and types.
 
 Now that types will be just a~special kind of terms, we will change the~notation
-of the~typed $\lambda$-abstraction; we will write
+of the~typed λ-abstraction; we will write
 \[
   \lam {x \is{} T} M,
 \]
@@ -417,22 +413,24 @@ pseudo-terms.
 
 \begin{definition}\label{def:pseudo-term}
   The~set of all \emph{pseudo-terms} is defined inductively as follows:
-  \begin{enumerate}
+  \begin{enumerate} %TODO: Get rid of enumerate, rewrite in mathpar like QTT?
     \item every variable is a~pseudo-term;
     \item every atomic type is a~pseudo-term;
-    \item if $M$ and $N$ are pseudo-terms, then $(M \: N)$ is a~pseudo-term;
     \item if $x$ is a~variable, and $M$ and $N$ are pseudo-terms, then
       $(\lam {x \is{} M} N)$ is a~pseudo-term.
+    \item if $M$ and $N$ are pseudo-terms, then $(M \: N)$ is a~pseudo-term;
     \item if $M$ and $N$ are pseudo-terms and $x$ is a~variable which does not
       occur free in $M$, then $\dep x M N$ is a~pseudo-term.
     \item if $M$ and $N$ are pseudo-terms, then $\mpair M N$ is a~pseudo-term.
+    \item if $x, y$ are variables and $M$ and $N$ are pseudo-terms, then
+      $\textrm{let} \: \mpair x y = M \: \textrm{in} \: N$ is a~pseudo-term.
     \item if $M$ and $N$ are pseudo-terms and $x$ is a~variable which does not
       occur free in $M$, then $(x \is{} M) \times N$ is a~pseudo-term.
   \end{enumerate}
 \end{definition}
 
 The~reduction on pseudo-terms is defined by replacing the~$\beta$-reduction on
-pure $\lambda$-terms with one of the~form: \todo{[WHAT ABOUT PAIRS?]}
+pure \lts with one of the~form: \todo{[WHAT ABOUT PAIRS?]}
 \[
   (\lam {x \is{} S} M) \: N \triangleright [N/x]M.
 \]
@@ -443,7 +441,7 @@ the~type of Boolean values $\Bool$. These depend on the~domain of the~type
 system and they are not theoretically interesting. Conversely, the~second kind
 of atomic types is crucial to the~properties of the~type system; these types are
 called \emph{sorts}. Our type systems will use only one sort, \univ, called
-\emph{Universe}. It represents the~type of types. We will also have the~axiom:
+\emph{Universe}. It represents the~type of types. We will also have the~axiom
 \begin{mathpar}
   \inferrule*
   { }
@@ -458,9 +456,9 @@ inhabited.
 
 For a~type system to correspond to a~consistent logic, we would have to have at
 least two sorts~\citep{hurkens_1995}. \citet{barendregt_1993} introduced a~group
-of eight typing systems, which are known as the~\emph{$\lambda$-cube} due to
-their mutual relationships. All these systems have used the~sorts $\star$ and
-$\square$, related by the~rule:
+of eight typing systems, which are known as the~\emph{λ-cube} due to their
+mutual relationships. All these systems have used the~sorts $\star$ and
+$\square$, related by the~rule
 \begin{mathpar}
   \inferrule*
   { }
@@ -468,7 +466,7 @@ $\square$, related by the~rule:
 \end{mathpar}
 This forms a~type system with the~expressive power of a~second-order
 logic~\todo{[TRUE?]}. Another option is to have an~infinite sequence of sorts
-$\star_0, \star_1, \dots$, related with the~rule:
+$\star_0, \star_1, \dots$, related with the~rule
 \begin{mathpar}
   \inferrule*
   { }
@@ -484,7 +482,7 @@ $\Gamma \vdash M \is{} S$. In typing systems, the~list of assumptions $\Gamma$,
 henceforth called \emph{context}, contains only type assignments. We, however,
 need to make sure that these assignments are well-formed; that is, for every
 $x \is{} S$ in $\Gamma$, we want to make sure that $S$ is a~proper type. For
-example, we want to reject the~list:
+example, we want to reject the~list
 \[
   a \is{} \univ, \; f \is{} \dep x b a,
 \]
@@ -492,10 +490,11 @@ because we do not know the~type of the~variable $b$. A~valid context would be:
 \[
   a \is{} \univ, \; b \is{} \univ, \; f \is{} \dep x b a.
 \]
-Hence, we first define \emph{precontexts} and then identify the~contexts within.
+Hence, we first define \emph{pseudo-contexts} and then identify the~contexts
+within.
 
 \begin{definition}
-  A~\emph{precontext} is a~sequence of formulas of the~form
+  A~\emph{pseudo-context} is a~sequence of formulas of the~form
   \[
     x_1 \is{} S_1, \dotsc , x_n \is{} S_n,
   \]
@@ -503,12 +502,12 @@ Hence, we first define \emph{precontexts} and then identify the~contexts within.
   pseudo-terms.
 \end{definition}
 
-Empty precontext is denoted by $\diamond$, or it is omitted when no confusion is
-likely.
+Empty pseudo-context is denoted by $\diamond$, or it is omitted when no
+confusion is likely.
 
 \sectionwithtoc{Dependently typed \lc}\label{sec:dtlc}
 
-Using pseudo-terms and precontexts, we are able to define a~type-assignment
+Using  pseudo-contexts and pseudo-terms, we are able to define a~type-assignment
 system, that assigns the~dependent types, and is thus more expressive then
 the~simply typed \lc, since we can model the~simple type $S \to T$ by defining
 it as $\dep x S T$, where $x \notin \fv T$.
@@ -517,7 +516,7 @@ The~increased expressiveness of dependent types lies in the~ability to quantify
 over \univ. We will see an~example of this after we formalise the~type judgment
 rules.
 
-The~rules that identify contexts within precontexts and terms within
+The~rules that identify contexts within pseudo-contexts and terms within
 pseudo-terms are mutually recursive. Contexts are identified by the~judgment
 $\Gamma \vdash$, defined by the~following rules:
 \begin{mathpar}

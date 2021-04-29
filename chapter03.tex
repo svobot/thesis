@@ -62,7 +62,8 @@ the~structural rules are emphasised.
 The~rules \ir{Var}, \ir{App}, \ir{Lam}, \ir{Let}, and \ir{Pair}, defined in
 the~\nameref{sec:stlc} section, are equivalent \todo{[PROOF?]} to the~following
 rules, together with \ir{Ex}, \ir{Cont}, and \ir{Weak}. By equivalent we mean
-that both sets of rules assign a~type to the~same set of terms.
+that both sets of rules assign a~type to the~same set of terms. The~first rule,
+\ir{Id}, is an~axiom and the~rest are the~logical rules:
 \begin{mathpar}
   \inferrule*[right=Id]
   { }
@@ -91,10 +92,6 @@ that both sets of rules assign a~type to the~same set of terms.
   }
 \end{mathpar}
 
-The~first rule, \ir{Id}, is an~axiom and the~rest are the~logical rules, where
-the~-I suffix in a~name stands for \emph{introduction} and -E for
-\emph{elimination}.
-
 \sectionwithtoc{Alternative pair rules}
 
 Consider that instead of the~\emph{let} term in
@@ -104,8 +101,8 @@ each bind a~variable to only one element of a~pair. We can modify
 the~definition such that:
 \begin{enumerate}
   \setcounter{enumi}{\value{stlc_counter}}
-  \item if $M^{S \times T}$ is a~typed $\lambda$-term of type $S \times T$, then
-    the~following are typed $\lambda$-terms of types $S$ and $T$, respectively:
+  \item if $M^{S \times T}$ is a~typed \lt of type $S \times T$, then
+    the~following are typed \lts of types $S$ and $T$, respectively:
     \begin{mathpar}
       (\fst M^{S \times T})^S \and
       (\snd \: M^{S \times T})^T.

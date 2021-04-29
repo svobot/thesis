@@ -70,16 +70,16 @@ construct a~formal system of \lc.
 \begin{definition}\label{def:lambda_calculus}
   Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
   \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{variables}, then the~set of
-  expressions called $\lambda$-terms is defined inductively as follows:
+  expressions called \lts is defined inductively as follows:
   \begin{enumerate}
-    \item all variables are $\lambda$-terms (called \emph{atoms});
-    \item if $M$ and $N$ are $\lambda$-terms, then $(M N)$ is a~$\lambda$-term
-      (called \emph{application});
-    \item if $M$ is a~$\lambda$-term and $x$ is a~variable, then $(\lam x M)$ is
-      a~$\lambda$-term (called an~\emph{abstraction}).
+    \item all variables are \lts (called \emph{atoms});
+    \item if $M$ and $N$ are \lts, then $(M N)$ is a~\lt (called
+      \emph{application});
+    \item if $M$ is a~\lt and $x$ is a~variable, then $(\lam x M)$ is a~\lt
+      (called an~\emph{abstraction}).
   \end{enumerate}
 \end{definition}
-Like in the~definition, capital letters will denote arbitrary $\lambda$-terms.
+Like in the~definition, capital letters will denote arbitrary \lts.
 Letters $x, y, z, u, v, w$ will denote variables. Application is
 left-associative and we will omit parentheses accordingly. For example,
 $M N P Q$ denotes the~term $(((M N) P) Q)$. Other abbreviations are
@@ -98,8 +98,8 @@ accordance with their informal meaning. Before we formalise this, we need to
 look at how to substitute terms for variables.
 
 \begin{definition}
-  Given $\lambda$-terms $P$ and $Q$, we define a~relation \emph{$P$ occurs in
-  $Q$} by induction on $Q$:
+  Given \lts $P$ and $Q$, we define a~relation \emph{$P$ occurs in $Q$} by
+  induction on $Q$:
   \begin{enumerate}
     \item $P$ occurs in $P$;
     \item if $P$ occurs in $M$ or in $N$, then $P$ occurs in $(M N)$;
@@ -177,9 +177,9 @@ Reflexive-transitive closure of a~relation in this case means, that we are able
 to find a~sequence (possibly empty) of $\alpha$-conversions, that transforms
 the~term $P$ into $Q$.
 
-Having looked at the~way we can combine $\lambda$-terms via substitution, we can
-turn our focus to the~calculation procedure that lies at the~heart of \lc and
-gives it its power.
+Having looked at the~way we can combine \lts via substitution, we can turn our
+focus to the~calculation procedure that lies at the~heart of \lc and gives it
+its power.
 
 \sectionwithtoc{\ensuremath{\beta}-reduction}
 
@@ -212,7 +212,6 @@ definition.
   \]
 \end{definition}
 
-Informally speaking, the~$\lambda$-terms are called \emph{programs}, which we
-can then think of as \emph{executing}, or \emph{running}, instead of
-$\beta$-reducing.
+Informally speaking, the~\lts are called \emph{programs}, which we can then
+think of as \emph{executing}, or \emph{running}, instead of $\beta$-reducing.
 
