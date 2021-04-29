@@ -1,10 +1,11 @@
 \chapter{Quantitative Type Theory}\label{cha:qtt}
 
-In the~type systems in the~previous two chapters, we have seen variables used
-for two distinct purposes: it is either used during type checking and not
-available for the~computation of the~program, for example, the~term $\Int \times
-x$ depends on $x$ to form a~valid type; or, in the~linear type system, as
-a~resource that is consumed during the~program runtime.
+\coloredlettrine{T}{ype systems} in the~previous two chapters have used
+variables for two distinct purposes: either a~variable has been used for
+formation of types during type checking, for example, the~term $\Int \times x$
+depends on $x$ to form a~valid type, but was not available at runtime of
+the~program; or, in the~linear type system, as a~resource that is consumed
+during the~program runtime.
 
 The~linear type system in the~previous chapter tracks the~distinction between
 variable purposes by separating the~context into two parts, intuitionistic and

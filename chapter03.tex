@@ -1,15 +1,15 @@
 \chapter{Linear Type Theory}\label{cha:linear}
 
-So far, our type systems corresponded via the~Curry-Howard isomorphism to
-the~traditional \emph{intuitionistic logic}. In this section we will consider
-a~type system that is based on a~different logic. It is called \emph{linear
-logic} and it was first described by \citet{girard_1987}. In the~same way that
-the~intuitionistic logic is well suited for reasoning about truth, the~linear
-logic is useful for reasoning about resource usage. While until now we could
-freely duplicate, or discard assumptions, in linear logic we give up this
-freedom. When we formulate the~type system based on this logic, we will be able
-to reject expressions that take an~overly cavalier approach to the~preservation
-of resources.
+\coloredlettrine{O}{ur type} systems have so far corresponded via
+the~Curry-Howard isomorphism to the~traditional \emph{intuitionistic logic}. In
+this section we will consider a~type system that is based on a~different logic.
+It is called \emph{linear logic} and it was first described by
+\citet{girard_1987}. In the~same way that the~intuitionistic logic is well
+suited for reasoning about truth, the~linear logic is useful for reasoning about
+resource usage. While until now we could freely duplicate, or discard
+assumptions, in linear logic we give up this freedom. When we formulate the~type
+system based on this logic, we will be able to reject expressions that take
+an~overly cavalier approach to the~preservation of resources.
 
 As an~example, we may want to reject the~deduction of judgments like
 \begin{align}\label{eq:linear_examples}

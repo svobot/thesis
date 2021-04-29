@@ -58,9 +58,31 @@
 \newcommand{\ir}[1]{\mbox{\textsc{#1}}\xspace}
 \newcommand{\is}[1]{\overset{#1}:}
 
+% lettrine settings
+\LettrineRealHeighttrue
+\setcounter{DefaultLines}{2}
+\setcounter{DefaultDepth}{1}
+\renewcommand{\DefaultLoversize}{0.15}
+\renewcommand{\DefaultLraise}{-0.11}
+
+\newfontface\EBLettrineFrontFont{EBGaramond-InitialsF2}%
+  [Path=./eb-garamond/, Extension=.otf]
+\newfontface\EBLettrineBackFont{EBGaramond-InitialsF1}%
+  [Path=./eb-garamond/, Extension=.otf]
+\newcommand{\EBLettrineBackColor}{%
+  \ifdefined\colourflag DodgerBlue2\else black\fi}
+\newcommand{\EBLettrineFrontColor}{%
+  \ifdefined\colourflag darkgray\else black\fi}
+\newcommand{\coloredlettrine}[3][]{%
+\renewcommand{\LettrineFontHook}{\EBLettrineBackFont}%
+\lettrine[#1]{%
+\rlap{\color{\EBLettrineBackColor} #2}%
+     {\EBLettrineFrontFont\color{\EBLettrineFrontColor} #2}}{#3}%
+}
+
 %% Types
 % Constructors
-\newcommand{\lam}[2]{\ensuremath{\lambda #1 \, . \: #2}\xspace}
+\newcommand{\lam}[2]{\ensuremath{\lambda #1 . \: #2}\xspace}
 \newcommand{\dep}[3]{\ensuremath{(#1 : #2) \to #3}\xspace}
 \newcommand{\depq}[4]{\ensuremath{(#1 \is{#2} #3) \to #4}\xspace}
 \newcommand{\fst}[1]{\ensuremath{\textrm{fst} \: #1}\xspace}
