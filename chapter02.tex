@@ -326,14 +326,14 @@ system}. A~system with simply typed \lts usually has the~following rules:
 \sectionwithtoc{Dependent types}
 
 The Church-style system from the~previous chapter has lost some of
-the~versatility of the~pure \lc. The~term $\lam {x^T} {x^T}$ represents
-the~one operation of doing nothing, the~identity function, yet for different
-types $T$ this one operation is represented by distinct terms. We want our
-formalism to keep track of the~fact that identity does the~same thing regardless
-of the~type. An~ability to universally quantify the~types, which we will gain
-with the~introduction of dependent types, will allow us to express this; then
-the~type of an~identity function will, in effect, be ``for all types $T$,\,
-$T \to T$.''
+the~versatility of the~pure \lc. The~term $\lam {x^S} {x^S}$ represents the~one
+operation of doing nothing, the~identity function, yet for different types $S$
+this one operation is represented by distinct terms. We want our formalism to
+keep track of the~fact that identity does the~same thing regardless of the~type.
+An~ability to universally quantify the~types, which we will gain with
+the~introduction of dependent types, will allow us to express this; then
+the~type of an~identity function will, in effect, be ``for all types $S$,\,
+$S \to S$.''
 
 To properly talk about dependent types, we feel we need to first touch on one
 important observation; it is the~correspondence between computer programs and
@@ -353,43 +353,42 @@ around them.
 
 The~dependent analogue of the~type $S \to T$ is the~\emph{dependent
 function type}, in the~academic literature usually written as ${(\Pi x \is{}
-S \, . \: T(x))}$, but we will write:
+S \, . \: T)}$, but we will write:
 \[
-  \dep x S {T(x)}.
+  \dep x S T.
 \]
-Here, $S$ is a~type, but \,$T(x)$ is a~function whose argument is of type $S$
-and it produces value that is a~type. Thus, a~term of type $\dep x S {T(x)}$
-represents function that for an~argument $N$ of type $S$ produces a~value of
-type \,$T(N)$. In the~special case that \,$T(x)$ is a~constant function whose
-value is always the~type $U$, $\dep x S {T(x)}$ is the~type $S \to U$.
+Here, $S$ is a~type, but $T$ is a~function parametrised with $x$; meaning, $T$
+takes an~argument of type $S$ and produces a~~type. Thus, a~term of type
+$\dep x S T$ represents function that for an~argument $N$ of type $S$ produces
+a~value of type \,$[N/x]T$. In the~special case that \,$T$ is a~constant
+function whose value is always the~type $U$, $\dep x S T$ is the~type $S \to U$.
 
 On the~logic side, the~dependent function type corresponds to a~universal
-quantification; hence, we can read it as ``for all $x$ in $S$, $T(x)$.''
+quantification; hence, we can read it as ``for all $s$ in $S$, $[s/x]T$ is
+inhabited,'' where \emph{inhabited} means that the~type contains some value.
 The~$\Pi$ in the~notation of the~dependent function type references the~fact
-that we can interpret it as a~\emph{product} of \,$T(x)$, for every $x \in S$;
-that is, a~value of type $\dep x S {T(x)}$ can be interpreted as a~tuple of size
-$|S|$, where the~$x$th element is of type \,$T(x)$.
+that we can interpret it as a~\emph{product} of \,$T$, for every $s \in S$; that
+is, a~value of type $\dep x S T$ can be interpreted as a~tuple of size $|S|$,
+where the~$s$th element is of type \,$[s/x]T$, for $s$ of type $S$.
 
 The~dependent analogue of type $S \times T$ is the~\emph{dependent pair type},
-again, usually written as ${(\Sigma x \is{} S \, . \: T(x))}$, but we will
-write:
+again, usually written as ${(\Sigma x \is{} S \, . \: T)}$, but we will write:
 \[
-  (x \is{} S) \times T(x).
+  (x \is{} S) \times T.
 \]
 The value of this type is a~pair $\mpair x y$, where $x$ is of type $S$ and $y$
-is of type $T(x)$; hence, the~type of the~second element is determined by
-the~value of the~first.
+is of type $T$, which is again a~function parametrised by $x$; hence, the~type
+of the~second element is determined by the~value of the~first.
 
 This type corresponds to the~existential quantification in logic. It uses $S$ in
-its notation because we can interpret it as a~\emph{disjoint union} of all
-$T(x)$, with an~index from $S$; meaning, a~value of type $(x \is{} S) \times
-T(x)$ can be interpreted as a~member of the~set
+its notation because we can interpret it as a~\emph{disjoint union} of all $T$,
+with an~index from $S$; meaning, a~value of type $(x \is{} S) \times T$ can be
+interpreted as a~member of the~set
 \[
-  \bigcup_{x \in S} \{ \mpair x y \mid y \in T(x) \}.
+  \bigcup_{s \, \in \, S} \{ \mpair s t \mid t \in [s/x]T \}.
 \]
 By having a~value of this dependent pair type, we are therefore \emph{proving}
-that ``there exists an~$x \in S$, such that $T(x)$ is inhabited,'' where
-\emph{inhabited} means that the~type contains some value.
+that ``there exists an~$s \in S$, such that $[s/x]T$ is inhabited.''
 
 In dependent types, terms can occur in place of types so we must scrap
 the~distinction between terms and types. Thus, we will define
@@ -399,9 +398,9 @@ and types.
 Now that types will be just a~special kind of terms, we will change the~notation
 of the~typed λ-abstraction; we will write
 \[
-  \lam {x \is{} T} M,
+  \lam {x \is{} S} M,
 \]
-instead of $\lam {x^T} M$, analogously to the~way we write the~dependent
+instead of $\lam {x^S} M$, analogously to the~way we write the~dependent
 function type.
 
 \sectionwithtoc{Pseudo-terms}
@@ -429,8 +428,8 @@ pseudo-terms.
   \end{enumerate}
 \end{definition}
 
-The~reduction on pseudo-terms is defined by replacing the~$\beta$-reduction on
-pure \lts with one of the~form: \todo{[WHAT ABOUT PAIRS?]}
+The~reduction on pseudo-terms is defined by replacing the~β-reduction on pure
+\lts with one of the~form: \todo{[WHAT ABOUT PAIRS?]}
 \[
   (\lam {x \is{} S} M) \: N \triangleright [N/x]M.
 \]
@@ -550,8 +549,8 @@ rules:
   {\Gamma \vdash (\lam {x \is{} S} M) \is{} \dep x S T}
 \end{mathpar}
 
-Now we can look at an~example of quantification over \univ. For example,
-although
+Now we can look at an~example of quantification over \univ that we mention at
+the~beginning of this section. Although
 \begin{equation}\label{eq:pi_type}
   s \is{} \univ \vdash \dep x s s \is{} \univ
 \end{equation}
@@ -559,9 +558,9 @@ and
 \begin{equation}\label{eq:id_lam}
   s \is{} \univ \vdash (\lam {x \is{} s} x) \is{} \dep x s s
 \end{equation}
-can be expressed with just simple types, to be able to successfully derive
+can be derived using only simple types, to be able to successfully derive
 the~type of an~identity function that works for any type, we need dependent
-function types. Meaning, we can combine judgments (\ref{eq:pi_type}) and
+function types; meaning, we can combine judgments (\ref{eq:pi_type}) and
 (\ref{eq:id_lam}) and deduce:
 \begin{mathpar}
   \inferrule*[right=Lam$'$]

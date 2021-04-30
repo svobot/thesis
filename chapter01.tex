@@ -65,7 +65,7 @@ The~use of $h^\star$ instead of $h$ is usually called \emph{currying}, after
 the~logician Haskell Curry. As is usually the~case, from here on we will
 restrict ourselves to the~use of curried functions.
 
-Now that we have seen the~$\lambda$-notation in an~informal context, let us
+Now that we have seen the~λ-notation in an~informal context, let us
 construct a~formal system of \lc.
 \begin{definition}\label{def:lambda_calculus}
   Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
@@ -118,7 +118,8 @@ occurrences of $(x y)$ and three occurrences of $x$.
 \begin{definition}[Free and bound variables]
   A~variable $x$ in a~term $P$ is called
   \begin{itemize}
-    \item \emph{bound} if its occurrence is in the~scope of a~$\lambda x$ in $P$,
+    \item \emph{bound} if its occurrence is in the~scope of a~$\lambda x$ in
+      $P$,
     \item \emph{bound and binding}, if and only if it is the~$x$ in $\lambda x$,
     \item \emph{free} otherwise.
   \end{itemize}
@@ -163,55 +164,54 @@ variable. The~following definition formalises this idea.
   \[
     \lam y {[y/x]M}
   \]
-  is called an~\emph{$\alpha$-conversion}, or \emph{a~change of bound variable}
-  in $P$.
+  is called an~\emph{α-conversion}, or \emph{a~change of bound variable} in $P$.
 
-  The~reflexive-transitive closure of the~$\alpha$-conversion relation is
-  the~\emph{$\alpha$-converts to} relation, or
+  The~reflexive-transitive closure of the~α-conversion relation is
+  the~\emph{α-converts to} relation, or
   \[
     P \equiv_\alpha Q.
   \]
 \end{definition}
 
 Reflexive-transitive closure of a~relation in this case means, that we are able
-to find a~sequence (possibly empty) of $\alpha$-conversions, that transforms
-the~term $P$ into $Q$.
+to find a~sequence (possibly empty) of α-conversions, that transforms the~term
+$P$ into $Q$.
 
 Having looked at the~way we can combine \lts via substitution, we can turn our
 focus to the~calculation procedure that lies at the~heart of \lc and gives it
 its power.
 
-\sectionwithtoc{\ensuremath{\beta}-reduction}
+\sectionwithtoc{β-reduction}
 
 As the~name in the~\autoref{def:lambda_calculus} suggests, a~term of
 the~form $(\lam x M) N$ represents an~application of an~operator $\lam x M$ to
-an~argument $N$. The~resulting value of such application is the~\emph{simplified}
-term $[N/x]M$. This simplification process is captured in the~following
-definition.
+an~argument $N$. The~resulting value of such application is
+the~\emph{simplified} term $[N/x]M$. This simplification process is captured in
+the~following definition.
 
 \begin{definition}
   Any term of the~form
   \[
     (\lam x M) N
   \]
-  is called a~\emph{$\beta$-redex} and the~corresponding term
+  is called a~\emph{β-redex} and the~corresponding term
   \[
     [N/x]M
   \]
   is called \emph{contractum}. If and only if a~term $P$ contains an~occurrence
   of $(\lam x M) N$ and we replace that occurrence by $[N/x]M$, and the~result
   is $P'$, we say we have \emph{contracted} the~redex-occurrence in $P$, and $P$
-  \emph{$\beta$-contracts} to $P'$, or
+  \emph{β-contracts} to $P'$, or
   \[
     P \; \triangleright_{1\beta} \; P'.
   \]
-  The~reflexive-transitive closure of the~$\beta$-contracts relation is
-  the~\emph{$\beta$-reduces to} relation, or
+  The~reflexive-transitive closure of the~β-contracts relation is
+  the~\emph{β-reduces to} relation, or
   \[
     P \triangleright_\beta Q.
   \]
 \end{definition}
 
 Informally speaking, the~\lts are called \emph{programs}, which we can then
-think of as \emph{executing}, or \emph{running}, instead of $\beta$-reducing.
+think of as \emph{executing}, or \emph{running}, instead of β-reducing.
 
