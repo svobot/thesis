@@ -69,27 +69,25 @@ Now that we have seen the~λ-notation in an~informal context, let us
 construct a~formal system of \lc.
 \begin{definition}\label{def:lambda_calculus}
   Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
-  \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{variables}, then the~set of
-  expressions called \lts is defined inductively as follows:
+  \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{variables}; then the~set of
+  expressions called \emph{\lts} is defined inductively as follows:
   \begin{enumerate}
     \item all variables are \lts (called \emph{atoms});
-    \item if $M$ and $N$ are \lts, then $(M N)$ is a~\lt (called
+    \item if $M$ and $N$ are \lts, then $(M \: N)$ is a~\lt (called
       \emph{application});
     \item if $M$ is a~\lt and $x$ is a~variable, then $(\lam x M)$ is a~\lt
       (called an~\emph{abstraction}).
   \end{enumerate}
 \end{definition}
-Like in the~definition, capital letters will denote arbitrary \lts.
-Letters $x, y, z, u, v, w$ will denote variables. Application is
+Letters $M$, $N$, and $O$ will, like in the~definition, denote arbitrary \lts
+and letters $x, y, z, u, v$, and $w$ will denote variables. Application is
 left-associative and we will omit parentheses accordingly. For example,
-$M N P Q$ denotes the~term $(((M N) P) Q)$. Other abbreviations are
+$M \: N \: O$ denotes the~term $((M \: N) \: O)$. Other abbreviations are:
 \begin{align*}
-  &{\lam x {P Q}}  &  &\text{for}  &  &(\lam x {(P Q)}) \\
+  &{\lam x {M \: N}}  &  &\text{for}  &  &(\lam x {(M \: N)}) \\
   &{\lam {x_1 x_2 \dots x_n} M}  &  &\text{for}  &
-    &(\lam {x_1} {(\lam {x_2} {(\dots(\lam {x_n} M) \dots)})}).
+    &(\lam {x_1} {(\lam {x_2} {( \dots (\lam {x_n} M) \dots )})}).
 \end{align*}
-\emph{Syntactic identity} of terms, written as $M \equiv N$, means that
-the~terms $M$ and $N$ are exactly the~same.
 
 \sectionwithtoc{Substitution}
 
@@ -98,12 +96,12 @@ accordance with their informal meaning. Before we formalise this, we need to
 look at how to substitute terms for variables.
 
 \begin{definition}
-  Given \lts $P$ and $Q$, we define a~relation \emph{$P$ occurs in $Q$} by
-  induction on $Q$:
+  Given \lts $M$ and $N$, we define a~relation \emph{$M$ occurs in $N$} by
+  induction on $N$:
   \begin{enumerate}
-    \item $P$ occurs in $P$;
-    \item if $P$ occurs in $M$ or in $N$, then $P$ occurs in $(M N)$;
-    \item if $P$ occurs in $M$ or $P \equiv x$, then $P$ occurs in $(\lam x M)$.
+    \item $M$ occurs in $M$;
+    \item if $M$ occurs in $O_1$ or in $O_2$, then $M$ occurs in $(O_1 \: O_2)$;
+    \item if $M$ occurs in $O$ or $M \equiv x$, then $M$ occurs in $(\lam x O)$.
   \end{enumerate}
 \end{definition}
 
@@ -111,27 +109,27 @@ Note that, for example, in the~term $(\lam x (x y)) (x y)$, there are two
 occurrences of $(x y)$ and three occurrences of $x$.
 
 \begin{definition}
-  For a~particular occurrence of $\lam x M$ in a~term $P$, the~occurrence of $M$
+  For a~particular occurrence of $\lam x M$ in a~term $N$, the~occurrence of $M$
   is called the~\emph{scope} of the~occurrence of $\lambda x$ on the~left.
 \end{definition}
 
 \begin{definition}[Free and bound variables]
-  A~variable $x$ in a~term $P$ is called
+  A~variable $x$ in a~term $M$ is called
   \begin{itemize}
     \item \emph{bound} if its occurrence is in the~scope of a~$\lambda x$ in
-      $P$,
+      $M$,
     \item \emph{bound and binding}, if and only if it is the~$x$ in $\lambda x$,
     \item \emph{free} otherwise.
   \end{itemize}
-  Free variables form a~set, called $\fv P$.
+  Free variables form a~set, called $\fv M$.
 \end{definition}
 
-For example, in the~term $P \equiv xy(\lam {zv} {zy})w$ the~leftmost $x, y$ and
+For example, in the~term $M \equiv xy(\lam {zv} {zy})w$ the~leftmost $x, y$ and
 the~rightmost $w$ are all free variables, the~$z$ and $v$ in $\lam {zv} {}$ are
 bound and binding, the~rightmost $z$ is bound, and the~rightmost $y$ is free;
 hence
 \[
-  \fv P = \{x, y, w\} .
+  \fv M = \{x, y, w\} .
 \]
 
 \begin{definition}[Substitution]\label{def:substitution}
@@ -140,16 +138,16 @@ hence
   \begin{enumerate}
     \item $[N/x]x  \equiv N$;
     \item $[N/x]a  \equiv a$  \hfill for all atoms $a \not\equiv x$;
-    \item $[N/x](P Q)  \equiv ([N/x]P [N/x]Q)$;
-    \item $[N/x](\lam x P)  \equiv \lam x P$;
-    \item $[N/x](\lam y P)  \equiv \lam y P$ \hfill if $x \notin \fv P$;
-    \item $[N/x](\lam y P)  \equiv \lam y {[N/x]P}$
-      \hfill if $x \in \fv P$ and $y \notin \fv N$;
-    \item \label{def:substitution:g_item} $[N/x](\lam y P)
-      \equiv \lam z {[N/x][z/y]P}$ \hfill if $x \in \fv P$ and $y \in \fv N$,
+    \item $[N/x](O_1 \: O_2)  \equiv ([N/x]O_1 \: [N/x]O_2)$;
+    \item $[N/x](\lam x O)  \equiv \lam x O$;
+    \item $[N/x](\lam y O)  \equiv \lam y O$ \hfill if $x \notin \fv O$;
+    \item $[N/x](\lam y O)  \equiv \lam y {[N/x]O}$
+      \hfill if $x \in \fv O$ and $y \notin \fv N$;
+    \item \label{def:substitution:g_item} $[N/x](\lam y O)
+      \equiv \lam z {[N/x][z/y]O}$ \hfill if $x \in \fv O$ and $y \in \fv N$,
   \end{enumerate}
   where $y \not\equiv x$ and $z$ is chosen as the~first variable $\notin \fv N
-  \cup \fv P$.
+  \cup \fv O$.
 \end{definition}
 
 Note that the~case \ref{def:substitution:g_item} involves replacing the~concrete
@@ -159,23 +157,23 @@ variable is entirely arbitrary and it can be exchanged for another available
 variable. The~following definition formalises this idea.
 
 \begin{definition}
-  Given a~term $P$ containing an~occurrence of $\lam x M$ and a~variable $y
-  \notin \fv M$, the~act of replacing this $\lam x M$ by
+  Given a~term $M$ containing an~occurrence of $\lam x N$ and a~variable $y
+  \notin \fv N$, the~act of replacing this $\lam x N$ by
   \[
-    \lam y {[y/x]M}
+    \lam y {[y/x]N}
   \]
-  is called an~\emph{α-conversion}, or \emph{a~change of bound variable} in $P$.
+  is called an~\emph{α-conversion}, or \emph{a~change of bound variable} in $M$.
 
   The~reflexive-transitive closure of the~α-conversion relation is
   the~\emph{α-converts to} relation, or
   \[
-    P \equiv_\alpha Q.
+    M \equiv_\alpha N.
   \]
 \end{definition}
 
 Reflexive-transitive closure of a~relation in this case means, that we are able
 to find a~sequence (possibly empty) of α-conversions, that transforms the~term
-$P$ into $Q$.
+$M$ into $N$.
 
 Having looked at the~way we can combine \lts via substitution, we can turn our
 focus to the~calculation procedure that lies at the~heart of \lc and gives it
@@ -184,31 +182,31 @@ its power.
 \sectionwithtoc{β-reduction}
 
 As the~name in the~\autoref{def:lambda_calculus} suggests, a~term of
-the~form $(\lam x M) N$ represents an~application of an~operator $\lam x M$ to
-an~argument $N$. The~resulting value of such application is
+the~form $(\lam x M) \: N$ represents an~application of an~operator $\lam x M$
+to an~argument $N$. The~resulting value of such application is
 the~\emph{simplified} term $[N/x]M$. This simplification process is captured in
 the~following definition.
 
 \begin{definition}
   Any term of the~form
   \[
-    (\lam x M) N
+    (\lam x M) \: N
   \]
   is called a~\emph{β-redex} and the~corresponding term
   \[
     [N/x]M
   \]
-  is called \emph{contractum}. If and only if a~term $P$ contains an~occurrence
-  of $(\lam x M) N$ and we replace that occurrence by $[N/x]M$, and the~result
-  is $P'$, we say we have \emph{contracted} the~redex-occurrence in $P$, and $P$
-  \emph{β-contracts} to $P'$, or
+  is called \emph{contractum}. If and only if a~term $O$ contains an~occurrence
+  of $(\lam x M) \: N$ and we replace that occurrence by $[N/x]M$, and
+  the~result is $O'$, we say we have \emph{contracted} the~redex-occurrence in
+  $O$, and $O$ \emph{β-contracts} to $O'$, or
   \[
-    P \; \triangleright_{1\beta} \; P'.
+    O \triangleright_{1\beta} O'.
   \]
   The~reflexive-transitive closure of the~β-contracts relation is
   the~\emph{β-reduces to} relation, or
   \[
-    P \triangleright_\beta Q.
+    M \triangleright_\beta N.
   \]
 \end{definition}
 
