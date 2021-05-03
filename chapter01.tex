@@ -79,10 +79,11 @@ construct a~formal system of \lc.
       (called an~\emph{abstraction}).
   \end{enumerate}
 \end{definition}
-Letters $M$, $N$, and $O$ will, like in the~definition, denote arbitrary \lts
-and letters $x, y, z, u, v$, and $w$ will denote variables. Application is
+Letters $M$, $N$, $O$, and $P$ will, like in the~definition, denote arbitrary
+\lts and letters $x, y, z, u, v$, and $w$ will denote variables. Application is
 left-associative and we will omit parentheses accordingly. For example,
-$M \: N \: O$ denotes the~term $((M \: N) \: O)$. Other abbreviations are:
+$M \: N \: O \: P$ denotes the~term $(((M \: N) \: O) \: P)$. Other
+abbreviations are:
 \begin{align*}
   &{\lam x {M \: N}}  &  &\text{for}  &  &(\lam x {(M \: N)}) \\
   &{\lam {x_1 x_2 \dots x_n} M}  &  &\text{for}  &
@@ -100,7 +101,7 @@ look at how to substitute terms for variables.
   induction on $N$:
   \begin{enumerate}
     \item $M$ occurs in $M$;
-    \item if $M$ occurs in $O_1$ or in $O_2$, then $M$ occurs in $(O_1 \: O_2)$;
+    \item if $M$ occurs in $O$ or in $P$, then $M$ occurs in $(O \: P)$;
     \item if $M$ occurs in $O$ or $M \equiv x$, then $M$ occurs in $(\lam x O)$.
   \end{enumerate}
 \end{definition}
@@ -124,9 +125,10 @@ occurrences of $(x y)$ and three occurrences of $x$.
   Free variables form a~set, called $\fv M$.
 \end{definition}
 
-For example, in the~term $M \equiv xy(\lam {zv} {zy})w$ the~leftmost $x, y$ and
-the~rightmost $w$ are all free variables, the~$z$ and $v$ in $\lam {zv} {}$ are
-bound and binding, the~rightmost $z$ is bound, and the~rightmost $y$ is free;
+For example, in the~term $M \defeq xy(\lam {zv} {z (\lam y y)})w$ the~leftmost
+$x, y$ and the~rightmost $w$ are all free variables, the~$z$ and $v$ in
+$\lam {zv} {}$ are bound and binding, the~rightmost $z$ is bound, the~second $y$
+from the~left is bound and binding, and the~rightmost $y$ is bound;
 hence
 \[
   \fv M = \{x, y, w\} .
@@ -138,7 +140,7 @@ hence
   \begin{enumerate}
     \item $[N/x]x  \equiv N$;
     \item $[N/x]a  \equiv a$  \hfill for all atoms $a \not\equiv x$;
-    \item $[N/x](O_1 \: O_2)  \equiv ([N/x]O_1 \: [N/x]O_2)$;
+    \item $[N/x](O \: P)  \equiv ([N/x]O \: [N/x]P)$;
     \item $[N/x](\lam x O)  \equiv \lam x O$;
     \item $[N/x](\lam y O)  \equiv \lam y O$ \hfill if $x \notin \fv O$;
     \item $[N/x](\lam y O)  \equiv \lam y {[N/x]O}$

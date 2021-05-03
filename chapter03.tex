@@ -24,16 +24,14 @@ the~handle is released.
 \sectionwithtoc{Structural properties}
 
 Typing rules come in three kinds. First, we have \emph{axioms}, the~rules
-without antecedents. Axiom is, for example:
-\begin{mathpar}
-  \inferrule*{ }{\vdash \univ \is{} \univ}.
-\end{mathpar}
+without antecedents.
 
 Second, there are the~\emph{logical} rules. These come in pairs of
-\emph{introduction} and \emph{elimination} rules. For example, in
-the~\nameref{sec:stlc}, the~introduction rule \ir{Lam} deduces a~judgment
-assigning a~function type to a~newly formed term, while the~elimination rule
-\ir{App} expects term of a~function type as one of its antecedents.
+\emph{introduction} and \emph{elimination} rules as we have seen thorough
+the~last chapter. For example, the~introduction rule \ir{$\to$-I} deduces
+a~judgment assigning a~function type to a~newly formed term, while
+the~elimination rule \ir{$\to$-E} expects term of a~function type as one of its
+antecedents.
 
 Third, there are three \emph{structural} rules, \emph{Exchange} \ir{Ex},
 \emph{Contraction} \ir{Cont}, and \emph{Weakening} \ir{Weak}:
@@ -59,11 +57,13 @@ and since the~structural rules are what differentiates the~intuitionistic and
 linear logics, we will first reformulate the~intuitionistic rules such that
 the~structural rules are emphasised.
 
-The~rules \ir{Var}, \ir{App}, \ir{Lam}, \ir{Let}, and \ir{Pair}, defined in
-the~\nameref{sec:stlc} section, are equivalent \todo{[PROOF?]} to the~following
-rules, together with \ir{Ex}, \ir{Cont}, and \ir{Weak}. By equivalent we mean
-that both sets of rules assign a~type to the~same set of terms. The~first rule,
-\ir{Id}, is an~axiom and the~rest are the~logical rules:
+The~new rules \ir{$\to$-I}, \ir{$\to$-E}, \ir{$\times$-I}, \ir{$\times$-E},
+\ir{\1-I}, and \ir{\1-E}, which we define below, are, together with \ir{Id},
+\ir{Ex}, \ir{Cont}, and \ir{Weak}, equivalent to the~old rules \ir{Var},
+\ir{$\to$-I}, \ir{$\to$-E}, \ir{$\times$-I}, \ir{$\times$-E}, \ir{\1-I}, and
+\ir{\1-E} defined in the~\nameref{sec:stlc} section. By equivalent we mean that
+both sets of rules assign the~same type to every term. The~first rule, \ir{Id},
+is an~axiom and the~rest are the~logical rules:
 \begin{mathpar}
   \inferrule*[right=Id]
   { }
@@ -71,7 +71,7 @@ that both sets of rules assign a~type to the~same set of terms. The~first rule,
 
   \inferrule*[right=$\to$-I]
   {\Gamma, x \is{} S \vdash M \is{} T}
-  {\Gamma \vdash \lam {x^S} M \is{} S \to T}
+  {\Gamma \vdash (\lam {x \is{} S} M) \is{} S \to T}
 
   \inferrule*[right=$\to$-E]
   {\Gamma_1 \vdash M \is{} S \to T \\ \Gamma_2 \vdash N \is{} S}
@@ -83,34 +83,44 @@ that both sets of rules assign a~type to the~same set of terms. The~first rule,
 
   \inferrule*[right=$\times$-E]
   {
-    \Gamma_1 \vdash M \is{} S \times T \\\\
+    \Gamma_1 \vdash M \is{} S \times T \\
     \Gamma_2, x \is{} S, y \is{} T \vdash N \is{} U
   }
   {
-    \Gamma_1, \Gamma_2 \vdash \textrm{let} \: \mpair x y = M \:
-      \textrm{in} \: N \is{} U
+    \Gamma_1, \Gamma_2 \vdash \letp {x \is{} S} {y \is{} T} M N \is{} U
+  }
+
+  \inferrule*[right=\1-I]
+  { }
+  {\Gamma \vdash \munit \is{} \1}
+
+  \inferrule*[right=\1-E]
+  {
+    \Gamma_1 \vdash M \is{} \1 \\
+    \Gamma_2 \vdash N \is{} S
+  }
+  {
+    \Gamma_1, \Gamma_2 \vdash \letu M N \is{} S
   }
 \end{mathpar}
 
-\sectionwithtoc{Alternative pair rules}
+\sectionwithtoc{Alternative pairs \& units}
 
-Consider that instead of the~\emph{let} term in
-\autoref{def:stlc}\ref{def:stlc:e_item}, which binds new variables to both
-elements of a~pair at the~same time, we could introduce two new terms that would
-each bind a~variable to only one element of a~pair. We can modify
-the~definition such that:
-\begin{enumerate}
-  \setcounter{enumi}{\value{stlc_counter}}
-  \item if $M^{S \times T}$ is a~typed \lt of type $S \times T$, then
-    the~following are typed \lts of types $S$ and $T$, respectively:
-    \begin{mathpar}
-      (\fst M^{S \times T})^S \and
-      (\snd \: M^{S \times T})^T.
-    \end{mathpar}
-\end{enumerate}
+Consider that instead of the~\emph{let} pair eliminator in
+\autoref{def:stlc}, which binds new variables to both elements of a~pair at
+the~same time, we could introduce two new terms that would each bind a~variable
+to only one element of a~pair. We can modify the~definition such that, instead
+of the~term
+\[
+  \letp {x \is{} S} {y \is{} T} M N,
+\]
+we define
+\[
+  \fst M \qquad \text{and} \qquad \snd M.
+\]
 
-The~introduction and elimination rules \ir{$\times$-I} and \ir{$\times$-E} can
-then be replaced by the~following:
+These terms are accompanied by new introduction and elimination rules, which
+replace the~original \ir{$\times$-I} and \ir{$\times$-E}:
 \begin{mathpar}
   \inferrule*[right=$\times$-I$'$]
   {\Gamma \vdash M \is{} S \\ \Gamma \vdash N \is{} T}
@@ -125,20 +135,43 @@ then be replaced by the~following:
   {\Gamma \vdash \snd M \is{} T}
 \end{mathpar}
 
+The~terms can be expressed using each other; the~new \emph{fst} and \emph{snd}
+terms can be defined using \emph{let}:
+\begin{align*}
+  \fst M &:= \letp {x \is{} S} {y \is{} T} M x \\
+  \snd M &:= \letp {x \is{} S} {y \is{} T} M y
+\end{align*}
+and, conversely, \emph{let} can be defined using \emph{fst} and \emph{snd}:
+\[
+  \letp {x \is{} S} {y \is{} T} M N := (\lam {x \is{} S} {\lam {y \is{} T} N})
+  \: (\fst M) \: (\snd M).
+\]
+
 The~equivalence between the~old rules \ir{$\times$-I} and \ir{$\times$-E}, and
 the~new \ir{$\times$-I$'$}, \ir{$\times$-E$'_1$}, and \ir{$\times$-E$'_2$} can
 be established with a~few applications of the~structural
-rules~\citep{wadler_1993}. The~terms can also be expressed using each other;
-the~new \emph{\fst{}} and \emph{\snd{}} terms can be defined using \emph{let}:
-\begin{align*}
-  \fst M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: x \\
-  \snd M &:= \textrm{let} \: \mpair x y = M \: \textrm{in} \: y
-\end{align*}
-and, conversely, \emph{let} can be defined using \emph{\fst{}} and
-\emph{\snd{}}:
+rules~\citep{wadler_1993}.
+
+The~situation with unit types is analogous. To use the~alternative definition of
+a~unit type, we again modify the~\autoref{def:stlc} by simply removing the~term
 \[
-  \textrm{let} \: \mpair x y = M \: \textrm{in} \: N := (\lam x {\lam y N}) \:
-    (\fst M) \: (\snd M).
+  \letu M N,
+\]
+which is to say that the~new definition of a~unit type uses the~same term to
+construct a~value, \munit, but it has no term that eliminates it.
+The~introduction rule is again identical to the~old definition, but now there is
+no elimination rule:
+\begin{mathpar}
+  \inferrule*[right=\1-I$'$]
+  { }
+  {\Gamma \vdash \munit \is{} \1}
+  \and
+  \text{\emph{No elimination rule}}
+\end{mathpar}
+
+Terms can be expressed using the~alternative forms:
+\[
+  \letu M N := N
 \]
 
 \sectionwithtoc{Substructural type system}
@@ -202,6 +235,8 @@ in linear type systems, \ir{$\times$-I} and \ir{$\times$-E} define a~different
 kind of pair from \ir{$\times$-I$'$}, \ir{$\times$-E$'_1$}, and
 \ir{$\times$-E$'_2$}. To distinguish between these, we will use two different
 conectives, $\otimes$ for the~former pair definition and $\with$ for the~latter.
+The~same is true for the~unit type, so in linear type systems we will have two
+different unit types, denoted by \1 and $\top$.
 
 There are type systems that combine linear and dependent
 types~\citep{cervesato_pfenning_2002, krishnaswami_et_al_2015}; we will,
@@ -231,7 +266,8 @@ be read as ``consume $S$ yielding $T$.'' As noted previously, there are now two
 distinct ways of defining a~pair type; these are written $S \otimes T$,
 pronounced ``both $S$ and $T$,'' and $S \with T$, pronounced ``choose from $S$
 and $T$.'' The~new type $\oc S$, pronounced ``of course $S$,'' is used to
-indicate whether Contraction or Weakening may be used.
+indicate whether Contraction or Weakening may be used. As we mentioned, our
+atomic types contain at least the~two unit types, \1 and $\top$.
 
 \sectionwithtoc{Linear terms \& contexts}
 
@@ -255,53 +291,22 @@ intuitionistic assumptions, such as the~one described by
 \citet{benton_et_al_1993}, but the~resulting system has considerably more
 complex deduction rules.
 
-Like with the~simply typed \lc, the~\lc with linear types has an~inductive
+Like with the~\nameref{sec:stlc}, the~\lc with linear types has an~inductive
 definition of terms and a~set of judgment rules that assign types to these
 terms.
 
 \begin{definition}
-  The~set of all terms of a~linear type system is defined inductively:
-  \begin{enumerate}
-    \item all typed variables $x^T$ are terms of type $T$;
-    \item if $M^{S \multimap T}$ and $N^S$ are terms of types
-      $S \multimap T$ and $S$ respectively, then the~following is a~term of type
-      $T$:
-      \[
-        (M^{S \multimap T} \: N^S)^T;
-      \]
-    \item if $x^S$ is a~typed variable and $M^T$ is a~term of type $T$, then
-      the~following is a~term of type $S \multimap T$:
-      \[
-        (\lam {x^S} {M^T})^{S \multimap T};
-      \]
-    \item if $M^S$ and $N^T$ are terms of types $S$ and $T$ respectively, then
-      the~following is a~term of type $S \otimes T$:
-      \[
-        \mpair {M^S} {N^T} ^{S \otimes T};
-      \]
-    \item if $x^S$ and $y^T$ are typed variables and $M^{S \otimes T}$ and $N^U$
-      are terms of type $S \otimes T$ and $U$ respectively, then the~following
-      is a~term of type $U$:
-      \[
-        (\textrm{let} \: \mpair {x^S} {y^T} = M^{S \otimes T} \: \textrm{in} \:
-        N^U)^U;
-      \]
-    \item if $M^S$ and $N^T$ are terms of types $S$ and $T$ respectively, then
-      the~following is a~term of type $S \with T$:
-      \[
-        \apair {M^S} {N^T} ^{S \with T};
-      \]
-    \item if $M^{S \with T}$ is a~term of type $S \with T$, then the~following
-      are terms of type $S$ and $T$ respectively:
-      \begin{align*}
-        (\fst M^{S \with T})^S&  &  &(\snd M^{S \with T})^T;
-      \end{align*}
-    \item if $M^S$ is a~term of type $S$, then the~following is a~term of type
-      $\oc S$:
-      \[
-        (\oc M)^{\oc S}.
-      \]
-  \end{enumerate}
+  Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
+  \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{variables}. The~set of
+  \emph{\lts} is defined inductively: every variable is a~\lt; units \munit
+  and \aunit are \lts; and if $x, y$ are variables, $S, T$ are types, and $M, N$
+  are \lts, then the~following are \lts:
+  \begin{mathpar}
+    \lam {x \is{} S} M \and M \: N \\
+    \mpair M N \and \letp {x \is{} S} {y \is{} T} M N \\
+    \apair M N \and \fst M \and \snd M \\
+    \letu M N \and \oc M \and \letoc x M N
+  \end{mathpar}
 \end{definition}
 
 \sectionwithtoc{Linear typing rules}
@@ -349,7 +354,7 @@ and its argument put together.
 \begin{mathpar}
   \inferrule*[right=$\multimap$-I]
   {\Gamma \mid \Delta, x \is{} S \vdash M \is{} T}
-  {\Gamma \mid \Delta \vdash \lam {x^S} M \is{} S \multimap T}
+  {\Gamma \mid \Delta \vdash \lam {x \is{} S} M \is{} S \multimap T}
 
   \inferrule*[right=$\multimap$-E]
   {
@@ -382,7 +387,7 @@ both be used in $N$.
   }
   {
     \Gamma \mid \Delta_1, \Delta_2
-    \vdash \textrm{let} \: \mpair x y = M \: \textrm{in} \: N \is{} U
+    \vdash \letp {x \is{} S} {y \is{} T} M N \is{} U
   }
 \end{mathpar}
 
@@ -406,9 +411,9 @@ the~elimination rules ensure that only one of the~elements can be extracted.
   {\Gamma \mid \Delta \vdash \snd M \is{} T}
 \end{mathpar}
 
-Before we define the~remaining typing rules of the~system, the~two logical rules
-that involve the~exponential type, we will examine the~differences between
-the~additive and multiplicative pair types, quoting an~example due to
+Before we define the~remaining typing rules of the~system, the~logical rules for
+the~unit types and for the~exponential type, we will examine the~differences
+between the~additive and multiplicative pair types, quoting an~example due to
 \citet{wadler_1993}. Under the~Curry-Howard correspondence, take $S$ to be
 the~proposition ``I have 10 euro,'' $T$ to be the~proposition ``I have
 a~pizza,'' and $U$ to be the~proposition ``I have a~cake.'' The~judgments
@@ -523,11 +528,36 @@ the~converse, $\diamond \mid x \is{} T \oplus U \vdash M \is{} T \with U$;
 having a~pizza or a~cake does not constitute having the~\emph{choice} of a~pizza
 or a~cake.
 
-Now we return to the~remaining typing rules of our system. They are
-the~introduction and elimination rules of the~exponential type. Notice that, in
-this system, the~logical rules have so far all been defined in terms of linear
-assumptions. To make use of our intuitionistic assumptions, we need to turn them
-into linear ones, which is done using the~\oc{} connective; in fact,
+Now we return to the~remaining typing rules of our system. The~introduction rule
+for the~unit type \1 is the~same as in \nameref{sec:stlc}, while the~elimination
+rule shares the~linear resources between $M$ and $N$:
+\begin{mathpar}
+  \inferrule*[right=\1-I]
+  { }
+  {\Gamma \mid \diamond \vdash \munit \is{} \1}
+
+  \inferrule*[right=\1-E]
+  {
+    \Gamma \mid \Delta_1 \vdash M \is{} \1 \\
+    \Gamma \mid \Delta_2 \vdash N \is{} S
+  }
+  {
+    \Gamma \mid \Delta_1, \Delta_2 \vdash \letu M N \is{} S
+  }
+\end{mathpar}
+
+The~$\top$ unit type only has an~introduction rule, as a~value of this type
+cannot be eliminated:
+\begin{mathpar}
+  \inferrule*[right=$\top$-I]
+  { }
+  {\Gamma \mid \diamond \vdash \aunit \is{} \top}
+\end{mathpar}
+
+Lastly, the~introduction and elimination rules of the~exponential type. Notice
+that, in this system, the~logical rules have so far all been defined in terms of
+linear assumptions. To make use of our intuitionistic assumptions, we need to
+turn them into linear ones, which is done using the~\oc{} connective; in fact,
 an~intuitionistic assumption $x \is{} S$ is in a~sense equivalent to linear
 $\oc x \is{} \oc S$.
 
@@ -551,7 +581,7 @@ satisfy the~intuitionistic assumption $x \is{} S$.
   }
   {
     \Gamma \mid \Delta_1, \Delta_2
-    \vdash \textrm{let} \: \oc x = M \: \textrm{in} \: N \is{} T
+    \vdash \letoc x M N \is{} T
   }
 \end{mathpar}
 
@@ -571,12 +601,12 @@ provable. This is shown by the~following derivation trees:
       {\Gamma \mid \Delta, x \is{} \oc S \vdash M \is{} T}
       {
         \Gamma \mid \Delta
-        \vdash \lam {x^{\oc S}} M \is{} \oc S \multimap T
+        \vdash (\lam {x \is{} \oc S} M) \is{} \oc S \multimap T
       }
     }
     {
       \Gamma, x \is{} S \mid \Delta
-      \vdash \lam {x^{\oc S}} M \is{} \oc S \multimap T
+      \vdash (\lam {x \is{} \oc S} M) \is{} \oc S \multimap T
     } \\
     \inferrule*[Right=$\oc{}$-I]
     {
@@ -596,7 +626,7 @@ provable. This is shown by the~following derivation trees:
   }
   {
     \Gamma, x \is{} S \mid \Delta
-    \vdash (\lam {x^{\oc S}} M) \: \oc x \is{} T
+    \vdash (\lam {x \is{} \oc S} M) \: \oc x \is{} T
   }
 
   \inferrule*[Right=$\oc{}$-E]
@@ -608,7 +638,7 @@ provable. This is shown by the~following derivation trees:
   }
   {
     \Gamma \mid \Delta, x \is{} \oc S
-    \vdash \textrm{let} \: \oc x = x \: \textrm{in} \: N \is{} T
+    \vdash \letoc x x N \is{} T
   }
 \end{mathpar}
 

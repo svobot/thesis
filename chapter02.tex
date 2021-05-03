@@ -50,11 +50,11 @@ hold, then the~conclusion follows. An~example of a~rule may be the~rule of
 implication elimination, or \emph{modus ponens}, which can be stated as:
 \begin{mathpar}
   \inferrule*[right=Mp]
-  {P \supset Q \\ P}
-  {Q}.
+  {A \supset B \\ A}
+  {B}
 \end{mathpar}
-It says that if ``$P$ implies $Q$,'' written $P \supset Q$, and ``$P$,'' then
-``$Q$.'' Note that some rules have a~name, which is attached to the~right side
+It says that if ``$A$ implies $B$,'' written $A \supset B$, and ``$A$,'' then
+``$B$.'' Note that some rules have a~name, which is attached to the~right side
 of the~horizontal line. In our example the~name is \ir{Mp}.
 
 Given a~set of rules, we are able to combine them to form a~tree, where every
@@ -65,37 +65,37 @@ are \emph{axioms}, that is rules that have no premises.
 Natural deduction also often involves \emph{hypothetical judgments}, or
 \emph{reasoning from assumptions}. To express hypothetical reasoning within
 the~rules of a~deductive system, we indicate in each judgment on which
-hypotheses it depends. To denote the~hypothetical judgment of $Q$ assuming $P$,
+hypotheses it depends. To denote the~hypothetical judgment of $B$ assuming $A$,
 we write
 \[
-  P \vdash Q.
+  A \vdash B.
 \]
 The~list of assumptions on which a~judgment depends, denoted by $\Gamma$, can be
-extended by appending an~assumption $P$ to the~end of the~list with a~comma:
-$\Gamma, P$. We can also combine lists of assumptions; the~list that results
+extended by appending an~assumption $A$ to the~end of the~list with a~comma:
+$\Gamma, A$. We can also combine lists of assumptions; the~list that results
 from appending the~assumptions from $\Gamma_2$ to the~list $\Gamma_1$ is written
 $\Gamma_1, \Gamma_2.$
 
-For example, the~derivation tree of the~judgment that given that $P$ implies $Q$
-and given $P$, one may deduce both $P$ and $Q$:
+For example, the~derivation tree of the~judgment that given that $A$ implies $B$
+and given $A$, one may deduce both $A$ and $B$:
 \begin{mathpar}
   \inferrule*
   {
     \inferrule*
     { }
-    { P \supset Q, P \vdash P } \\
+    { A \supset B, A \vdash A } \\
     \inferrule*[right=Mp]
     {
       \inferrule*
       { }
-      {P \supset Q, P \vdash P \supset Q} \\
+      {A \supset B, A \vdash A \supset B} \\
       \inferrule*
       { }
-      {P \supset Q, P \vdash P }
+      {A \supset B, A \vdash A }
     }
-    { P \supset Q, P \vdash Q }
+    { A \supset B, A \vdash B }
   }
-  { P \supset Q, P \vdash P \wedge Q }.
+  { A \supset B, A \vdash A \wedge B }
 \end{mathpar}
 
 Notice that in the~definition of \ir{Mp} we have elided the~ambient
@@ -103,8 +103,8 @@ assumptions that could have been added to every judgment, i.e. we could have
 written:
 \begin{mathpar}
   \inferrule*[right=Mp$'$]
-  {\Gamma_1 \vdash P \supset Q \\ \Gamma_2 \vdash P}
-  {\Gamma_1, \Gamma_2 \vdash Q}.
+  {\Gamma_1 \vdash A \supset B \\ \Gamma_2 \vdash A}
+  {\Gamma_1, \Gamma_2 \vdash B}
 \end{mathpar}
 
 \sectionwithtoc{Simple types}
@@ -125,9 +125,15 @@ define a~basic type system that utilises the~\emph{simple types}.
   \end{enumerate}
 \end{definition}
 
+Throughout the~text we use the~letters $S$, $T$, and $U$ to denote arbitrary
+types.
+
 Atomic types are intended to denote a~particular set. For example we may have
 the~atomic type \Int for the~set of integers, and \Bool for the~set of Boolean
-values $\{ \mathtt{true}, \mathtt{false} \}$.
+values $\{ \mathtt{true}, \mathtt{false} \}$. A~special kind of atomic types are
+\emph{unit types}, which denote singleton sets. In particular, our
+\mbox{λ-calculi} use the~unit types $\1$, read ``one,'' with its value $\munit$
+and $\top$, read ``top,'' with its value $\aunit$.
 
 A~function type $(S \to T)$ is intended to denote some given set of
 \emph{functions from $S$ to $T$}. That is, functions that accept as input
@@ -186,8 +192,9 @@ assign to $M$ the~type $T$''. Then, \emph{type judgment} is the~formula
   \Gamma \vdash M \is{} T,
 \]
 which is defined to mean that there is a~deduction-tree, whose root formula is
-$M \is{} T$, and whose leaves are members of $\Gamma$. When type judgment has no
-assumptions, we say so explicitly by writing
+$M \is{} T$, and whose leaves are members of $\Gamma$. The~sequence of
+assumptions $\Gamma$ is called the~\emph{context} of the~typing judgment. When
+the~context is empty, we write
 \[
   \vdash M \is{} T.
 \]
@@ -205,133 +212,105 @@ We expect to present complex enough systems later, for which finding the types
 in the~implicit version may not be computable~\citep{wells_1999}, hence we will
 use the~explicit semantics.
 
-\begin{definition}[Typed variables]
-  Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
-  \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{untyped variables}; then
-  the~\emph{typed variable $x^T$} is an~untyped variable $x$ with attached
-  type-superscript, such that:
-  \begin{enumerate}
-    \item \label{def:typed_var:a_item} no untyped variable receives more than
-      one type;
-    \item \label{def:typed_var:b_item} every type $T$ is attached to an~infinite
-      sequence of variables.
-  \end{enumerate}
-\end{definition}
-We call $x^T$ a~\emph{variable of type $T$}. It denotes an~arbitrary member of
-the~set denoted by $T$.
-
-Condition \ref{def:typed_var:a_item} ensures that there are no $x^T$, $x^S$ with
-$T \not\equiv S$. For example, if we make a~typed variable $x^{\Int}$, to denote
-an~arbitrary integer, we cannot also make $x^{\Int \to \Int}$, which would
-denote a~function.
-
-Condition \ref{def:typed_var:b_item} ensures that, for every type $T$, there
-is always enough variables to denote all members of the~set that we wish to
-describe.
-
+We define a~new version of \lts, where binding variables are annotated with
+their types:
 \begin{definition}[Simply typed \lts]\label{def:stlc}
-  The~set of \emph{typed \lts} is defined as follows:
-  \begin{enumerate}
-    \item all typed variables $x^T$ are typed \lts of type $T$;
-    \item if $x^S$ is a~variable of type $S$ and $M^T$ is a~typed \lt of type
-      $T$, then the~following is a~typed \lt of type $S \to T$:
-      \[
-        (\lam {x^S} {M^T})^{S \to T};
-      \]
-    \item \label{def:stlc:c_item} if $M^{S \to T}$ and $N^S$ are typed \lts
-      of types $S \to T$ and $S$ respectively, then the~following is a~typed
-      \lt of type $T$:
-      \[
-        (M^{S \to T} N^S)^T;
-      \]
-    \item \label{def:stlc:d_item} if $M^S$ and $N^T$ are typed \lts of types
-      $S$ and $T$ respectively, then the~following is a~typed \lt of type
-      $S \times T$:
-      \[
-        \mpair {M^S} {N^T} ^{S \times T};
-      \]
-    \setcounter{stlc_counter}{\value{enumi}}
-    \item \label{def:stlc:e_item} if $x^S$ and $y^T$ are variables of types $S$
-      and $T$ respectively, and $M^{S \times T}$ and $N^U$ are typed \lts of
-      types $S \times T$ and $U$ respectively, then the~following is a~typed
-      \lt of type $U$:
-      \[
-        (\textrm{let} \: \mpair {x^S} {y^T} = M^{S \times T} \:
-        \textrm{in} \: N^{U})^U.
-      \]
-\end{enumerate}
+  Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
+  \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{variables}. The~set of
+  \emph{\lts} is defined inductively: every variable is a~\lt; the~unit $\munit$
+  is a~\lt; and if $x, y$ are variables, $S, T$ are types, and $M, N$ are \lts,
+  then the~following are \lts:
+  \begin{mathpar}
+    \lam {x \is{} S} M \and M \: N \and \mpair M N \\
+    \letp {x \is{} S} {y \is{} T} M N \and \letu M N
+  \end{mathpar}
 \end{definition}
 
-The~typed term $M^T$ is intended to denote a~member of the~set denoted by $T$.
-For example, in \ref{def:stlc:c_item}, if $M^{S \to T}$ denotes a~function $f$
-from $S$ to $T$, and $N^T$ denotes a~member $a$ of $S$, then the~term
-$(M^{S \to T} N^S)^T$ denotes $f(a)$, which is of type $T$.
+The~\emph{type system} of simply typed \lc consists of two parts. First, it is
+the~\lts we have just defined and, second, the~deduction rules that assign types
+to these terms. We define these \emph{typing rules} next. In type systems,
+a~term gets assigned at most one type. If a~term gets assigned a~type, we call
+this term \emph{well-typed} and it is the~point of the~type system to fail to
+assign a~type to as many terms, which could be ``misbehaving'' during
+the~evaluation, as possible.
 
-Note that in \ref{def:stlc:e_item}, the~pair $(x^S, y^T)$ is just a~part of
-the~syntax; it is not an~instance of a~term constructing a~pair like in
-\ref{def:stlc:d_item}.
-
-When writing typed terms, some of the~type-superscripts can be omitted if it is
-obvious from the~context what they should be. Other notation conventions will be
-the~same as in \autoref{cha:lambdacalculus}.
-
-For example, for every pair of types $S$ and $T$,
-\[
-  (\lam {x^S} {(\lam {y^T} {\mpair {x^S} {y^T} ^{S \times
-    T}})^{T \to (S \times T)}})^{S \to (T \to (S
-    \times T))}
-\]
-is a~typed term and it can be written as
-\begin{align*}
-  &(\lam {xy} {\mpair x y})^{S \to (T \to (S \times T))},  &
-  &\text{or}  &  &\lam {x^S y^T} {\mpair x y}.
-\end{align*}
-
-The~substitution $[N^S/x^S](M^T)$ is defined in the~same way as the~substitution
-of pure \lts in \autoref{def:substitution}. Note that we do not define
-substitution $[N^U/x^S](M^T)$ when  $U \not\equiv S$. \todo{[NEEDS REWRITE TO
-MENTION PAIRS]}
-
-Finally, we will use the~simply typed \lc to construct a~formal theory where
-the~deduction assigns types to terms. This is called a~\emph{type-assignment
-system}. A~system with simply typed \lts usually has the~following rules:
+First, our type system has an~axiom which says that we can pick a~variable from
+the~context:
 \begin{mathpar}
   \inferrule*[right=Var]
   { }
-  {\Gamma_1, x \is{} T, \Gamma_2 \vdash x \is{} T} \\
+  {\Gamma_1, x \is{} S, \Gamma_2 \vdash x \is{} S}
+\end{mathpar}
 
-  \inferrule*[right=App]
+Next, there are three pairs of rules that judge the~introduction and elimination
+of λ-abstractions, pairs, and units; hence the~suffixes \ir{-I} and \ir{-E} in
+their names.
+
+For the~function type, the~eliminator \ir{$\to$-E} says that the~term $M$ can be
+applied to any value $N$ of type $S$. Conversely, to construct a~term of type
+$S \to T$, the~introduction rule \ir{$\to$-I} expects a~description of how
+the~term behaves upon applying eliminator to it; meaning, we should provide
+a~term of type $T$ containing a~free variable $x$ of type $S$:
+\begin{mathpar}
+  \inferrule*[right=$\to$-I]
+  {\Gamma, x \is{} S \vdash M \is{} T}
+  {\Gamma \vdash (\lam {x \is{} S} M) \is{} S \to T}
+
+  \inferrule*[right=$\to$-E]
   {\Gamma \vdash M \is{} S \to T \\ \Gamma \vdash N \is{} S}
   {\Gamma \vdash M \: N \is{} T}
+\end{mathpar}
 
-  \inferrule*[right=Lam]
-  {\Gamma, x \is{} S \vdash M \is{} T}
-  {\Gamma \vdash \lam {x^S} M \is{} S \to T}
+The~introduction rule \ir{$\times$-I} for the~pair type says that to construct
+a~term of type $S \times T$, it needs terms supplying the~two elements of
+the~pair. The~eliminator \ir{$\times$-E} specifies that to use the~pair $M$, we
+need to describe the~resulting term for all possible pairs; that is, we assume
+that $M$ takes the~form $\mpair x y$ and we provide a~term $N$ in the~context of
+variables $x$ and $y$, then the~eliminator binds those variables to the~two
+elements of $M$:
+\begin{mathpar}
+  \inferrule*[right=$\times$-I]
+  {\Gamma \vdash M \is{} S \\ \Gamma \vdash N \is{} T}
+  {\Gamma \vdash \mpair M N \is{} S \times T}
 
-  \inferrule*[right=Let]
+  \inferrule*[right=$\times$-E]
   {
     \Gamma \vdash M \is{} S \times T \\
-    \Gamma, x \is{} S, y \is{} T \vdash N \is{} S
+    \Gamma, x \is{} S, y \is{} T \vdash N \is{} U
   }
   {
-    \Gamma \vdash \textrm{let} \: \mpair {x^S} {y^T} = M \: \textrm{in}
-    \: N \is{} U
+    \Gamma \vdash \letp {x \is{} S} {y \is{} T} M N \is{} U
   }
+\end{mathpar}
 
-  \inferrule*[right=Pair]
-  {\Gamma \vdash M \is{} S \\ \Gamma \vdash N \is{} T}
-  {\Gamma \vdash \mpair M N \is{} S \times T}.
+The~introduction rule for the~unit is an~axiom, saying there is exactly one way
+of constructing something of type \1. The~eliminator says that to use a~term of
+type \1, we need to specify what happens when $M$ turns out to be $\munit$,
+which covers all possible values like \ir{$\times$-E} does for pairs:
+\begin{mathpar}
+  \inferrule*[right=\1-I]
+  { }
+  {\Gamma \vdash \munit \is{} \1}
+
+  \inferrule*[right=\1-E]
+  {
+    \Gamma \vdash M \is{} \1 \\
+    \Gamma \vdash N \is{} S
+  }
+  {
+    \Gamma \vdash \letu M N \is{} S
+  }
 \end{mathpar}
 
 \sectionwithtoc{Dependent types}
 
 The Church-style system from the~previous chapter has lost some of
-the~versatility of the~pure \lc. The~term $\lam {x^S} {x^S}$ represents the~one
-operation of doing nothing, the~identity function, yet for different types $S$
-this one operation is represented by distinct terms. We want our formalism to
-keep track of the~fact that identity does the~same thing regardless of the~type.
-An~ability to universally quantify the~types, which we will gain with
-the~introduction of dependent types, will allow us to express this; then
+the~versatility of the~pure \lc. The~term $\lam {x \is{} S} x$ represents
+the~one operation of doing nothing, the~identity function, yet for different
+types $S$ this one operation is represented by distinct terms. We want our
+formalism to keep track of the~fact that identity does the~same thing regardless
+of the~type. An~ability to universally quantify the~types, which we will gain
+with the~introduction of dependent types, will allow us to express this; then
 the~type of an~identity function will, in effect, be ``for all types $S$,\,
 $S \to S$.''
 
@@ -395,14 +374,6 @@ the~distinction between terms and types. Thus, we will define
 \emph{pseudo-terms} which will subsume both the~terms from \autoref{def:stlc}
 and types.
 
-Now that types will be just a~special kind of terms, we will change the~notation
-of the~typed λ-abstraction; we will write
-\[
-  \lam {x \is{} S} M,
-\]
-instead of $\lam {x^S} M$, analogously to the~way we write the~dependent
-function type.
-
 \sectionwithtoc{Pseudo-terms}
 
 For the~following type systems, we will use the~general notion of
@@ -411,36 +382,28 @@ then we will construct typing rules, that identify the~well-typed terms within
 pseudo-terms.
 
 \begin{definition}\label{def:pseudo-term}
-  The~set of all \emph{pseudo-terms} is defined inductively as follows:
-  \begin{enumerate} %TODO: Get rid of enumerate, rewrite in mathpar like QTT?
-    \item every variable is a~pseudo-term;
-    \item every atomic type is a~pseudo-term;
-    \item if $x$ is a~variable, and $M$ and $N$ are pseudo-terms, then
-      $(\lam {x \is{} M} N)$ is a~pseudo-term.
-    \item if $M$ and $N$ are pseudo-terms, then $(M \: N)$ is a~pseudo-term;
-    \item if $M$ and $N$ are pseudo-terms and $x$ is a~variable which does not
-      occur free in $M$, then $\dep x M N$ is a~pseudo-term.
-    \item if $M$ and $N$ are pseudo-terms, then $\mpair M N$ is a~pseudo-term.
-    \item if $x, y$ are variables and $M$ and $N$ are pseudo-terms, then
-      $\textrm{let} \: \mpair x y = M \: \textrm{in} \: N$ is a~pseudo-term.
-    \item if $M$ and $N$ are pseudo-terms and $x$ is a~variable which does not
-      occur free in $M$, then $(x \is{} M) \times N$ is a~pseudo-term.
-  \end{enumerate}
+  Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
+  \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{variables}. The~set of
+  \emph{pseudo-terms} is defined inductively: every variable is a~pseudo-term;
+  every atomic type is a~pseudo-term; the~unit $\munit$ and the~unit type \1 are
+  pseudo-terms; and if $x, y$ are variables and $M, N, S, T$ are pseudo-terms,
+  then the~following are pseudo-terms:
+  \begin{mathpar}
+    \dep x M N \and \lam {x \is{} M} N \and M \: N \and \mpair M N \\
+    (x \is{} M) \times N \and \mpair M N \and \letp{x \is{} S}{y \is{} T} M N \\
+    \letu M N
+  \end{mathpar}
 \end{definition}
 
-The~reduction on pseudo-terms is defined by replacing the~β-reduction on pure
-\lts with one of the~form: \todo{[WHAT ABOUT PAIRS?]}
-\[
-  (\lam {x \is{} S} M) \: N \triangleright [N/x]M.
-\]
-
-Consider the~possible choices of the~set of atomic types of a~given system.
-First, there are all the~familiar types, like the~type of integers $\Int$, or
-the~type of Boolean values $\Bool$. These depend on the~domain of the~type
-system and they are not theoretically interesting. Conversely, the~second kind
-of atomic types is crucial to the~properties of the~type system; these types are
-called \emph{sorts}. Our type systems will use only one sort, \univ, called
-\emph{Universe}. It represents the~type of types. We will also have the~axiom
+Although the~\autoref{def:pseudo-term} mentions it separately, the~unit type \1
+is also an~atomic type. Let us consider what other atomic types can a~given
+system have. First, there are all the~familiar types, like the~type of integers
+$\Int$, or the~type of Boolean values $\Bool$, or indeed \1 and $\top$. These
+depend on the~intended use of the~type system and they are not theoretically
+interesting. Conversely, the~second kind of atomic types determines some of
+the~properties of the~type system; these types are called \emph{sorts}. Our type
+systems will use only one sort, \univ, called \emph{Universe}. It represents
+the~type of types. We will also have the~axiom
 \begin{mathpar}
   \inferrule*
   { }
@@ -527,26 +490,91 @@ $\Gamma \vdash$, defined by the~following rules:
   {\Gamma \vdash \\ \Gamma \vdash S : \univ}
   {\Gamma, x \is{} S \vdash}
 \end{mathpar}
-and terms are identified by the~judgment $\Gamma \vdash M \is{} S$, defined by
-rules:
+
+Terms are identified by the~judgment $\Gamma \vdash M \is{} S$. First, we have
+the~rule saying that the~type of a~type is type, as well as three rules that
+derive type formation, hence the~\ir{-F} suffix, for the~dependent function
+type, dependent pair type, and the~unit type:
 \begin{mathpar}
-  \inferrule*[right=Fun]
-  {\Gamma \vdash S \is{} \univ \\ \Gamma, x \is{} S \vdash T \is{} \univ}
+  \inferrule*
+  {\Gamma \vdash}
+  {\Gamma \vdash \univ \is{} \univ}
+
+  \inferrule*[right=$\to$-F]
+  {
+    \Gamma \vdash S \is{} \univ \\\\
+    \Gamma, x \is{} S \vdash T \is{} \univ
+  }
   {\Gamma \vdash \dep x S T \is{} \univ}
 
-  \inferrule*[right=App$'$]
+  \inferrule*[right=$\times$-F]
   {
-    \Gamma \vdash M \is{} \dep x S T \\
-    \Gamma \vdash N \is{} S \\
+    \Gamma \vdash S \is{} \univ \\\\
+    \Gamma, x \is{} S \vdash T \is{} \univ
+  }
+  {\Gamma \vdash (x \is{} S) \times T \is{} \univ}
+
+  \inferrule*[right=\1-F]
+  {\Gamma \vdash}
+  {\Gamma \vdash \1 \is{} \univ}
+\end{mathpar}
+The~type formation rules make sure that $S$ and $T$ are types, before judging
+that their combination is also a~type. Note that with dependent types, we can
+use the~value $x$ when judging the~type of $T$.
+
+Next, there are the~introduction and elimination rules for functions and pairs,
+which are analogous to their counterparts in the~\nameref{sec:stlc}, except that
+they use the~dependent versions of the~types:
+\begin{mathpar}
+  \inferrule*[right=$\to$-I]
+  {
+    \Gamma \vdash \dep x S T \is{} \univ \\
+    \Gamma, x \is{} S \vdash M \is{} T
+  }
+  {\Gamma \vdash (\lam {x \is{} S} M) \is{} \dep x S T}
+
+  \inferrule*[right=$\to$-E]
+  {
+    \Gamma \vdash M \is{} \dep x S T \\\\
+    \Gamma \vdash N \is{} S
   }
   {\Gamma \vdash M \: N \is{} [N/x]T}
 
-  \inferrule*[right=Lam$'$]
+  \inferrule*[Right=$\times$-I]
   {
-    \Gamma, x \is{} S \vdash M \is{} T \\
-    \Gamma \vdash \dep x S T \is{} \univ
+    \Gamma \vdash M \is{} S \\\\
+    \Gamma \vdash N \is{} [M/x]T
   }
-  {\Gamma \vdash (\lam {x \is{} S} M) \is{} \dep x S T}
+  {\Gamma \vdash \mpair M N \is{} (x \is{} S) \times T}
+
+  \inferrule*[right=$\times$-E]
+  {
+    \Gamma, z \is{} (x \is{} S) \times T \vdash U \is{} \univ \\
+    \Gamma \vdash M \is{} (x \is{} S) \times T \\\\
+    \Gamma, x \is{} S, y \is{} T \vdash N \is{} [(x, y)/z]U
+  }
+  {
+    \Gamma \vdash \letp {x \is{} S} {y \is{} T} M N \is{} [M/z]U
+  }
+\end{mathpar}
+
+The~introduction rule for the~unit type is the~same as the~one in
+\nameref{sec:stlc}, but the~elimination rule allows for $U$ to depend on
+the~unit:
+\begin{mathpar}
+  \inferrule*[Right=\1-I]
+  {\Gamma \vdash}
+  {\Gamma \vdash \munit \is{} \1}
+
+  \inferrule*[right=\1-E]
+  {
+    \Gamma, x \is{} \1 \vdash U \is{} \univ \\
+    \Gamma \vdash M \is{} \1 \\
+    \Gamma \vdash N \is{} [\munit/x]U
+  }
+  {
+    \Gamma \vdash \letu M N \is{} [M/x]U
+  }
 \end{mathpar}
 
 Now we can look at an~example of quantification over \univ that we mention at
@@ -563,13 +591,13 @@ the~type of an~identity function that works for any type, we need dependent
 function types; meaning, we can combine judgments (\ref{eq:pi_type}) and
 (\ref{eq:id_lam}) and deduce:
 \begin{mathpar}
-  \inferrule*[right=Lam$'$]
+  \inferrule*[right=$\to$-I]
   {
     \text{(\ref{eq:id_lam})} \\
-    \inferrule*[right=Fun]
+    \inferrule*[right=$\to$-F]
     {
       \inferrule*
-      { }
+      {\diamond \vdash}
       {\vdash \univ \is{} \univ} \\
       \text{(\ref{eq:pi_type})}
     }
@@ -578,10 +606,10 @@ function types; meaning, we can combine judgments (\ref{eq:pi_type}) and
   {
     \vdash (\lam {s \is{} \univ} {\lam {x \is{} s} x}) \is{}
       \dep s \univ {\dep x s s}
-  }.
+  }
 \end{mathpar}
 
-Now $\lam {x \is{} s} x$ is the~identity function on type $s$. Hence
+Function $\lam {x \is{} s} x$ is the~identity on type $s$; hence,
 \[
   \lam {s \is{} \univ} {\lam {x \is{} s} x}
 \]

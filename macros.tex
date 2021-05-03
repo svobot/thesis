@@ -21,6 +21,28 @@
 }}
 \makeatother
 
+% lettrine settings
+\LettrineRealHeighttrue
+\setcounter{DefaultLines}{2}
+\setcounter{DefaultDepth}{1}
+\renewcommand{\DefaultLoversize}{0.15}
+\renewcommand{\DefaultLraise}{-0.11}
+
+\newfontface\EBLettrineFrontFont{EBGaramond-InitialsF2}%
+  [Path=./eb-garamond/, Extension=.otf]
+\newfontface\EBLettrineBackFont{EBGaramond-InitialsF1}%
+  [Path=./eb-garamond/, Extension=.otf]
+\newcommand{\EBLettrineBackColor}{%
+  \ifdefined\colourflag DodgerBlue2\else black\fi}
+\newcommand{\EBLettrineFrontColor}{%
+  \ifdefined\colourflag darkgray\else black\fi}
+\newcommand{\coloredlettrine}[3][]{%
+\renewcommand{\LettrineFontHook}{\EBLettrineBackFont}%
+\lettrine[#1]{%
+\rlap{\color{\EBLettrineBackColor} #2}%
+     {\EBLettrineFrontFont\color{\EBLettrineFrontColor} #2}}{#3}%
+}
+
 % This macro defines a chapter, which is not numbered, but is included
 % in the table of contents.
 \newcommand{\chapwithtoc}[1]{
@@ -59,28 +81,7 @@
 \newcommand{\fv}[1]{\ensuremath{\mathrm{FV}(#1)}\xspace}
 \newcommand{\ir}[1]{\mbox{\textsc{#1}}\xspace}
 \newcommand{\is}[1]{\overset{#1}:}
-
-% lettrine settings
-\LettrineRealHeighttrue
-\setcounter{DefaultLines}{2}
-\setcounter{DefaultDepth}{1}
-\renewcommand{\DefaultLoversize}{0.15}
-\renewcommand{\DefaultLraise}{-0.11}
-
-\newfontface\EBLettrineFrontFont{EBGaramond-InitialsF2}%
-  [Path=./eb-garamond/, Extension=.otf]
-\newfontface\EBLettrineBackFont{EBGaramond-InitialsF1}%
-  [Path=./eb-garamond/, Extension=.otf]
-\newcommand{\EBLettrineBackColor}{%
-  \ifdefined\colourflag DodgerBlue2\else black\fi}
-\newcommand{\EBLettrineFrontColor}{%
-  \ifdefined\colourflag darkgray\else black\fi}
-\newcommand{\coloredlettrine}[3][]{%
-\renewcommand{\LettrineFontHook}{\EBLettrineBackFont}%
-\lettrine[#1]{%
-\rlap{\color{\EBLettrineBackColor} #2}%
-     {\EBLettrineFrontFont\color{\EBLettrineFrontColor} #2}}{#3}%
-}
+\newcommand{\defeq}{\overset{\textrm{def}}{=}}
 
 %% Types
 % Constructors
@@ -99,10 +100,12 @@
 \newcommand{\apair}[2]{\ensuremath{\langle #1, \, #2\rangle}\xspace}
 \newcommand{\munit}{\ensuremath{( \, )}\xspace}
 \newcommand{\aunit}{\ensuremath{\langle \, \rangle}\xspace}
+\newcommand{\letp}[4]{\ensuremath{\textrm{let} \: \mpair {#1} {#2} = #3 \:%
+ \textrm{in} \: #4}\xspace}
+\newcommand{\letu}[2]{\ensuremath{\textrm{let} \: \munit \: \textrm{=} \: #1 \:%
+ \textrm{in} \: #2}\xspace}
+\newcommand{\letoc}[3]{\ensuremath{\textrm{let} \: \oc{#1} \: \textrm{=} \:%
+ #2 \: \textrm{in} \: #3}\xspace}
 
 \newcommand{\todo}[1]{\textcolor{red}{#1}} % TODO: remove
-
-% A counter that saves a list enumeration to then recall it when replacing
-% the 'let' case with 'fst' and 'snd'
-\newcounter{stlc_counter}
 
