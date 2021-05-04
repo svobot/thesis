@@ -76,8 +76,8 @@ $\Gamma, A$. We can also combine lists of assumptions; the~list that results
 from appending the~assumptions from $\Gamma_2$ to the~list $\Gamma_1$ is written
 $\Gamma_1, \Gamma_2.$
 
-For example, the~derivation tree of the~judgment that given that $A$ implies $B$
-and given $A$, one may deduce both $A$ and $B$:
+For example, the~derivation tree of the~judgment that given that ``$A$ implies
+$B$'' and given ``$A$,'' one may deduce ``$A$ and $B$,'' written $A \wedge B$:
 \begin{mathpar}
   \inferrule*
   {
@@ -125,8 +125,8 @@ define a~basic type system that utilises the~\emph{simple types}.
   \end{enumerate}
 \end{definition}
 
-Throughout the~text we use the~letters $S$, $T$, and $U$ to denote arbitrary
-types.
+Throughout the~text we use the~letters $S$, $T$, $U$, and $V$ to denote
+arbitrary types.
 
 Atomic types are intended to denote a~particular set. For example we may have
 the~atomic type \Int for the~set of integers, and \Bool for the~set of Boolean
@@ -186,8 +186,8 @@ formulate deduction trees that assign types to terms.
   \]
 \end{definition}
 
-The~formula $M \is{} T$ can be read informally as ``$M$ has type $T$'', or ``we
-assign to $M$ the~type $T$''. Then, \emph{type judgment} is the~formula
+The~formula $M \is{} T$ can be read informally as ``$M$ has type $T$,'' or ``we
+assign to $M$ the~type $T$.'' Then, \emph{type judgment} is the~formula
 \[
   \Gamma \vdash M \is{} T,
 \]
@@ -339,16 +339,16 @@ S \, . \: T)}$, but we will write:
 Here, $S$ is a~type, but $T$ is a~function parametrised with $x$; meaning, $T$
 takes an~argument of type $S$ and produces a~~type. Thus, a~term of type
 $\dep x S T$ represents function that for an~argument $N$ of type $S$ produces
-a~value of type \,$[N/x]T$. In the~special case that \,$T$ is a~constant
+a~value of type \,$T[N/x]$. In the~special case that \,$T$ is a~constant
 function whose value is always the~type $U$, $\dep x S T$ is the~type $S \to U$.
 
 On the~logic side, the~dependent function type corresponds to a~universal
-quantification; hence, we can read it as ``for all $s$ in $S$, $[s/x]T$ is
+quantification; hence, we can read it as ``for all $s$ in $S$, $T[s/x]$ is
 inhabited,'' where \emph{inhabited} means that the~type contains some value.
 The~$\Pi$ in the~notation of the~dependent function type references the~fact
 that we can interpret it as a~\emph{product} of \,$T$, for every $s \in S$; that
 is, a~value of type $\dep x S T$ can be interpreted as a~tuple of size $|S|$,
-where the~$s$th element is of type \,$[s/x]T$, for $s$ of type $S$.
+where the~$s$th element is of type \,$T[s/x]$, for $s$ of type $S$.
 
 The~dependent analogue of type $S \times T$ is the~\emph{dependent pair type},
 again, usually written as ${(\Sigma x \is{} S \, . \: T)}$, but we will write:
@@ -364,10 +364,10 @@ its notation because we can interpret it as a~\emph{disjoint union} of all $T$,
 with an~index from $S$; meaning, a~value of type $(x \is{} S) \times T$ can be
 interpreted as a~member of the~set
 \[
-  \bigcup_{s \, \in \, S} \{ \mpair s t \mid t \in [s/x]T \}.
+  \bigcup_{s \, \in \, S} \{ \mpair s t \mid t \in T[s/x] \}.
 \]
 By having a~value of this dependent pair type, we are therefore \emph{proving}
-that ``there exists an~$s \in S$, such that $[s/x]T$ is inhabited.''
+that ``there exists an~$s \in S$, such that $T[s/x]$ is inhabited.''
 
 In dependent types, terms can occur in place of types so we must scrap
 the~distinction between terms and types. Thus, we will define
@@ -538,12 +538,12 @@ they use the~dependent versions of the~types:
     \Gamma \vdash M \is{} \dep x S T \\\\
     \Gamma \vdash N \is{} S
   }
-  {\Gamma \vdash M \: N \is{} [N/x]T}
+  {\Gamma \vdash M \: N \is{} T[N/x]}
 
   \inferrule*[Right=$\times$-I]
   {
     \Gamma \vdash M \is{} S \\\\
-    \Gamma \vdash N \is{} [M/x]T
+    \Gamma \vdash N \is{} T[M/x]
   }
   {\Gamma \vdash \mpair M N \is{} (x \is{} S) \times T}
 
@@ -551,10 +551,10 @@ they use the~dependent versions of the~types:
   {
     \Gamma, z \is{} (x \is{} S) \times T \vdash U \is{} \univ \\
     \Gamma \vdash M \is{} (x \is{} S) \times T \\\\
-    \Gamma, x \is{} S, y \is{} T \vdash N \is{} [(x, y)/z]U
+    \Gamma, x \is{} S, y \is{} T \vdash N \is{} U[(x, y)/z]
   }
   {
-    \Gamma \vdash \letp {x \is{} S} {y \is{} T} M N \is{} [M/z]U
+    \Gamma \vdash \letp {x \is{} S} {y \is{} T} M N \is{} U[M/z]
   }
 \end{mathpar}
 
@@ -570,10 +570,10 @@ the~unit:
   {
     \Gamma, x \is{} \1 \vdash U \is{} \univ \\
     \Gamma \vdash M \is{} \1 \\
-    \Gamma \vdash N \is{} [\munit/x]U
+    \Gamma \vdash N \is{} U[\munit/x]
   }
   {
-    \Gamma \vdash \letu M N \is{} [M/x]U
+    \Gamma \vdash \letu M N \is{} U[M/x]
   }
 \end{mathpar}
 

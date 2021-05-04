@@ -11,11 +11,11 @@ assumptions, in linear logic we give up this freedom. When we formulate the~type
 system based on this logic, we will be able to reject expressions that take
 an~overly cavalier approach to the~preservation of resources.
 
-As an~example, we may want to reject the~deduction of judgments like
-\begin{align}\label{eq:linear_examples}
-  x \is{} S \vdash (x, x) \is{} (S \times S)&  &  &\text{or}  &
-    &y \is{} S, z \is{} T \vdash z \is{} T,
-\end{align}
+As an~example, we may want to reject the~deduction of judgments like:
+\begin{equation}\label{eq:linear_examples}
+  x \is{} S \vdash (x, x) \is{} (S \times S) \qquad\qquad
+    y \is{} S, z \is{} T \vdash z \is{} T,
+\end{equation}
 because $x$ could represent an~extensive computer memory region and copying
 the~data would be costly, or $y$ may represent a~persistent resource, like 
 a~file handle, and we want to make sure that when we stop using the~file,
@@ -42,7 +42,7 @@ Third, there are three \emph{structural} rules, \emph{Exchange} \ir{Ex},
 
   \inferrule*[right=Cont]
   {\Gamma, y \is{} S, z \is{} S \vdash M \is{} T}
-  {\Gamma, x \is{} S \vdash [x/y][x/z]M \is{} T}
+  {\Gamma, x \is{} S \vdash M[x/y][x/z] \is{} T}
 
   \inferrule*[right=Weak]
   {\Gamma \vdash M \is{} T}
@@ -168,6 +168,8 @@ no elimination rule:
   \and
   \text{\emph{No elimination rule}}
 \end{mathpar}
+Without the~elimination rule we can never do anything interesting with a~value
+of this type, except to incorporate it into a~larger value.
 
 Terms can be expressed using the~alternative forms:
 \[
@@ -317,7 +319,7 @@ the~typing rules for $\to, \times$, and the~alternative rules for $\times$,
 respectively.
 
 The~axioms and the~structural rules are the~same; they just work on the~two-part
-assumptions list.
+assumptions list:
 \begin{mathpar}
   \inferrule*[right=Id$_1$]
   { }
@@ -333,7 +335,7 @@ assumptions list.
 
   \inferrule*[right=Cont]
   {\Gamma, y \is{} S, z \is{} S \mid \Delta \vdash M \is{} T}
-  {\Gamma, x \is{} S \mid \Delta \vdash [x/y][x/z]M \is{} T}
+  {\Gamma, x \is{} S \mid \Delta \vdash M[x/y][x/z] \is{} T}
 
   \inferrule*[right=Weak]
   {\Gamma \mid \Delta \vdash M \is{} T}
@@ -350,7 +352,7 @@ In the~introduction rule for linear functions, the~binding variable referencing
 the~function parameter forms a~linear hypothesis in the~premise; hence,
 the~function argument must be used in $M$. The~elimination rule states that
 the~function application must consume the~same resources as both the~function
-and its argument put together.
+and its argument put together:
 \begin{mathpar}
   \inferrule*[right=$\multimap$-I]
   {\Gamma \mid \Delta, x \is{} S \vdash M \is{} T}
@@ -369,7 +371,7 @@ similar to function application; the~resources consumed by the~derived term
 equal the~resources consumed by the~term's constituents. The~elimination rule
 deconstructs the~pair via the~\emph{let} term and binds both components to new
 variables. The~linearity of the~two new hypotheses means that the~variables must
-both be used in $N$.
+both be used in $N$:
 \begin{mathpar}
   \inferrule*[right=$\otimes$-I]
   {
@@ -392,8 +394,7 @@ both be used in $N$.
 \end{mathpar}
 
 In the~additive pairs, both elements have to use all the~linear resources and
-the~elimination rules ensure that only one of the~elements can be extracted.
-
+the~elimination rules ensure that only one of the~elements can be extracted:
 \begin{mathpar}
   \inferrule*[right=$\with$-I]
   {
@@ -461,7 +462,7 @@ which is different from \emph{having} one of pizza or cake. To say that we have
 either a~pizza or a~cake, we would use the~sum type $T \oplus U$. We have not
 formally presented the~sum type $T \oplus U$ before, because we shall not use it
 outside of this example and we mention it here only to point out the~difference
-from $T \with U$. With the~sum type $T \oplus U$ we can derive
+from $T \with U$. With the~sum type $T \oplus U$ we can derive:
 \begin{mathpar}
   \inferrule*[right=$\oplus$-I$_1$]
   {\diamond \mid x \is{} S \vdash M \is{} T}
@@ -474,12 +475,12 @@ from $T \with U$. With the~sum type $T \oplus U$ we can derive
 The first derivation means that if 10 euro buys us a~pizza, then it also buys us
 a~pizza or a~cake. The~second derivation is analogous, starting with a~cake.
 
-Now consider the~implications of having a~pair as a~hypothesis. Take $P$ to be
+Now consider the~implications of having a~pair as a~hypothesis. Take $V$ to be
 the~proposition ``I am happy.'' Then the~judgments
 \begin{mathpar}
-  \diamond \mid x \is{} T \otimes U \vdash M \is{} P \and
-  \diamond \mid x \is{} T \with U \vdash M \is{} P \and
-  \diamond \mid x \is{} T \oplus U \vdash M \is{} P
+  \diamond \mid x \is{} T \otimes U \vdash M \is{} V \and
+  \diamond \mid x \is{} T \with U \vdash M \is{} V \and
+  \diamond \mid x \is{} T \oplus U \vdash M \is{} V
 \end{mathpar}
 mean that, first, I will be happy given \emph{both} a~pizza and a~cake; second,
 I will be happy given \emph{my choice} from a~pizza and a~cake; and, third, I
@@ -568,7 +569,7 @@ meaning, if we can derive a~single instance of $S$ from the~unlimited resources
 $\Gamma$, we can also derive an~unlimited number of instances of $S$.
 
 The~elimination rule states that we can use an~instance of type $\oc S$ to
-satisfy the~intuitionistic assumption $x \is{} S$.
+satisfy the~intuitionistic assumption $x \is{} S$:
 \begin{mathpar}
   \inferrule*[right=$\oc{}$-I]
   {\Gamma \mid \diamond \vdash M \is{} S}

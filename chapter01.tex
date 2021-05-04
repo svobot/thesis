@@ -136,17 +136,17 @@ hence
 
 \begin{definition}[Substitution]\label{def:substitution}
   Given terms $M$ and $N$, the~result of substituting $N$ for every occurrence
-  of the~free variable $x$, written $[N/x]M$, is defined by induction on $M$:
+  of the~free variable $x$, written $M[N/x]$, is defined by induction on $M$:
   \begin{enumerate}
-    \item $[N/x]x  \equiv N$;
-    \item $[N/x]a  \equiv a$  \hfill for all atoms $a \not\equiv x$;
-    \item $[N/x](O \: P)  \equiv ([N/x]O \: [N/x]P)$;
-    \item $[N/x](\lam x O)  \equiv \lam x O$;
-    \item $[N/x](\lam y O)  \equiv \lam y O$ \hfill if $x \notin \fv O$;
-    \item $[N/x](\lam y O)  \equiv \lam y {[N/x]O}$
+    \item $x[N/x]  \equiv N$;
+    \item $a[N/x]  \equiv a$  \hfill for all atoms $a \not\equiv x$;
+    \item $(O \: P)[N/x]  \equiv (O[N/x] \: P[N/x])$;
+    \item $(\lam x O)[N/x]  \equiv \lam x O$;
+    \item $(\lam y O)[N/x]  \equiv \lam y O$ \hfill if $x \notin \fv O$;
+    \item $(\lam y O)[N/x]  \equiv \lam y {O[N/x]}$
       \hfill if $x \in \fv O$ and $y \notin \fv N$;
-    \item \label{def:substitution:g_item} $[N/x](\lam y O)
-      \equiv \lam z {[N/x][z/y]O}$ \hfill if $x \in \fv O$ and $y \in \fv N$,
+    \item \label{def:substitution:g_item} $(\lam y O)[N/x]
+      \equiv \lam z {O[z/y][N/x]}$ \hfill if $x \in \fv O$ and $y \in \fv N$,
   \end{enumerate}
   where $y \not\equiv x$ and $z$ is chosen as the~first variable $\notin \fv N
   \cup \fv O$.
@@ -162,7 +162,7 @@ variable. The~following definition formalises this idea.
   Given a~term $M$ containing an~occurrence of $\lam x N$ and a~variable $y
   \notin \fv N$, the~act of replacing this $\lam x N$ by
   \[
-    \lam y {[y/x]N}
+    \lam y {N[y/x]}
   \]
   is called an~\emph{α-conversion}, or \emph{a~change of bound variable} in $M$.
 
@@ -186,7 +186,7 @@ its power.
 As the~name in the~\autoref{def:lambda_calculus} suggests, a~term of
 the~form $(\lam x M) \: N$ represents an~application of an~operator $\lam x M$
 to an~argument $N$. The~resulting value of such application is
-the~\emph{simplified} term $[N/x]M$. This simplification process is captured in
+the~\emph{simplified} term $M[N/x]$. This simplification process is captured in
 the~following definition.
 
 \begin{definition}
@@ -196,10 +196,10 @@ the~following definition.
   \]
   is called a~\emph{β-redex} and the~corresponding term
   \[
-    [N/x]M
+    M[N/x]
   \]
   is called \emph{contractum}. If and only if a~term $O$ contains an~occurrence
-  of $(\lam x M) \: N$ and we replace that occurrence by $[N/x]M$, and
+  of $(\lam x M) \: N$ and we replace that occurrence by $M[N/x]$, and
   the~result is $O'$, we say we have \emph{contracted} the~redex-occurrence in
   $O$, and $O$ \emph{β-contracts} to $O'$, or
   \[
