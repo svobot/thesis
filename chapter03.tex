@@ -309,7 +309,7 @@ terms.
   \end{mathpar}
 \end{definition}
 
-\sectionwithtoc{Linear typing rules}
+\sectionwithtoc{Linear-type \lc}\label{sec:ltlc}
 
 Except for the~separation of intuitionistic and linear assumptions into two
 parts, the~typing rules for $\multimap, \otimes$, and $\with$ are identical to
@@ -354,7 +354,7 @@ and its argument put together.
 \begin{mathpar}
   \inferrule*[right=$\multimap$-I]
   {\Gamma \mid \Delta, x \is{} S \vdash M \is{} T}
-  {\Gamma \mid \Delta \vdash \lam {x \is{} S} M \is{} S \multimap T}
+  {\Gamma \mid \Delta \vdash (\lam {x \is{} S} M) \is{} S \multimap T}
 
   \inferrule*[right=$\multimap$-E]
   {

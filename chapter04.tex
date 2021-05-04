@@ -113,21 +113,21 @@ typed.
 \begin{definition}
   The~set of all \emph{pseudo-terms} of a~quantitative-type \lc is defined
   inductively: every variable is a~pseudo-term; $\munit, \: \1, \: \aunit,
-  \: \top$, and $\univ$ are pseudo-terms; and if $M, N$ are pseudo-terms, $\pi$
-  is a~semiring element, and $x, y$ are variables, then the~following are
-  pseudo-terms:
+  \: \top$, and $\univ$ are pseudo-terms; and if $M$ and $N$ are pseudo-terms,
+  $\pi$ and$ \rho$ are semiring elements, and $x$ and $y$ are variables, then
+  the~following are pseudo-terms:
   \begin{mathpar}
-    (\lam {x \is\pi M} N) \and (M \: N) \and \depq x \pi M N \\
-    \mpair M N \and \textrm{let} \: \mpair x y = M \: \textrm{in} \: N \and
+    \lam {x \is\pi M} N \and M \: N \and \depq x \pi M N \\
+    \mpair M N \and \letp {x \is\pi S} {y \is\rho T} M N \and
       (x \is\pi M) \otimes N \\
     \textrm{let} \: \munit \: \textrm{=} \: M \: \textrm{in} \: N \\
-    \apair M N \and (\fst M) \and (\snd M) \and
-      (x \is{} M) \with N
+    \apair M N \and \fst M \and \snd M \and (x \is{} M) \with N
   \end{mathpar}
 \end{definition}
-We use the~usual linear logic notation for the~multiplicative unit type, \1.
-Although there should be no confusion, note the~difference between a~semiring
-element, $1$, and a~multiplicative unit type, \1.
+The~unit types are denoted as before; in particular, we keep using \1, because
+it is the~usual linear logic notation for the~multiplicative unit type. Although
+there should be no confusion, note the~difference between a~semiring element,
+$1$, and a~multiplicative unit type, \1.
 
 Pseudo-contexts are now sequences of the~form:
 \[
@@ -178,7 +178,7 @@ extends the~context $\Gamma$ with a~new variable $x$ of type $S$, with usage
 annotation $\rho$, which means that the~new context provides for a~$\rho$ uses
 of $x$.
 
-The~rules that derive a~valid typing judgment take the form:
+The~rules that derive a~valid typing judgment take the~form:
 \[
   \Gamma \vdash M \is\sigma S,
 \]
@@ -222,35 +222,40 @@ construct a~type that has a~runtime presence. In the~same vein, every type
 formation rule in the~upcoming paragraphs, \ir{$\to$}, \ir{$\otimes$}, \ir{\1},
 \ir{$\with$}, and \ir{$\top$}, forms a~type with usage $\sigma =0$ and thus
 assumes a~zeroed-out context, consequence of \autoref{lem:zero_needs_nothing}.
+The~introduction and elimination rules combine the~type parametrisation of
+\nameref{sec:dtlc} with the~resource tracking of \nameref{sec:ltlc}.
 
 The~\emph{dependent function types} \depq x \pi S T add an~annotation $\pi$,
-which records how the~function will use its argument. The formation,
+which records how the~function will use its argument. The~formation,
 introduction, and elimination rules are:
 \begin{mathpar}
-  \inferrule*[right=$\to$]
-  {0\Gamma \vdash S \is0 \univ \\ 0\Gamma, x \is0 S \vdash T \is 0 \univ}
+  \inferrule*[right=$\to$-F]
+  {
+    0\Gamma \vdash S \is0 \univ \\
+    0\Gamma, x \is0 S \vdash T \is 0 \univ
+  }
   {0\Gamma \vdash \depq x \pi S T \is 0 \univ}
 
   \inferrule*[right=$\to$-I]
   {\Gamma, x \is{\sigma\pi} S \vdash M \is\sigma T}
-  {\Gamma \vdash \lam{x \is{\pi} S} M \is\sigma \depq x \pi S T}
+  {\Gamma \vdash (\lam{x \is{\pi} S} M) \is\sigma \depq x \pi S T}
 
   \inferrule*[right=$\to$-E$_0$]
   {
-    \Gamma \vdash M \is\sigma \depq x \pi S T \\\\
-    0\Gamma \vdash N \is0 S \\
-    \sigma\pi = 0
+    \sigma\pi = 0 \\
+    0\Gamma \vdash N \is0 S \\\\
+    \Gamma \vdash M \is\sigma \depq x \pi S T
   }
   {\Gamma \vdash M \: N \is\sigma T}
 
   \inferrule*[right=$\to$-E$_1$]
   {
-    \Gamma_1 \vdash M \is\sigma \depq x \pi S T \\\\
+    \Gamma_1 \vdash M \is\sigma \depq x \pi S T \\
     \Gamma_2 \vdash N \is1 S
   }
   {\Gamma_1 + \sigma\pi\Gamma_2 \vdash M \: N \is\sigma T}
 \end{mathpar}
-In the~type formation rule \ir{$\to$}, the~annotation $\pi$ is not use used to
+In the~type formation rule \ir{$\to$-F}, the~annotation $\pi$ is not use used to
 judge the~well-formedness of the~type, which follows from all type formation
 rules being judged in a~context of $0$ usage. The~introduction rule uses $\pi$
 to track how the~parameter $x$ is used and the~multiplication by $\sigma$
@@ -266,44 +271,44 @@ hence the~$\sigma\pi$ scaling of the~context of the~function argument.
 
 The~\emph{dependent multiplicative pair types} $(x \is \pi S) \otimes T$, like
 the~function types, add an~annotation $\pi$ which records how many times
-the~first element may be used. The formation, introduction, and elimination
+the~first element may be used. The~formation, introduction, and elimination
 rules are:
 \begin{mathpar}
-  \inferrule*[right=$\otimes$]
+  \inferrule*[right=$\otimes$-F]
   {
-    0\Gamma \vdash S \is 0 \univ \\
-    0\Gamma, x \is 0 S \vdash T \is 0 \univ
+    0\Gamma \vdash S \is0 \univ \\
+    0\Gamma, x \is0 S \vdash T \is0 \univ
   }
-  {0\Gamma \vdash (x \is \pi S) \otimes T \is 0 \univ} \\
+  {0\Gamma \vdash (x \is\pi S) \otimes T \is0 \univ} \\
 
   \inferrule*[right=$\otimes$-I$_0$]
   {
     \sigma\pi = 0 \\
-    0\Gamma \vdash M \is 0 S \\\\
-    \Gamma \vdash N \is \sigma T[M/x]
+    0\Gamma \vdash M \is0 S \\\\
+    \Gamma \vdash N \is\sigma T[M/x]
   }
-  {\Gamma \vdash \mpair M N \is \sigma (x \is \pi S) \otimes T}
+  {\Gamma \vdash \mpair M N \is\sigma (x \is\pi S) \otimes T}
 
   \inferrule*[right=$\otimes$-I$_1$]
   {
-    \Gamma_1 \vdash M \is 1 S \\
-    \Gamma_2 \vdash N \is \sigma T[M/x]
+    \Gamma_1 \vdash M \is1 S \\
+    \Gamma_2 \vdash N \is\sigma T[M/x]
   }
   {
     \sigma\pi \Gamma_1 + \Gamma_2
-    \vdash \mpair M N \is \sigma (x \is \pi S) \otimes T
+      \vdash \mpair M N \is\sigma (x \is\pi S) \otimes T
   }
 
   \inferrule*[right=$\otimes$-E]
   {
-    \Gamma_1 \vdash M \is \sigma (x \is \pi S) \otimes T \\
-    0\Gamma_1, z \is 0 (x \is \pi S) \otimes T \vdash O \is 0 \univ \\
-    \Gamma_2, x \is{\sigma \pi} S, y \is \sigma T
-      \vdash N \is \sigma O[\mpair x y /z]
+    \Gamma_1 \vdash M \is\sigma (x \is\pi S) \otimes T \\
+    0\Gamma_1, z \is0 (x \is\pi S) \otimes T \vdash U \is0 \univ \\
+    \Gamma_2, x \is{\sigma \pi} S, y \is\sigma T
+      \vdash N \is\sigma U[\mpair x y /z]
   }
   {
-    \Gamma_1 + \Gamma_2 \vdash \textrm{let} \: \mpair x y \: \textrm{=}
-    \: M \: \textrm{in} \: N \is \sigma O[M/z]
+    \Gamma_1 + \Gamma_2
+      \vdash \letp {x \is{\sigma \pi} S} {y \is\sigma T} M N \is\sigma U[M/z]
   }
 \end{mathpar}
 The~introduction rule \ir{$\otimes$-I$_0$} is applicable, if $\mpair M N$ is
@@ -314,37 +319,35 @@ $\sigma\pi$ to ensure that enough resources is available for $\sigma$ uses of
 the~pair, each with $\pi$ uses of the~first element. The~elimination rule
 ensures that both parts of the~pair are used.
 
-The~\emph{multiplicative unit type} \1 has a~single value, \munit, and
-the~following type formation, introduction, and elimination rules:
+For the~\emph{multiplicative unit type} \1, type formation is again judged in
+the~erased context; the~introduction rule also needs no resources to construct
+however many {\munit}s; the~elimination adds the~resource usage of $M$ and $N$:
 \begin{mathpar}
-  \inferrule*[Right=\1]
+  \inferrule*[Right=\1-F]
   {0\Gamma \vdash}
-  {0\Gamma \vdash \1 \is 0 \univ}
+  {0\Gamma \vdash \1 \is0 \univ}
 
   \inferrule*[right=\1-I]
   {0\Gamma \vdash}
-  {0\Gamma \vdash \munit \is \sigma \1}
+  {0\Gamma \vdash \munit \is\sigma \1}
 
   \inferrule*[right=\1-E]
   {
-    \Gamma_1 \vdash M \is \sigma \1 \\\\
-    0\Gamma_1, u \is 0 \1 \vdash O \is 0 \univ \\
-    \Gamma_2 \vdash N \is \sigma O[\munit/u]
+    \Gamma_1 \vdash M \is\sigma \1 \\\\
+    0\Gamma_1, x \is0 \1 \vdash S \is0 \univ \\
+    \Gamma_2 \vdash N \is \sigma S[\munit/x]
   }
   {
-    \Gamma_1 + \Gamma_2 \vdash \textrm{let} \: \munit \: \textrm{=}
-    \: M \: \textrm{in} \: N \is \sigma O[M/u]
+    \Gamma_1 + \Gamma_2 \vdash \letu M N \is\sigma S[M/x]
   }
 \end{mathpar}
-Constructing an~element of type \1 requires no resources. The~elimination of
-elements of a~unit type must be done explicitly, via the~\emph{let} term, but is
-otherwise straightforward.
 
 The~\emph{dependent additive pair types} $(x \is{} S) \with T$ are without
-the~semiring annotation on $x$~\todo{[EXPLAIN]}. The formation, introduction,
-and elimination rules are:
+the~semiring annotation on $x$, because these use cases are already handled by
+the~multiplicative pair type. The~formation, introduction, and elimination rules
+are:
 \begin{mathpar}
-  \inferrule*[right=$\with$]
+  \inferrule*[right=$\with$-F]
   {0\Gamma \vdash S \is 0 \univ \\ 0\Gamma, x \is 0 S \vdash T \is 0 \univ}
   {0\Gamma \vdash (x \is{} S) \with T \is 0 \univ}
 
@@ -360,11 +363,14 @@ and elimination rules are:
   {\Gamma \vdash M \is \sigma (x \is{} S) \with T}
   {\Gamma \vdash \snd M \is \sigma T[\fst M/x]}
 \end{mathpar}
+The~elimination rule \ir{$\with$-Esnd} uses $\fst M$ in the~type, which
+consumes zero resources, so all resources that are available for $M$ are also
+available for $\snd M$.
 
 The~\emph{additive unit type}
 The~formation and introduction are:
 \begin{mathpar}
-  \inferrule*[right=$\top$]
+  \inferrule*[right=$\top$-F]
   {0\Gamma \vdash}
   {0\Gamma \vdash \top \is 0 \univ}
 
@@ -375,3 +381,7 @@ The~formation and introduction are:
 Additive unit type has no elimination rule. We can never do anything interesting
 with a~value of this type, except to incorporate it into a~larger value.
 
+The~exponential type for QTT can be derived by combining $\otimes$ and \1:
+\[
+  \oc_\pi S = (x \is\pi S) \otimes \1.
+\]
