@@ -222,7 +222,7 @@ their types:
   then the~following are \lts:
   \begin{mathpar}
     \lam {x \is{} S} M \and M \: N \and \mpair M N \\
-    \letp {x \is{} S} {y \is{} T} M N \and \letu M N
+    \letpair{S \times T} x y M N \and \letu M N
   \end{mathpar}
 \end{definition}
 
@@ -279,7 +279,7 @@ elements of $M$:
     \Gamma, x \is{} S, y \is{} T \vdash N \is{} U
   }
   {
-    \Gamma \vdash \letp {x \is{} S} {y \is{} T} M N \is{} U
+    \Gamma \vdash \letpair{S \times T} x y M N \is{} U
   }
 \end{mathpar}
 
@@ -386,18 +386,19 @@ pseudo-terms.
   \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{variables}. The~set of
   \emph{pseudo-terms} is defined inductively: every variable is a~pseudo-term;
   every atomic type is a~pseudo-term; the~unit $\munit$ and the~unit type \1 are
-  pseudo-terms; and if $x, y$ are variables and $M, N, S, T$ are pseudo-terms,
-  then the~following are pseudo-terms:
+  pseudo-terms; and if $x$ and $y$ are variables and $M, N, S, T$ and $U$ are
+  pseudo-terms, then the~following are pseudo-terms:
   \begin{mathpar}
-    \dep x M N \and \lam {x \is{} M} N \and M \: N \and \mpair M N \\
-    (x \is{} M) \times N \and \mpair M N \and \letp{x \is{} S}{y \is{} T} M N \\
+    \dep x M N \and \lam {x \is{} M} N \and M \: N \\
+    (x \is{} M) \times N \and \mpair M N \and
+    \letpair{(x \is{} S) \times T}[z] x y M [U] N \\
     \letu M N
   \end{mathpar}
 \end{definition}
 
 Although the~\autoref{def:pseudo-term} mentions it separately, the~unit type \1
-is also an~atomic type. Let us consider what other atomic types can a~given
-system have. First, there are all the~familiar types, like the~type of integers
+is an~atomic type. Let us consider what other atomic types can a~given system
+have. First, there are all the~familiar types, like the~type of integers
 $\Int$, or the~type of Boolean values $\Bool$, or indeed \1 and $\top$. These
 depend on the~intended use of the~type system and they are not theoretically
 interesting. Conversely, the~second kind of atomic types determines some of
@@ -554,7 +555,7 @@ they use the~dependent versions of the~types:
     \Gamma, x \is{} S, y \is{} T \vdash N \is{} U[(x, y)/z]
   }
   {
-    \Gamma \vdash \letp {x \is{} S} {y \is{} T} M N \is{} U[M/z]
+    \Gamma \vdash \letpair{(x \is{} S) \times T}[z] x y M [U] N \is{} U[M/z]
   }
 \end{mathpar}
 

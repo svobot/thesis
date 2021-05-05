@@ -87,7 +87,7 @@ is an~axiom and the~rest are the~logical rules:
     \Gamma_2, x \is{} S, y \is{} T \vdash N \is{} U
   }
   {
-    \Gamma_1, \Gamma_2 \vdash \letp {x \is{} S} {y \is{} T} M N \is{} U
+    \Gamma_1, \Gamma_2 \vdash \letpair{S \times T} x y M N \is{} U
   }
 
   \inferrule*[right=\1-I]
@@ -112,7 +112,7 @@ the~same time, we could introduce two new terms that would each bind a~variable
 to only one element of a~pair. We can modify the~definition such that, instead
 of the~term
 \[
-  \letp {x \is{} S} {y \is{} T} M N,
+  \letpair {S \times T} x y M N,
 \]
 we define
 \[
@@ -138,12 +138,12 @@ replace the~original \ir{$\times$-I} and \ir{$\times$-E}:
 The~terms can be expressed using each other; the~new \emph{fst} and \emph{snd}
 terms can be defined using \emph{let}:
 \begin{align*}
-  \fst M &:= \letp {x \is{} S} {y \is{} T} M x \\
-  \snd M &:= \letp {x \is{} S} {y \is{} T} M y
+  \fst M &:= \letpair {S \times T} x y M x \\
+  \snd M &:= \letpair {S \times T} x y M y
 \end{align*}
 and, conversely, \emph{let} can be defined using \emph{fst} and \emph{snd}:
 \[
-  \letp {x \is{} S} {y \is{} T} M N := (\lam {x \is{} S} {\lam {y \is{} T} N})
+  \letpair {S \times T} x y M N := (\lam {x \is{} S} {\lam {y \is{} T} N})
   \: (\fst M) \: (\snd M).
 \]
 
@@ -305,7 +305,7 @@ terms.
   are \lts, then the~following are \lts:
   \begin{mathpar}
     \lam {x \is{} S} M \and M \: N \\
-    \mpair M N \and \letp {x \is{} S} {y \is{} T} M N \\
+    \mpair M N \and \letpair {S \times T} x y M N \\
     \apair M N \and \fst M \and \snd M \\
     \letu M N \and \oc M \and \letoc x M N
   \end{mathpar}
@@ -389,7 +389,7 @@ both be used in $N$:
   }
   {
     \Gamma \mid \Delta_1, \Delta_2
-    \vdash \letp {x \is{} S} {y \is{} T} M N \is{} U
+      \vdash \letpair {S \times T} x y M N \is{} U
   }
 \end{mathpar}
 
@@ -436,7 +436,7 @@ With the~rule \ir{$\otimes$-I}, we can derive
   }
   {
     \diamond \mid x_1 \is{} S, x_2 \is{} S
-    \vdash \mpair M N \is{} T \otimes U
+      \vdash \mpair M N \is{} T \otimes U
   }
 \end{mathpar}
 meaning that for 20 euro we can buy both a~pizza and a~cake. With the~rule
@@ -581,8 +581,7 @@ satisfy the~intuitionistic assumption $x \is{} S$:
     \Gamma, x \is{} S \mid \Delta_2 \vdash N \is{} T
   }
   {
-    \Gamma \mid \Delta_1, \Delta_2
-    \vdash \letoc x M N \is{} T
+    \Gamma \mid \Delta_1, \Delta_2 \vdash \letoc x M N \is{} T
   }
 \end{mathpar}
 
@@ -602,12 +601,12 @@ provable. This is shown by the~following derivation trees:
       {\Gamma \mid \Delta, x \is{} \oc S \vdash M \is{} T}
       {
         \Gamma \mid \Delta
-        \vdash (\lam {x \is{} \oc S} M) \is{} \oc S \multimap T
+          \vdash (\lam {x \is{} \oc S} M) \is{} \oc S \multimap T
       }
     }
     {
       \Gamma, x \is{} S \mid \Delta
-      \vdash (\lam {x \is{} \oc S} M) \is{} \oc S \multimap T
+        \vdash (\lam {x \is{} \oc S} M) \is{} \oc S \multimap T
     } \\
     \inferrule*[Right=$\oc{}$-I]
     {
@@ -627,7 +626,7 @@ provable. This is shown by the~following derivation trees:
   }
   {
     \Gamma, x \is{} S \mid \Delta
-    \vdash (\lam {x \is{} \oc S} M) \: \oc x \is{} T
+      \vdash (\lam {x \is{} \oc S} M) \: \oc x \is{} T
   }
 
   \inferrule*[Right=$\oc{}$-E]
@@ -638,8 +637,7 @@ provable. This is shown by the~following derivation trees:
     \Gamma, x \is{} S \mid \Delta \vdash N \is{} T
   }
   {
-    \Gamma \mid \Delta, x \is{} \oc S
-    \vdash \letoc x x N \is{} T
+    \Gamma \mid \Delta, x \is{} \oc S \vdash \letoc x x N \is{} T
   }
 \end{mathpar}
 

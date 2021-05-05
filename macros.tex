@@ -100,10 +100,11 @@
 \newcommand{\apair}[2]{\ensuremath{\langle #1, \, #2\rangle}\xspace}
 \newcommand{\munit}{\ensuremath{( \, )}\xspace}
 \newcommand{\aunit}{\ensuremath{\langle \, \rangle}\xspace}
-\newcommand{\letp}[4]{\ensuremath{\textrm{let} \: \mpair {#1} {#2} = #3 \:%
- \textrm{in} \: #4}\xspace}
-\newcommand{\letu}[2]{\ensuremath{\textrm{let} \: \munit \: \textrm{=} \: #1 \:%
- \textrm{in} \: #2}\xspace}
+\NewDocumentCommand \letpair { m o m m m o m }{%
+\ensuremath{\textrm{let}_{#1} \: \IfValueT{#2}{#2 @} \mpair{#3}{#4} = #5 \:%
+  \textrm{in}\IfValueT{#6}{_{#6}} \: #7}\xspace}
+\newcommand{\letu}[2]{\ensuremath{\textrm{let}_\1 \: \munit \: \textrm{=} \: #1%
+  \: \textrm{in} \: #2}\xspace}
 \newcommand{\letoc}[3]{\ensuremath{\textrm{let} \: \oc{#1} \: \textrm{=} \:%
  #2 \: \textrm{in} \: #3}\xspace}
 

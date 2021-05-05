@@ -113,12 +113,12 @@ typed.
 \begin{definition}
   The~set of all \emph{pseudo-terms} of a~quantitative-type \lc is defined
   inductively: every variable is a~pseudo-term; $\munit, \: \1, \: \aunit,
-  \: \top$, and $\univ$ are pseudo-terms; and if $M$ and $N$ are pseudo-terms,
-  $\pi$ and$ \rho$ are semiring elements, and $x$ and $y$ are variables, then
-  the~following are pseudo-terms:
+  \: \top$, and $\univ$ are pseudo-terms; and if $M, N, S, T$ and $U$ are
+  pseudo-terms, $\pi$ and$ \rho$ are semiring elements, and $x$ and $y$ are
+  variables, then the~following are pseudo-terms:
   \begin{mathpar}
     \lam {x \is\pi M} N \and M \: N \and \depq x \pi M N \\
-    \mpair M N \and \letp {x \is\pi S} {y \is\rho T} M N \and
+    \mpair M N \and \letpair {(x \is\pi S) \otimes T} [z] x y M [U] N \and
       (x \is\pi M) \otimes N \\
     \textrm{let} \: \munit \: \textrm{=} \: M \: \textrm{in} \: N \\
     \apair M N \and \fst M \and \snd M \and (x \is{} M) \with N
@@ -308,7 +308,7 @@ rules are:
   }
   {
     \Gamma_1 + \Gamma_2
-      \vdash \letp {x \is{\sigma \pi} S} {y \is\sigma T} M N \is\sigma U[M/z]
+      \vdash \letpair {(x \is\pi S) \otimes T} [z] x y M [U] N \is\sigma U[M/z]
   }
 \end{mathpar}
 The~introduction rule \ir{$\otimes$-I$_0$} is applicable, if $\mpair M N$ is
