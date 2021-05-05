@@ -107,17 +107,17 @@ is an~axiom and the~rest are the~logical rules:
 \sectionwithtoc{Alternative pairs \& units}
 
 Consider that instead of the~\emph{let} pair eliminator in
-\autoref{def:stlc}, which binds new variables to both elements of a~pair at
-the~same time, we could introduce two new terms that would each bind a~variable
-to only one element of a~pair. We can modify the~definition such that, instead
-of the~term
+\autoref{def:stlc} \ref{def:stlc:let_item}, which binds new variables to both
+elements of a~pair at the~same time, we could introduce two new terms that would
+each bind a~variable to only one element of a~pair. We can modify the~definition
+such that, instead of the~term
 \[
   \letpair {S \times T} x y M N,
 \]
-we define
-\[
-  \fst M \qquad \text{and} \qquad \snd M.
-\]
+we define the~following two:
+\begin{mathpar}
+  \fst M \and \snd M
+\end{mathpar}
 
 These terms are accompanied by new introduction and elimination rules, which
 replace the~original \ir{$\times$-I} and \ir{$\times$-E}:
@@ -138,12 +138,12 @@ replace the~original \ir{$\times$-I} and \ir{$\times$-E}:
 The~terms can be expressed using each other; the~new \emph{fst} and \emph{snd}
 terms can be defined using \emph{let}:
 \begin{align*}
-  \fst M &:= \letpair {S \times T} x y M x \\
-  \snd M &:= \letpair {S \times T} x y M y
+  \fst M &\defeq \letpair {S \times T} x y M x \\
+  \snd M &\defeq \letpair {S \times T} x y M y
 \end{align*}
 and, conversely, \emph{let} can be defined using \emph{fst} and \emph{snd}:
 \[
-  \letpair {S \times T} x y M N := (\lam {x \is{} S} {\lam {y \is{} T} N})
+  \letpair {S \times T} x y M N \defeq (\lam {x \is{} S} {\lam {y \is{} T} N})
   \: (\fst M) \: (\snd M).
 \]
 
@@ -238,7 +238,8 @@ kind of pair from \ir{$\times$-I$'$}, \ir{$\times$-E$'_1$}, and
 \ir{$\times$-E$'_2$}. To distinguish between these, we will use two different
 conectives, $\otimes$ for the~former pair definition and $\with$ for the~latter.
 The~same is true for the~unit type, so in linear type systems we will have two
-different unit types, denoted by \1 and $\top$.
+different unit types, the~original unit type denoted by \1 and the~alternative
+denoted by $\top$.
 
 There are type systems that combine linear and dependent
 types~\citep{cervesato_pfenning_2002, krishnaswami_et_al_2015}; we will,
@@ -300,16 +301,44 @@ terms.
 \begin{definition}
   Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
   \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{variables}. The~set of
-  \emph{\lts} is defined inductively: every variable is a~\lt; units \munit
-  and \aunit are \lts; and if $x, y$ are variables, $S, T$ are types, and $M, N$
-  are \lts, then the~following are \lts:
-  \begin{mathpar}
-    \lam {x \is{} S} M \and M \: N \\
-    \mpair M N \and \letpair {S \times T} x y M N \\
-    \apair M N \and \fst M \and \snd M \\
-    \letu M N \and \oc M \and \letoc x M N
-  \end{mathpar}
+  \emph{\lts} is defined inductively; if $x$ and $y$ are variables, $S$ and $T$
+  are types, and $M$ and $N$ are \lts, then:
+  \begin{enumerate}
+    \item every variable is a~\lt;
+    \item \emph{linear function} abstraction and application are \lts:
+      \begin{mathpar}
+        \lam {x \is{} S} M \and M \: N
+      \end{mathpar}
+    \item \emph{multiplicative pair} and its eliminator are \lts:
+      \begin{mathpar}
+        \mpair M N \and \letpair{S \times T} x y M N
+      \end{mathpar}
+    \item \emph{multiplicative unit} and its eliminator are \lts:
+      \begin{mathpar}
+        \munit \and \letu M N
+      \end{mathpar}
+    \item \emph{additive pair} and its eliminators are \lts:
+      \begin{mathpar}
+        \apair M N \and \fst M \and \snd M
+      \end{mathpar}
+    \item \emph{additive unit} is \lt:
+      \begin{mathpar}
+        \aunit
+      \end{mathpar}
+    \item \emph{exponential} and its eliminator are \lts:
+      \begin{mathpar}
+        \oc M \and \letoc x M N
+      \end{mathpar}
+  \end{enumerate}
 \end{definition}
+The~syntax for the~linear functions and for the~multiplicative pair and unit
+is identical to the~\nameref{sec:stlc}, while the~additive pair and unit
+corresponds to the~alternative formulations from the~beginning of this chapter.
+These no longer coincide due to the~missing structural rules.
+
+The~exponential terms are terms for which the~structural rules are still
+available, thus we can embed the~intuitionistic type system into the~linear type
+system.
 
 \sectionwithtoc{Linear-type \lc}\label{sec:ltlc}
 

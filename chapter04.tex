@@ -111,19 +111,45 @@ and then we will use the~deduction rules to identify which terms are properly
 typed.
 
 \begin{definition}
-  The~set of all \emph{pseudo-terms} of a~quantitative-type \lc is defined
-  inductively: every variable is a~pseudo-term; $\munit, \: \1, \: \aunit,
-  \: \top$, and $\univ$ are pseudo-terms; and if $M, N, S, T$ and $U$ are
-  pseudo-terms, $\pi$ and$ \rho$ are semiring elements, and $x$ and $y$ are
-  variables, then the~following are pseudo-terms:
-  \begin{mathpar}
-    \lam {x \is\pi M} N \and M \: N \and \depq x \pi M N \\
-    \mpair M N \and \letpair {(x \is\pi S) \otimes T} [z] x y M [U] N \and
-      (x \is\pi M) \otimes N \\
-    \textrm{let} \: \munit \: \textrm{=} \: M \: \textrm{in} \: N \\
-    \apair M N \and \fst M \and \snd M \and (x \is{} M) \with N
-  \end{mathpar}
+  Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
+  \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{variables}. The~set of
+  \emph{pseudo-terms} is defined inductively: if $x, x', y$ and $z$ are
+  variables; $\pi$ is a~semiring element; and $M, N, O, P$ and $Q$ are
+  pseudo-terms, then:
+  \begin{enumerate}
+    \item every variable is a~pseudo-term;
+    \item atomic type $\univ$ is a~pseudo-term;
+    \item \emph{dependent function} type formation, abstraction, and application
+      are pseudo-terms:
+      \begin{mathpar}
+        \depq x \pi M N \and \lam {x \is\pi M} N \and M \: N
+      \end{mathpar}
+    \item \emph{dependent multiplicative pair} type formation, its constructor
+      and eliminator are pseudo-terms:
+      \begin{mathpar}
+        (x \is\pi M) \otimes N \and \mpair M N \and
+        \letpair {(x'\, \is\pi O) \otimes P} [z] x y M [Q] N
+      \end{mathpar}
+    \item \emph{multiplicative unit} type, the~unit and its eliminator are
+      pseudo-terms:
+      \begin{mathpar}
+        \1 \and \munit \and \letu M N
+      \end{mathpar}
+    \item \emph{dependent additive pair} type formation, its constructor and
+      eliminators are pseudo-terms:
+      \begin{mathpar}
+        (x \is{} M) \with N \and \apair M N \and \fst M \and \snd M
+      \end{mathpar}
+    \item \emph{additive unit} type and the~unit are pseudo-terms:
+      \begin{mathpar}
+        \top \and \aunit
+      \end{mathpar}
+  \end{enumerate}
 \end{definition}
+The~pseudo-terms in this definition are a~straightforward combination of
+the~dependently-typed terms in \autoref{def:pseudo-term} and the~two variations
+for pair and unit types as distinguished by the~linear types.
+
 The~unit types are denoted as before; in particular, we keep using \1, because
 it is the~usual linear logic notation for the~multiplicative unit type. Although
 there should be no confusion, note the~difference between a~semiring element,

@@ -217,14 +217,34 @@ their types:
 \begin{definition}[Simply typed \lts]\label{def:stlc}
   Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
   \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{variables}. The~set of
-  \emph{\lts} is defined inductively: every variable is a~\lt; the~unit $\munit$
-  is a~\lt; and if $x, y$ are variables, $S, T$ are types, and $M, N$ are \lts,
-  then the~following are \lts:
-  \begin{mathpar}
-    \lam {x \is{} S} M \and M \: N \and \mpair M N \\
-    \letpair{S \times T} x y M N \and \letu M N
-  \end{mathpar}
+  \emph{\lts} is defined inductively; if $x$ and $y$ are variables, $S$ and $T$
+  are types, and $M$ and $N$ are \lts, then:
+  \begin{enumerate}
+    \item every variable is a~\lt;
+    \item function abstraction and application are \lts:
+      \begin{mathpar}
+        \lam {x \is{} S} M \and M \: N
+      \end{mathpar}
+    \item \label{def:stlc:let_item} pair and its eliminator are \lts:
+      \begin{mathpar}
+        \mpair M N \and \letpair{S \times T} x y M N
+      \end{mathpar}
+    \item unit and its eliminator are \lts:
+      \begin{mathpar}
+        \munit \and \letu M N
+      \end{mathpar}
+  \end{enumerate}
 \end{definition}
+The~function abstraction now contains a~type annotation $S$ of its binding
+variable $x$ as part of its syntax.
+
+The~pair constructor encloses the~two terms $M$ and $N$ that form its elements.
+The~pair eliminator binds the~variables $x$ and $y$ to the~elements of the~pair
+given by the~term $M$ and makes them bound in the~scope of $N$. The~subscript
+type annotation specifies the~expected type of the~pair.
+
+The~subscript type annotation of the~unit eliminator is not necessary, but we
+include it for consistency with the~pair type.
 
 The~\emph{type system} of simply typed \lc consists of two parts. First, it is
 the~\lts we have just defined and, second, the~deduction rules that assign types
@@ -384,27 +404,46 @@ pseudo-terms.
 \begin{definition}\label{def:pseudo-term}
   Assume that we are given an~infinite sequence of expressions $\mathbf{v}_0,
   \mathbf{v}_1, \mathbf{v}_2, \dots$ called \emph{variables}. The~set of
-  \emph{pseudo-terms} is defined inductively: every variable is a~pseudo-term;
-  every atomic type is a~pseudo-term; the~unit $\munit$ and the~unit type \1 are
-  pseudo-terms; and if $x$ and $y$ are variables and $M, N, S, T$ and $U$ are
-  pseudo-terms, then the~following are pseudo-terms:
-  \begin{mathpar}
-    \dep x M N \and \lam {x \is{} M} N \and M \: N \\
-    (x \is{} M) \times N \and \mpair M N \and
-    \letpair{(x \is{} S) \times T}[z] x y M [U] N \\
-    \letu M N
-  \end{mathpar}
+  \emph{pseudo-terms} is defined inductively; if $x, x', y$ and $z$ are
+  variables and $M, N, O, P$ and $Q$ are pseudo-terms, then:
+  \begin{enumerate}
+    \item every variable is a~pseudo-term;
+    \item every atomic type is a~pseudo-term;
+    \item dependent function type formation, abstraction, and application
+      are pseudo-terms:
+      \begin{mathpar}
+        \dep x M N \and \lam {x \is{} M} N \and M \: N
+      \end{mathpar}
+    \item dependent pair type formation, its constructor and eliminator are
+      pseudo-terms:
+      \begin{mathpar}
+        (x \is{} M) \times N \and \mpair M N \and \letpair{(x' \is{} O)\times P}
+        [z] x y M [Q] N
+      \end{mathpar}
+    \item unit type, unit and its eliminator are pseudo-terms:
+      \begin{mathpar}
+        \1 \and \munit \and \letu M N
+      \end{mathpar}
+  \end{enumerate}
 \end{definition}
+The~eliminator binds the~variables $x$ and $y$ to the~elements of the~pair given
+by the~term $M$ and makes them bound in the~scope of $N$. The~subscript type
+annotation $(x' \is{} O)\times P$ specifies the~expected type of the~pair, where
+$x'$ is a~bound variable in $P$ referencing the value of the~first element.
+Usually $x$ and $x'$ will be the~same variable since they both describe the~same
+value; we distinguish them here only to point out that $x$ is bound in $N$ and
+$x'$ is bound in $P$. The~variable $z$ binds the~whole pair and is bound in
+the~scope of $Q$, which is the~type annotation of $N$.
 
-Although the~\autoref{def:pseudo-term} mentions it separately, the~unit type \1
-is an~atomic type. Let us consider what other atomic types can a~given system
-have. First, there are all the~familiar types, like the~type of integers
-$\Int$, or the~type of Boolean values $\Bool$, or indeed \1 and $\top$. These
-depend on the~intended use of the~type system and they are not theoretically
-interesting. Conversely, the~second kind of atomic types determines some of
-the~properties of the~type system; these types are called \emph{sorts}. Our type
-systems will use only one sort, \univ, called \emph{Universe}. It represents
-the~type of types. We will also have the~axiom
+Although \autoref{def:pseudo-term} mentions the~unit type \1 separately, it is
+also an~atomic type. Let us consider what other atomic types can a~given system
+have. First, there are all the~familiar types, like the~type of integers $\Int$,
+or the~type of Boolean values $\Bool$, or indeed \1 and $\top$. These depend on
+the~intended use of the~type system and they are not theoretically interesting.
+Conversely, the~second kind of atomic types determines some of the~properties of
+the~type system; these types are called \emph{sorts}. Our type systems will use
+only one sort, \univ, called \emph{Universe}. It represents the~type of types.
+We will also have the~axiom
 \begin{mathpar}
   \inferrule*
   { }
