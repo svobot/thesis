@@ -33,9 +33,16 @@ annotating it with an~element of some semiring. Several authors have used
 semiring annotations of variables to attach information on how they can be used,
 but \citet{mcbride_2016} was first to use the~annotations to indicate
 whether variables are available for computation or only available in
-the~formation of types. \citet{atkey_2018} fixed an~issue in McBride's idea and
-presented it as the~Quantitative Type Theory (QTT). \citet{weirich_2020}
-provided further commentary on the~topic.
+the~formation of types. The~\lc \citeauthor{mcbride_2016} uses has only
+the~dependent function type with its abstraction and application.
+\citet{atkey_2018} fixed an~issue in \citeauthor{mcbride_2016}'s idea and
+presented it as the~Quantitative Type Theory (QTT) while also extending
+the~system with rules for dependent multiplicative pair type and multiplicative
+unit type. \citet{weirich_2020} relaxed some of the~restrictions that
+\citeauthor{atkey_2018} imposed on the~system.
+
+This work extends QTT with the~typing rules for the~dependent additive pair type
+and the~additive unit.
 
 \sectionwithtoc{Resource semirings}
 
@@ -48,8 +55,8 @@ how the~corresponding variable may be used. The~annotation $\rho_i$ tracks
 the~computational usage of a~variable. The~usage $0$ indicates that the~variable
 can only be used to form a~type and it has no presence in an~executing program.
 The~output is annotated with usage $\sigma$, which is restricted to be either
-the~$0$, or the~$1$ of the~semiring due to the~admissibility of substitution, as
-Atkey shows.
+the~$0$, or the~$1$ of the~semiring due to the~admissibility of
+substitution~\citep{atkey_2018}.
 
 \begin{definition}
   A~\emph{semiring} $\mathcal{R}$ is a~set equipped with two binary operations,
@@ -221,7 +228,7 @@ All type formation rules bellow yield well-formedness judgments $\Gamma \vdash S
 When $\sigma = 1$, the~annotation indicates that we are constructing
 computationally relevant data.
 
-The~rules for variables and type conversion are:
+We start with these three rules:
 \begin{mathpar}
   \inferrule*[right=Var]
   {0\Gamma_1, x \is\sigma S, 0\Gamma_2 \vdash}
@@ -251,7 +258,7 @@ assumes a~zeroed-out context, consequence of \autoref{lem:zero_needs_nothing}.
 The~introduction and elimination rules combine the~type parametrisation of
 \nameref{sec:dtlc} with the~resource tracking of \nameref{sec:ltlc}.
 
-The~\emph{dependent function types} \depq x \pi S T add an~annotation $\pi$,
+The~\emph{dependent function type} \depq x \pi S T adds an~annotation $\pi$,
 which records how the~function will use its argument. The~formation,
 introduction, and elimination rules are:
 \begin{mathpar}
@@ -268,9 +275,9 @@ introduction, and elimination rules are:
 
   \inferrule*[right=$\to$-E$_0$]
   {
+    \Gamma \vdash M \is\sigma \depq x \pi S T \\\\
     \sigma\pi = 0 \\
-    0\Gamma \vdash N \is0 S \\\\
-    \Gamma \vdash M \is\sigma \depq x \pi S T
+    0\Gamma \vdash N \is0 S
   }
   {\Gamma \vdash M \: N \is\sigma T}
 
@@ -295,10 +302,9 @@ but since the~term has a~computational usage ($\sigma \neq 0$), we must make
 sure that the~$\sigma$ function uses have $\pi$ arguments' worth of resources,
 hence the~$\sigma\pi$ scaling of the~context of the~function argument.
 
-The~\emph{dependent multiplicative pair types} $(x \is \pi S) \otimes T$, like
-the~function types, add an~annotation $\pi$ which records how many times
-the~first element may be used. The~formation, introduction, and elimination
-rules are:
+The~\emph{dependent multiplicative pair type} $(x \is \pi S) \otimes T$, like
+the~function type, adds an~annotation $\pi$; it records how many times the~first
+element may be used. The~formation, introduction, and elimination rules are:
 \begin{mathpar}
   \inferrule*[right=$\otimes$-F]
   {
@@ -368,17 +374,23 @@ however many {\munit}s; the~elimination adds the~resource usage of $M$ and $N$:
   }
 \end{mathpar}
 
-The~\emph{dependent additive pair types} $(x \is{} S) \with T$ are without
+The~\emph{dependent additive pair type} $(x \is{} S) \with T$ is without
 the~semiring annotation on $x$, because these use cases are already handled by
 the~multiplicative pair type. The~formation, introduction, and elimination rules
 are:
 \begin{mathpar}
   \inferrule*[right=$\with$-F]
-  {0\Gamma \vdash S \is 0 \univ \\ 0\Gamma, x \is 0 S \vdash T \is 0 \univ}
+  {
+    0\Gamma \vdash S \is 0 \univ \\
+    0\Gamma, x \is 0 S \vdash T \is 0 \univ
+  }
   {0\Gamma \vdash (x \is{} S) \with T \is 0 \univ}
 
   \inferrule*[right=$\with$-I]
-  {\Gamma \vdash M \is \sigma S \\ \Gamma \vdash N \is \sigma T[M/x]}
+  {
+    \Gamma \vdash M \is \sigma S \\
+    \Gamma \vdash N \is \sigma T[M/x]
+  }
   {\Gamma \vdash \langle M, N \rangle \is \sigma (x \is{} S) \with T}
 
   \inferrule*[right=$\with$-Efst]
