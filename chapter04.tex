@@ -140,7 +140,7 @@ typed.
     \item \emph{multiplicative unit} type, the~unit and its eliminator are
       pseudo-terms:
       \begin{mathpar}
-        \1 \and \munit \and \letu M N
+        \1 \and \munit \and \letu [x] M [O] N
       \end{mathpar}
     \item \emph{dependent additive pair} type formation, its constructor and
       eliminators are pseudo-terms:
@@ -370,7 +370,7 @@ however many {\munit}s; the~elimination adds the~resource usage of $M$ and $N$:
     \Gamma_2 \vdash N \is \sigma S[\munit/x]
   }
   {
-    \Gamma_1 + \Gamma_2 \vdash \letu M N \is\sigma S[M/x]
+    \Gamma_1 + \Gamma_2 \vdash \letu [x] M [S] N \is\sigma S[M/x]
   }
 \end{mathpar}
 

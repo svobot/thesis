@@ -452,23 +452,27 @@ pseudo-terms.
       \end{mathpar}
     \item unit type, unit and its eliminator are pseudo-terms:
       \begin{mathpar}
-        \1 \and \munit \and \letu M N
+        \1 \and \munit \and \letu [x] M [O] N
       \end{mathpar}
   \end{enumerate}
 \end{definition}
-The~eliminator binds the~variables $x$ and $y$ to the~elements of the~pair given
-by the~term $M$ and makes them bound in the~scope of $N$. The~subscript type
-annotation $(x' \is{} O)\times P$ specifies the~expected type of the~pair, where
-$x'$ is a~bound variable in $P$ referencing the value of the~first element.
-Usually $x$ and $x'$ will be the~same variable since they both describe the~same
-value; we distinguish them here only to point out that $x$ is bound in $N$ and
-$x'$ is bound in $P$. The~variable $z$ binds the~whole pair and is bound in
-the~scope of $Q$, which is the~type annotation of $N$.
-
 Analogously to how $N$ is the~\emph{scope} of $x$ in the~function abstraction,
 $N$ is also the~scope of $x$ in the~dependent type formation and dependent pair
-formation; in the~dependent pair eliminator $N$ is the~scope of $x$ and $y$ and
-$Q$ is the~scope of $z$.
+formation.
+
+The~dependent pair eliminator takes the~pair given by the~term $M$ and binds
+the~variables $x$ and $y$ to its elements. The~scope of these variables is $N$.
+The~variable $z$ binds the~whole pair and its scope is $Q$, which is a~type
+annotation specifying the~type of $N$. The~subscript type annotation
+$(x' \is{} O)\times P$ specifies the~expected type of the~pair, where $x'$ is
+a~bound variable in $P$ referencing the value of the~first element. Usually $x$
+and $x'$ will be the~same variable since they both describe the~same value; we
+distinguish them here only to point out that $x$ is bound in $N$ and $x'$ is
+bound in $P$.
+
+Similarly to the~pair eliminator, the~unit eliminator also binds a~variable $x$
+to the~unit given by the~term $M$. The~scope of $x$ is $O$, which is the~type
+annotation of $N$.
 
 Although \autoref{def:pseudo-term} mentions the~unit type \1 separately, it is
 also an~atomic type. Let us consider what other atomic types can a~given system
@@ -639,7 +643,7 @@ the~unit:
     \Gamma \vdash N \is{} U[\munit/x]
   }
   {
-    \Gamma \vdash \letu M N \is{} U[M/x]
+    \Gamma \vdash \letu [x] M [U] N \is{} U[M/x]
   }
 \end{mathpar}
 
