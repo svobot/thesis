@@ -125,11 +125,10 @@ occurrences of $(x y)$ and three occurrences of $x$.
   Free variables form a~set, called $\fv M$.
 \end{definition}
 
-For example, in the~term $M \defeq xy(\lam {zv} {z (\lam y y)})w$ the~leftmost
-$x, y$ and the~rightmost $w$ are all free variables, the~$z$ and $v$ in
-$\lam {zv} {}$ are bound and binding, the~rightmost $z$ is bound, the~second $y$
-from the~left is bound and binding, and the~rightmost $y$ is bound;
-hence
+For example, in the~term $M = xy(\lam {zv} {z (\lam y y)})w$ the~leftmost $x, y$
+and the~rightmost $w$ are all free variables, the~$z$ and $v$ in $\lam {zv} {}$
+are bound and binding, the~rightmost $z$ is bound, the~second $y$ from the~left
+is bound and binding, and the~rightmost $y$ is bound; hence
 \[
   \fv M = \{x, y, w\} .
 \]
@@ -138,17 +137,17 @@ hence
   Given terms $M$ and $N$, the~result of substituting $N$ for every occurrence
   of the~free variable $x$, written $M[N/x]$, is defined by induction on $M$:
   \begin{enumerate}
-    \item $x[N/x]  \equiv N$;
-    \item $a[N/x]  \equiv a$  \hfill for all atoms $a \not\equiv x$;
-    \item $(O \: P)[N/x]  \equiv (O[N/x] \: P[N/x])$;
-    \item $(\lam x O)[N/x]  \equiv \lam x O$;
-    \item $(\lam y O)[N/x]  \equiv \lam y O$ \hfill if $x \notin \fv O$;
-    \item $(\lam y O)[N/x]  \equiv \lam y {O[N/x]}$
-      \hfill if $x \in \fv O$ and $y \notin \fv N$;
+    \item $x[N/x] \defeq N$;
+    \item $a[N/x] \defeq a$ \hfill for all atoms $a \neq x$;
+    \item $(O \: P)[N/x] \defeq (O[N/x] \: P[N/x])$;
+    \item $(\lam x O)[N/x] \defeq \lam x O$;
+    \item $(\lam y O)[N/x] \defeq \lam y {O[N/x]}$ \hfill if $y \notin \fv N$;
     \item \label{def:substitution:g_item} $(\lam y O)[N/x]
-      \equiv \lam z {O[z/y][N/x]}$ \hfill if $x \in \fv O$ and $y \in \fv N$,
+      \defeq \lam z {O[z/y][N/x]}$ \hfill if $y \in \fv N$,
+    \newcounter{subst_enum}
+    \setcounter{subst_enum}{\value{enumi}}
   \end{enumerate}
-  where $y \not\equiv x$ and $z$ is chosen as the~first variable $\notin \fv N
+  where $y \neq x$ and $z$ is chosen as the~first variable $\notin \fv N
   \cup \fv O$.
 \end{definition}
 
@@ -181,13 +180,15 @@ Having looked at the~way we can combine \lts via substitution, we can turn our
 focus to the~calculation procedure that lies at the~heart of \lc and gives it
 its power.
 
-\sectionwithtoc{β-reduction}
+\sectionwithtoc{β-equality}
 
-As the~name in the~\autoref{def:lambda_calculus} suggests, a~term of
-the~form $(\lam x M) \: N$ represents an~application of an~operator $\lam x M$
-to an~argument $N$. The~resulting value of such application is
-the~\emph{simplified} term $M[N/x]$. This simplification process is captured in
-the~following definition.
+Using \lc we can express the~notion of \emph{computation}. Computation on \lts
+is called \emph{β-reduction} and it is a~process, which usually replaces more
+complicated terms with simpler ones. As the~name in
+the~\autoref{def:lambda_calculus} suggests, a~term of the~form $(\lam x M) \: N$
+represents an~application of a~function $\lam x M$ to an~argument $N$.
+The~resulting value of such application is the~\emph{simplified} term $M[N/x]$.
+This simplification process is captured in the~following definition.
 
 \begin{definition}
   Any term of the~form
@@ -214,4 +215,18 @@ the~following definition.
 
 Informally speaking, the~\lts are called \emph{programs}, which we can then
 think of as \emph{executing}, or \emph{running}, instead of β-reducing.
+
+Using β-reduction, we can generate a~symmetric relation on terms:
+\begin{definition}
+  Terms $M$ and $N$ are \emph{β-equal}, written $M =_\beta N$ if $N$ can be
+  obtained from $M$ using a~finite (possibly empty) series of β-contractions,
+  reverse β-contractions, and α-conversions; that is: $M =_\beta N$ if there
+  exists $M_0, \dots, M_n$ ($n \geq 0$) such that:
+  \begin{mathpar}
+    M = M_0, \and N = M_n, \\
+    M_i \triangleright_{1\beta} M_{i+1} \quad \text{or} \quad
+      M_{i+1} \triangleright_{1\beta} M_i \quad \text{or} \quad
+      M_i \equiv_\alpha M_{i+1} \qquad \text{for every } i < n.
+  \end{mathpar}
+\end{definition}
 

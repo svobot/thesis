@@ -221,15 +221,16 @@ their types:
   are types, and $M$ and $N$ are \lts, then:
   \begin{enumerate}
     \item every variable is a~\lt;
-    \item function abstraction and application are \lts:
+    \item function constructor and eliminator, also called abstraction and
+      application, are \lts:
       \begin{mathpar}
         \lam {x \is{} S} M \and M \: N
       \end{mathpar}
-    \item \label{def:stlc:let_item} pair and its eliminator are \lts:
+    \item \label{def:stlc:let_item} pair constructor and eliminator are \lts:
       \begin{mathpar}
         \mpair M N \and \letpair{S \times T} x y M N
       \end{mathpar}
-    \item unit and its eliminator are \lts:
+    \item unit constructor and eliminator are \lts:
       \begin{mathpar}
         \munit \and \letu M N
       \end{mathpar}
@@ -243,8 +244,37 @@ The~pair eliminator binds the~variables $x$ and $y$ to the~elements of the~pair
 given by the~term $M$ and makes them bound in the~scope of $N$. The~subscript
 type annotation specifies the~expected type of the~pair.
 
-The~subscript type annotation of the~unit eliminator is not necessary, but we
-include it for consistency with the~pair type.
+Substitution on simply typed \lts works the same way as in
+\autoref{def:substitution} for the~functions, we simply disregard the~type
+annotation on the~binding variable, but for pairs and units we need to extend
+the~definition as follows:
+\begin{enumerate}
+  \setcounter{enumi}{\value{subst_enum}}
+  \item $\mpair M N [O/x] \defeq \mpair {M[O/x]} {N[O/x]}$;
+  \item $(\letpair {S \times T} x y M N)[O/x] \defeq
+    \letpair {S \times T} x y {M[O/x]} N$
+  \item $(\letpair{S\times T} y x M N)[O/x] \defeq
+    \letpair{S \times T} y x {M[O/x]} N$
+  \item $(\letpair{S\times T} y z M N)[O/x] \defeq
+    \letpair{S \times T} y z {M[O/x]} {N[O/x]}$
+  \item $\munit[O/x] \defeq \munit$
+  \item $(\letu M N)[O/x] \defeq \letu {M[O/x]} {N[O/x]}$
+\end{enumerate}
+where $x$, $y$, and $z$ are three distinct variables.
+
+Similarly, we extend the~definition of β-contraction. Generally β-contraction
+tells us how to simplify a~term that involves an~eliminator directly applied to
+a~constructor.
+\begin{definition}
+  In a~given term, every occurrence of a~β-redex on the~left hand side of
+  $\triangleright_{1\beta}$ can be replaced by the~contractum on the~right side:
+  \begin{align*}
+    (\lam {x \is{} S} M) \: N \quad &\triangleright_{1\beta} \quad M[N/x] \\
+    \letpair {S \times T} x y {\mpair M N} O \quad &\triangleright_{1\beta}
+      \quad O[M/x][N/y] \\
+    \letu \munit N \quad &\triangleright_{1\beta} \quad N
+  \end{align*}
+\end{definition}
 
 The~\emph{type system} of simply typed \lc consists of two parts. First, it is
 the~\lts we have just defined and, second, the~deduction rules that assign types
@@ -435,6 +465,11 @@ value; we distinguish them here only to point out that $x$ is bound in $N$ and
 $x'$ is bound in $P$. The~variable $z$ binds the~whole pair and is bound in
 the~scope of $Q$, which is the~type annotation of $N$.
 
+Analogously to how $N$ is the~\emph{scope} of $x$ in the~function abstraction,
+$N$ is also the~scope of $x$ in the~dependent type formation and dependent pair
+formation; in the~dependent pair eliminator $N$ is the~scope of $x$ and $y$ and
+$Q$ is the~scope of $z$.
+
 Although \autoref{def:pseudo-term} mentions the~unit type \1 separately, it is
 also an~atomic type. Let us consider what other atomic types can a~given system
 have. First, there are all the~familiar types, like the~type of integers $\Int$,
@@ -442,13 +477,8 @@ or the~type of Boolean values $\Bool$, or indeed \1 and $\top$. These depend on
 the~intended use of the~type system and they are not theoretically interesting.
 Conversely, the~second kind of atomic types determines some of the~properties of
 the~type system; these types are called \emph{sorts}. Our type systems will use
-only one sort, \univ, called \emph{Universe}. It represents the~type of types.
-We will also have the~axiom
-\begin{mathpar}
-  \inferrule*
-  { }
-  {\vdash \univ \is{} \univ},
-\end{mathpar}
+only one sort, \univ, called \emph{Universe}, representing the~type of types.
+These systems will be able to derive the~judgment $\vdash \univ \is{} \univ$,
 which states that the~type of types is itself a~type. The~choice of a~single
 sort lets us simplify the~implementation of our type system, but it also has
 some downsides; when interpreted under the~Curry–Howard correspondence, the~type
@@ -458,24 +488,21 @@ inhabited.
 
 For a~type system to correspond to a~consistent logic, we would have to have at
 least two sorts~\citep{hurkens_1995}. \citet{barendregt_1993} introduced a~group
-of eight typing systems, which are known as the~\emph{λ-cube} due to their
-mutual relationships. All these systems have used the~sorts $\star$ and
-$\square$, related by the~rule
+of eight typing systems, known as the~\emph{λ-cube} due to their mutual
+relationships, all of which use the~sorts $\star$ and $\square$ related by
+the~rule:
 \begin{mathpar}
   \inferrule*
   { }
-  {\vdash \star \is{} \square}.
+  {\vdash \star \is{} \square}
 \end{mathpar}
-This forms a~type system with the~expressive power of a~second-order
-logic~\todo{[TRUE?]}. Another option is to have an~infinite sequence of sorts
-$\star_0, \star_1, \dots$, related with the~rule
+Another option is to have an~infinite sequence of sorts $\star_0, \star_1,
+\dots$ related by the~rule:
 \begin{mathpar}
   \inferrule*
   { }
-  {\vdash \star_i \is{} \star_{i+1}}.
+  {\vdash \star_i \is{} \star_{i+1}}
 \end{mathpar}
-This gives rise to a~type system with the~expressive power of a~higher-order
-logic.
 
 \sectionwithtoc{Pseudo-contexts}
 
@@ -514,10 +541,6 @@ system, that assigns the~dependent types, and is thus more expressive then
 the~simply typed \lc, since we can model the~simple type $S \to T$ by defining
 it as $\dep x S T$, where $x \notin \fv T$.
 
-The~increased expressiveness of dependent types lies in the~ability to quantify
-over \univ. We will see an~example of this after we formalise the~type judgment
-rules.
-
 The~rules that identify contexts within pseudo-contexts and terms within
 pseudo-terms are mutually recursive. Contexts are identified by the~judgment
 $\Gamma \vdash$, defined by the~following rules:
@@ -531,15 +554,18 @@ $\Gamma \vdash$, defined by the~following rules:
   {\Gamma, x \is{} S \vdash}
 \end{mathpar}
 
-Terms are identified by the~judgment $\Gamma \vdash M \is{} S$. First, we have
-the~rule saying that the~type of a~type is type, as well as three rules that
-derive type formation, hence the~\ir{-F} suffix, for the~dependent function
-type, dependent pair type, and the~unit type:
+Terms are identified by the~judgment $\Gamma \vdash M \is{} S$. First, a rule
+that derives the~type of type is type:
 \begin{mathpar}
   \inferrule*
   {\Gamma \vdash}
   {\Gamma \vdash \univ \is{} \univ}
+\end{mathpar}
 
+In dependently typed \lc the~types are formed by terms, so we have three
+\emph{type formation} rules, hence the~\ir{-F} suffix, which state when a~type
+former can be applied:
+\begin{mathpar}
   \inferrule*[right=$\to$-F]
   {
     \Gamma \vdash S \is{} \univ \\\\
@@ -617,8 +643,59 @@ the~unit:
   }
 \end{mathpar}
 
-Now we can look at an~example of quantification over \univ that we mention at
-the~beginning of this section. Although
+With terms forming types, there is the~possibility of writing the~same type in
+different ways. For example, the~following terms all describe the same type:
+\begin{mathpar}
+  \dep x \Int \Bool \and \dep x {(\lam {y \is{} \univ} y) \: \Int} \Bool \\
+  \dep x \Int {(\letpair{(a \is{} \univ) \times \Int} [c] a b {\mpair\Bool{42}}
+    [\univ] a)}
+\end{mathpar}
+
+To judge the~equivalence of types, we use the~\emph{type equality} judgment:
+\[
+  \Gamma \vdash S \equiv T \is{} \univ,
+\]
+meaning that $S$ and $T$ are equal types in the~context $\Gamma$. This judgment
+is derived by the~rule:
+\begin{mathpar}
+\inferrule*
+  {
+    \Gamma \vdash S \is{} \univ \\
+    \Gamma \vdash T \is{} \univ \\
+    T =_\beta S
+  }
+  {\Gamma \vdash S \equiv T \is{} \univ}
+\end{mathpar}
+If both $S$ and $T$ are types in the~context $\Gamma$ and they are β-equal, then
+they are equal types in the~context.
+
+We can use the~type equality when deriving the~well-typed terms:
+\begin{mathpar}
+\inferrule*[right=Conv]
+  {
+    \Gamma \vdash M \is{} S \\
+    \Gamma \vdash S \equiv T \is{} \univ
+  }
+  {\Gamma \vdash M \is{} T}
+\end{mathpar}
+which says that if two types are equal, then the~terms of one type are terms of
+the~other.
+
+As an~example of the~increased expressiveness of dependently typed \lc, we
+consider the~type we are now able to assign to the~identity function. To assign
+a~type to identity function, we need the~ability to quantify over \univ.
+Function $\lam {x \is{} s} x$ is the~identity on type $s$, so if we view $s$ as
+a~function parameter, then the~term
+\[
+  id \defeq \lam {s \is{} \univ} {\lam {x \is{} s} x}
+\]
+is a~function which, when applied to any type of type \univ, gives the~identity
+function over that type. Hence,
+\[
+  id \: \Bool \: \mathtt{true} \equiv \mathtt{true}.
+\]
+
+Although
 \begin{equation}\label{eq:pi_type}
   s \is{} \univ \vdash \dep x s s \is{} \univ
 \end{equation}
@@ -627,13 +704,12 @@ and
   s \is{} \univ \vdash (\lam {x \is{} s} x) \is{} \dep x s s
 \end{equation}
 can be derived using only simple types, to be able to successfully derive
-the~type of an~identity function that works for any type, we need dependent
+the~type of the~identity function that works for any type, we need dependent
 function types; meaning, we can combine judgments (\ref{eq:pi_type}) and
 (\ref{eq:id_lam}) and deduce:
 \begin{mathpar}
   \inferrule*[right=$\to$-I]
   {
-    \text{(\ref{eq:id_lam})} \\
     \inferrule*[right=$\to$-F]
     {
       \inferrule*
@@ -641,18 +717,12 @@ function types; meaning, we can combine judgments (\ref{eq:pi_type}) and
       {\vdash \univ \is{} \univ} \\
       \text{(\ref{eq:pi_type})}
     }
-    {\vdash \dep s \univ {\dep x s s} \is{} \univ}
+    {\vdash \dep s \univ {\dep x s s} \is{} \univ} \\
+    \text{(\ref{eq:id_lam})}
   }
   {
     \vdash (\lam {s \is{} \univ} {\lam {x \is{} s} x}) \is{}
       \dep s \univ {\dep x s s}
   }
 \end{mathpar}
-
-Function $\lam {x \is{} s} x$ is the~identity on type $s$; hence,
-\[
-  \lam {s \is{} \univ} {\lam {x \is{} s} x}
-\]
-is a~function which, when applied to any type of type \univ, gives the~identity
-function over that type.
 
