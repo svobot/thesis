@@ -109,7 +109,7 @@ is an~axiom and the~rest are the~logical rules:
 Consider that instead of the~\emph{let} pair eliminator in
 \autoref{def:stlc} \ref{def:stlc:let_item}, which binds new variables to both
 elements of a~pair at the~same time, we could introduce two new terms that would
-each bind a~variable to only one element of a~pair. We can modify the~definition
+each β-reduce to one of the~elements of the~pair. We can modify the~definition
 such that, instead of the~term
 \[
   \letpair {S \times T} x y M N,
@@ -153,13 +153,14 @@ be established with a~few applications of the~structural
 rules~\citep{wadler_1993}.
 
 The~situation with unit types is analogous. To use the~alternative definition of
-a~unit type, we again modify the~\autoref{def:stlc} by simply removing the~term
+a~unit type, we again modify the~\autoref{def:stlc}, this time by simply
+removing the~term
 \[
   \letu M N,
 \]
 which is to say that the~new definition of a~unit type uses the~same term to
 construct a~value, \munit, but it has no term that eliminates it.
-The~introduction rule is again identical to the~old definition, but now there is
+The~introduction rule is also identical to the~old definition, but now there is
 no elimination rule:
 \begin{mathpar}
   \inferrule*[right=\1-I$'$]
@@ -171,9 +172,14 @@ no elimination rule:
 Without the~elimination rule we can never do anything interesting with a~value
 of this type, except to incorporate it into a~larger value.
 
-Terms can be expressed using the~alternative forms:
+The~following establishes the~equivalence on the~terms: every occurrence of
+the~unit eliminator can be expressed using only the~\emph{in} part of the~term:
 \[
   \letu M N \defeq N
+\]
+The~opposite direction is trivial, since there is no eliminator to express:
+\[
+  N \defeq N
 \]
 
 \sectionwithtoc{Substructural type system}
