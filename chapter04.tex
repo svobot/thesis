@@ -234,29 +234,31 @@ We start with these three rules:
   {0\Gamma_1, x \is\sigma S, 0\Gamma_2 \vdash}
   {0\Gamma_1, x \is\sigma S, 0\Gamma_2 \vdash x \is\sigma S}
 
-  \inferrule*[right=Conv]
-  {
-    \Gamma \vdash M \is\sigma S \\\\
-    0\Gamma \vdash S \equiv T
-  }
-  {\Gamma \vdash M \is\sigma T}
-
   \inferrule*[right=Univ]
   {0\Gamma \vdash}
   {0\Gamma \vdash \univ \is0 \univ}
+
+  \inferrule*[right=Conv]
+  {
+    \Gamma \vdash M \is\sigma S \\
+    0\Gamma \vdash S \is0 \univ \\
+    0\Gamma \vdash T \is0 \univ \\
+    S =_\beta T
+  }
+  {\Gamma \vdash M \is\sigma T}
 \end{mathpar}
 The~variable rule, \ir{Var}, selects a~single variable from the~context and all
 the~other variables that do not take a~computational part in this judgment are
 marked with $0$ usage. The~conversion rule, \ir{Conv}, is almost identical to
-one in the~intuitionistic type theory \todo{[EXPLAIN]}, except that the~type
-equality $S \equiv T$ is always judged in a~context with no resources.
-The~type-in-type axiom, \ir{Univ}, is only available if $\sigma = 0$; we cannot
-construct a~type that has a~runtime presence. In the~same vein, every type
-formation rule in the~upcoming paragraphs, \ir{$\to$}, \ir{$\otimes$}, \ir{\1},
-\ir{$\with$}, and \ir{$\top$}, forms a~type with usage $\sigma =0$ and thus
-assumes a~zeroed-out context, consequence of \autoref{lem:zero_needs_nothing}.
-The~introduction and elimination rules combine the~type parametrisation of
-\nameref{sec:dtlc} with the~resource tracking of \nameref{sec:ltlc}.
+one in the~intuitionistic type theory, except that the~types are judged in
+a~context with no resources. The~Universe formation rule, \ir{Univ}, is only
+available if $\sigma = 0$; we cannot construct a~type that has a~runtime
+presence. In the~same vein, every type formation rule in the~upcoming
+paragraphs, \ir{$\to$}, \ir{$\otimes$}, \ir{\1}, \ir{$\with$}, and \ir{$\top$},
+forms a~type with usage $\sigma =0$ and thus assumes a~zeroed-out context,
+consequence of \autoref{lem:zero_needs_nothing}. The~introduction and
+elimination rules combine the~type parametrisation of \nameref{sec:dtlc} with
+the~resource tracking of \nameref{sec:ltlc}.
 
 The~\emph{dependent function type} \depq x \pi S T adds an~annotation $\pi$,
 which records how the~function will use its argument. The~formation,

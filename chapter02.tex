@@ -655,62 +655,42 @@ different ways. For example, the~following terms all describe the same type:
     [\univ] a)}
 \end{mathpar}
 
-To judge the~equivalence of types, we use the~\emph{type equality} judgment:
-\[
-  \Gamma \vdash S \equiv T \is{} \univ,
-\]
-meaning that $S$ and $T$ are equal types in the~context $\Gamma$. This judgment
-is derived by the~rule:
-\begin{mathpar}
-\inferrule*
-  {
-    \Gamma \vdash S \is{} \univ \\
-    \Gamma \vdash T \is{} \univ \\
-    T =_\beta S
-  }
-  {\Gamma \vdash S \equiv T \is{} \univ}
-\end{mathpar}
-If both $S$ and $T$ are types in the~context $\Gamma$ and they are β-equal, then
-they are equal types in the~context.
-
-We can use the~type equality when deriving the~well-typed terms:
+To judge the~equivalence of types, we employ the~following rule:
 \begin{mathpar}
 \inferrule*[right=Conv]
   {
     \Gamma \vdash M \is{} S \\
-    \Gamma \vdash S \equiv T \is{} \univ
+    \Gamma \vdash S \is{} \univ \\
+    \Gamma \vdash T \is{} \univ \\
+    S =_\beta T
   }
   {\Gamma \vdash M \is{} T}
 \end{mathpar}
-which says that if two types are equal, then the~terms of one type are terms of
-the~other.
+If a~term has type $S$ and if $S$ is β-equal to $T$, then the~term has also type
+$T$.
 
 As an~example of the~increased expressiveness of dependently typed \lc, we
 consider the~type we are now able to assign to the~identity function. To assign
 a~type to identity function, we need the~ability to quantify over \univ.
 Function $\lam {x \is{} s} x$ is the~identity on type $s$, so if we view $s$ as
-a~function parameter, then the~term
+a~function parameter, the~term
 \[
-  id \defeq \lam {s \is{} \univ} {\lam {x \is{} s} x}
+  \mathtt{id} \defeq \lam {s \is{} \univ} {\lam {x \is{} s} x}
 \]
 is a~function which, when applied to any type of type \univ, gives the~identity
-function over that type. Hence,
+function over that type. So, for example, we have:
 \[
-  id \: \Bool \: \mathtt{true} \equiv \mathtt{true}.
+  \mathtt{id} \: \Bool \: \mathtt{true} =_\beta \mathtt{true}.
 \]
 
-Although
-\begin{equation}\label{eq:pi_type}
-  s \is{} \univ \vdash \dep x s s \is{} \univ
-\end{equation}
-and
-\begin{equation}\label{eq:id_lam}
+To derive the~type of $\mathtt{id}$, we need dependent function types: given
+derivations of judgments
+\begin{mathpar}
+  s \is{} \univ \vdash \dep x s s \is{} \univ \and
   s \is{} \univ \vdash (\lam {x \is{} s} x) \is{} \dep x s s
-\end{equation}
-can be derived using only simple types, to be able to successfully derive
-the~type of the~identity function that works for any type, we need dependent
-function types; meaning, we can combine judgments (\ref{eq:pi_type}) and
-(\ref{eq:id_lam}) and deduce:
+\end{mathpar}
+which can be found even with only simple types, we need to combine them using
+\ir{$\to$-I} like so:
 \begin{mathpar}
   \inferrule*[right=$\to$-I]
   {
@@ -719,10 +699,14 @@ function types; meaning, we can combine judgments (\ref{eq:pi_type}) and
       \inferrule*
       {\diamond \vdash}
       {\vdash \univ \is{} \univ} \\
-      \text{(\ref{eq:pi_type})}
+      \inferrule*
+      { \vdots }
+      {s \is{} \univ \vdash \dep x s s \is{} \univ}
     }
     {\vdash \dep s \univ {\dep x s s} \is{} \univ} \\
-    \text{(\ref{eq:id_lam})}
+    \inferrule*
+    { \vdots }
+    {s \is{} \univ \vdash (\lam {x \is{} s} x) \is{} \dep x s s}
   }
   {
     \vdash (\lam {s \is{} \univ} {\lam {x \is{} s} x}) \is{}
