@@ -106,25 +106,31 @@ is an~axiom and the~rest are the~logical rules:
 
 \sectionwithtoc{Alternative pairs \& units}
 
-Consider that instead of the~\emph{let} pair eliminator in
-\autoref{def:stlc} \ref{def:stlc:let_item}, which binds new variables to both
-elements of a~pair at the~same time, we could introduce two new terms that would
-each β-reduce to one of the~elements of the~pair. We can modify the~definition
-such that, instead of the~term
-\[
-  \letpair {S \times T} x y M N,
-\]
-we define the~following two:
+Pairs of constructors and eliminators always have two ways of defining them. In
+this section, we will go over the~alternative definitions of constructors and
+eliminators for the~pair and unit types.
+
+We will use a~different notation to distinguish the~alternative definitions;
+the~pair constructor uses angle brackets and there are now two eliminators:
 \begin{mathpar}
-  \fst M \and \snd M
+  \apair M N \and \fst M \and \snd M
 \end{mathpar}
 
-These terms are accompanied by new introduction and elimination rules, which
-replace the~original \ir{$\times$-I} and \ir{$\times$-E}:
+The~\emph{let} eliminator in \autoref{def:stlc} \ref{def:stlc:let_item}
+binds new variables to both elements of the~pair at the~same time and it
+β-reduces to the~\emph{in} sub-term, with both elements of the~pair in context.
+The~two new eliminators, on the~other hand, each access only one of the~elements
+and β-reduce as follows:
+\begin{align*}
+  \fst {\apair M N} \quad &\triangleright_{1\beta} \quad M \\
+  \snd {\apair M N} \quad &\triangleright_{1\beta} \quad N
+\end{align*}
+
+The~introduction and elimination rules for the~new definition of pairs are:
 \begin{mathpar}
   \inferrule*[right=$\times$-I$'$]
   {\Gamma \vdash M \is{} S \\ \Gamma \vdash N \is{} T}
-  {\Gamma \vdash \mpair M N \is{} S \times T} \\
+  {\Gamma \vdash \apair M N \is{} S \times T} \\
 
   \inferrule*[right=$\times$-E$'_1$]
   {\Gamma \vdash M \is{} S \times T}
@@ -135,45 +141,43 @@ replace the~original \ir{$\times$-I} and \ir{$\times$-E}:
   {\Gamma \vdash \snd M \is{} T}
 \end{mathpar}
 
-The~terms can be expressed using each other; the~new \emph{fst} and \emph{snd}
-terms can be defined using \emph{let}:
+As both definitions of pairs form the~same type, the~terms and derivation rules
+can be expressed using each other. The~equivalence between the~old rules
+\ir{$\times$-I} and \ir{$\times$-E}, and the~new \ir{$\times$-I$'$},
+\ir{$\times$-E$'_1$}, and \ir{$\times$-E$'_2$} can be established with a~few
+applications of the~structural rules~\citep{wadler_1993}. The~equivalence of
+constructors is trivial and the~eliminators are defined in terms of each other
+like this: the~new \emph{fst} and \emph{snd} defined using \emph{let}:
 \begin{align*}
   \fst M &\defeq \letpair {S \times T} x y M x \\
   \snd M &\defeq \letpair {S \times T} x y M y
 \end{align*}
-and, conversely, \emph{let} can be defined using \emph{fst} and \emph{snd}:
+and, conversely, \emph{let} defined using \emph{fst} and \emph{snd}:
 \[
   \letpair {S \times T} x y M N \defeq (\lam {x \is{} S} {\lam {y \is{} T} N})
-  \: (\fst M) \: (\snd M).
+  \: (\fst M) \: (\snd M)
 \]
 
-The~equivalence between the~old rules \ir{$\times$-I} and \ir{$\times$-E}, and
-the~new \ir{$\times$-I$'$}, \ir{$\times$-E$'_1$}, and \ir{$\times$-E$'_2$} can
-be established with a~few applications of the~structural
-rules~\citep{wadler_1993}.
+With unit types, our alternative definition uses the~notation \aunit for
+the~constructor, but it has no eliminator. The~analogy with pairs works like
+this: pairs have two elements so the~alternative definition of pair type has two
+eliminators, then, since unit has zero elements, it also has zero eliminators.
 
-The~situation with unit types is analogous. To use the~alternative definition of
-a~unit type, we again modify the~\autoref{def:stlc}, this time by simply
-removing the~term
-\[
-  \letu M N,
-\]
-which is to say that the~new definition of a~unit type uses the~same term to
-construct a~value, \munit, but it has no term that eliminates it.
-The~introduction rule is also identical to the~old definition, but now there is
-no elimination rule:
+The~introduction rule is identical to the~old definition, but now there is no
+elimination rule:
 \begin{mathpar}
   \inferrule*[right=\1-I$'$]
   { }
-  {\Gamma \vdash \munit \is{} \1}
+  {\Gamma \vdash \aunit \is{} \1}
   \and
   \text{\emph{No elimination rule}}
 \end{mathpar}
 Without the~elimination rule we can never do anything interesting with a~value
 of this type, except to incorporate it into a~larger value.
 
-The~following establishes the~equivalence on the~terms: every occurrence of
-the~unit eliminator can be expressed using only the~\emph{in} part of the~term:
+We can establish the~equivalence on terms with the~following: every occurrence
+of the~unit eliminator can be expressed using only the~\emph{in} part of
+the~term:
 \[
   \letu M N \defeq N
 \]
@@ -507,7 +511,7 @@ from $T \with U$. With the~sum type $T \oplus U$ we can derive:
   {\diamond \mid x \is{} S \vdash N \is{} U}
   {\diamond \mid x \is{} S \vdash N \is{} T \oplus U}
 \end{mathpar}
-The first derivation means that if 10 euro buys us a~pizza, then it also buys us
+The~first derivation means that if 10 euro buys us a~pizza, then it also buys us
 a~pizza or a~cake. The~second derivation is analogous, starting with a~cake.
 
 Now consider the~implications of having a~pair as a~hypothesis. Take $V$ to be
@@ -599,7 +603,7 @@ $\oc x \is{} \oc S$.
 
 The~introduction rule is applicable when the~context contains only
 intuitionistic assumptions and it states that if we can prove $M \is{} S$ in
-this context, we can also prove $\oc M \is{} \oc S$ in the same context;
+this context, we can also prove $\oc M \is{} \oc S$ in the~same context;
 meaning, if we can derive a~single instance of $S$ from the~unlimited resources
 $\Gamma$, we can also derive an~unlimited number of instances of $S$.
 
