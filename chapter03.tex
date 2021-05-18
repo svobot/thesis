@@ -501,18 +501,24 @@ which is different from \emph{having} one of pizza or cake. To say that we have
 either a~pizza or a~cake, we would use the~sum type $T \oplus U$. We have not
 formally presented the~sum type $T \oplus U$ before, because we shall not use it
 outside of this example and we mention it here only to point out the~difference
-from $T \with U$. With the~sum type $T \oplus U$ we can derive:
+from $T \with U$. Sum type has two constructors:
+\begin{mathpar}
+  \textrm{inl} \: M \and \textrm{inr} \: M
+\end{mathpar}
+where the~first makes a~value of type $T \oplus U$ from a~term of type $T$ and
+the~second from a~term of type $U$. With the~sum type $T \oplus U$ we can
+derive:
 \begin{mathpar}
   \inferrule*[right=$\oplus$-I$_1$]
   {\diamond \mid x \is{} S \vdash M \is{} T}
-  {\diamond \mid x \is{} S \vdash M \is{} T \oplus U}
+  {\diamond \mid x \is{} S \vdash \textrm{inl} \: M \is{} T \oplus U}
 
   \inferrule*[right=$\oplus$-I$_2$]
   {\diamond \mid x \is{} S \vdash N \is{} U}
-  {\diamond \mid x \is{} S \vdash N \is{} T \oplus U}
+  {\diamond \mid x \is{} S \vdash \textrm{inr} \: N \is{} T \oplus U}
 \end{mathpar}
 The~first derivation means that if 10 euro buys us a~pizza, then it also buys us
-a~pizza or a~cake. The~second derivation is analogous, starting with a~cake.
+a~pizza or a~cake. The~second derivation says the~same for cake.
 
 Now consider the~implications of having a~pair as a~hypothesis. Take $V$ to be
 the~proposition ``I am happy.'' Then the~judgments
@@ -521,9 +527,9 @@ the~proposition ``I am happy.'' Then the~judgments
   \diamond \mid x \is{} T \with U \vdash M \is{} V \and
   \diamond \mid x \is{} T \oplus U \vdash M \is{} V
 \end{mathpar}
-mean that, first, I will be happy given \emph{both} a~pizza and a~cake; second,
-I will be happy given \emph{my choice} from a~pizza and a~cake; and, third, I
-will be happy given \emph{either} a~pizza or a~cake, I do not care which.
+mean: first, I will be happy given \emph{both} a~pizza and a~cake; second, I
+will be happy given \emph{my choice} from a~pizza and a~cake; and, third, I will
+be happy given \emph{either} a~pizza or a~cake, I do not care which.
 
 With this intuition, we can examine how the~pair types relate to each other.
 Neither of the~following judgments is provable:
@@ -533,10 +539,10 @@ Neither of the~following judgments is provable:
 \end{mathpar}
 Having a~pizza and a~cake, we cannot choose to have one of pizza or cake,
 because that would mean we threw away the~other thing, which is not admissible
-without the~\ir{Weak} rule~\todo{[CORRECT?]}. On the~other hand, having
-the~choice of either a~pizza or a~cake does not mean we have both.
+without the~\ir{Weak} rule. On the~other hand, having the~choice of either
+a~pizza or a~cake does not mean we have both.
 
-There are two proofs of $\diamond \mid x \is{} T \with U \vdash M \is{}
+There are two derivations of $\diamond \mid x \is{} T \with U \vdash M \is{}
 T \oplus U$:
 \begin{mathpar}
   \inferrule*
@@ -549,7 +555,10 @@ T \oplus U$:
     }
     {\diamond \mid x \is{} T \with U \vdash \fst x \is{} T}
   }
-  {\diamond \mid x \is{} T \with U \vdash \fst x \is{} T \oplus U}
+  {
+    \diamond \mid x \is{} T \with U
+      \vdash \textrm{inl} \: (\fst x) \is{} T \oplus U
+  }
 
   \inferrule*
   {
@@ -561,7 +570,10 @@ T \oplus U$:
     }
     {\diamond \mid x \is{} T \with U \vdash \snd x \is{} U}
   }
-  {\diamond \mid x \is{} T \with U \vdash \snd x \is{} T \oplus U}
+  {
+    \diamond \mid x \is{} T \with U
+      \vdash \textrm{inr} \: (\snd x) \is{} T \oplus U
+  }
 \end{mathpar}
 We can either choose the~pizza, or the~cake. There is, however, no proof of
 the~converse, $\diamond \mid x \is{} T \oplus U \vdash M \is{} T \with U$;
