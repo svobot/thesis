@@ -103,13 +103,12 @@ Semirings that form type systems with interesting properties include:
     saw in \autoref{cha:typesystems};
   \item the~semiring $\{0, 1\}$ corresponds to the~linear type system from
     \autoref{cha:linear};
-  \item the~natural numbers with addition and multiplication give us
-    \todo{[WHAT?]};
   \item the~zero-one-many semiring $\{0, 1, \omega\}$, where $\rho + \omega =
     \omega$ and $\omega \cdot \omega = \omega$. The~$0$ value restricts
     the~resource usage to types only, $1$ requires linear usage, and $\omega$
     has no usage restrictions.
 \end{itemize}
+This work is accompanied by an~interpreter that uses the zero-one-many semiring.
 
 \sectionwithtoc{Terms \& contexts}
 
@@ -423,3 +422,42 @@ The~exponential type for QTT can be derived by combining $\otimes$ and \1:
 \[
   \oc_\pi S = (x \is\pi S) \otimes \1.
 \]
+
+\sectionwithtoc{Semiring order}
+
+This section focuses on the~zero-one-many semiring. Consider the~judgment
+\[
+x \is\omega S \vdash M \is\sigma T.
+\]
+Currently, to discharge the~hypothesis $x \is\omega S$, term $M$ has to contain
+at least two uses of $x$ at multiplicity $1$, or one use at $\omega$. This
+behaviour can be relaxed by optionally adding a~Weakening rule to the~system.
+In QTT, Weakening is defined using an~ordering~$\leq$ on
+the~semiring~\citep{mcbride_2016}. The~$\leq$ relation should be reflexive and
+transitive and it has to respect the~semiring operations when we add
+the~Weakening rule. The~relation extends pointwise to contexts:
+\begin{definition}
+  Given contexts $\Gamma_1$ and $\Gamma_2$, we say that $\Gamma_1 \leq \Gamma_2$
+  if for every $x \is\pi S$ in $\Gamma_1$, there is $x \is\rho S$ in $\Gamma_2$
+  and $\pi \leq \rho$.
+\end{definition}
+
+Then the~Weakening rule allows us to have more resources in the~context than
+we consume in the~term:
+\begin{mathpar}
+  \inferrule*[right=Weak]
+  {\Gamma_1 \vdash M \is\sigma S \\ \Gamma_1 \leq \Gamma_2}
+  {\Gamma_2 \vdash M \is\sigma S}
+\end{mathpar}
+
+There are a~few sensible choices for the~order:
+\begin{enumerate}
+  \item in the~order $1 \leq \omega$, quantity $\omega$ means that a~resource
+    is computationally relevant;
+  \item order $0 \leq 1 \leq \omega$ creates affine typing system;
+  \item in the~order $0, 1 \leq \omega$ (but not $0 \leq 1$), quantity $\omega$
+    represents an~intuitionistic resource. This makes $\depq x \omega S T$
+    behave like an~intuitionistic function while $\depq x 1 S T$ behaves like
+    a~linear one. This is the~order that is used in our interpreter.
+\end{enumerate}
+
