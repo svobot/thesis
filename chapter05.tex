@@ -1,7 +1,547 @@
 \chapter{Implementation}
 
-\sectionwithtoc{Bidirectional typing}
+\coloredlettrine{Q}{uantitative Type} Theory has already found practical
+application in the~programming language Idris~2 by \citet{brady_2021}. Idris~2
+aims to be a~full-scale programming language where the~programmer can experiment
+with designs that QTT enables.
 
-\sectionwithtoc{Examples}
-\cite{tutorial_2010}, \cite{bidir_2019}
+The~main focus of this work was to crate an~interpreter of a~\lc with
+quantitative types. The~implementation is written in Haskell\citep{haskell_2010}
+and it is based on the~dependently typed \lc interpreter \emph{LambdaPi} created
+by \citet{loh_et_al_2010}. We have created a~simple programming language, which
+we call \emph{Janus}, to use in our interpreter. Later in this chapter, we
+detail the~syntax of the~language, as well as how to use the~interpreter.
+
+Typing rules in the~previous chapter are presented ``declaratively,'' echoing
+approach taken by \citet{atkey_2018}, which is well suited for semantical
+investigation of the~theory; \citet{mcbride_2016} presents the~system
+differently, using rules in the~\emph{bidirectional} form. This form is
+convenient when implementing the~typing algorithm, so our next step is to covert
+the~rules from the~previous chapter into their bidirectional form.
+
+\sectionwithtoc{Bidirectional typing}\label{sec:bidir_typing}
+
+Bidirectional typing splits the~typing judgment $\Gamma \vdash M \is{\sigma} S$
+into two judgments:
+\begin{align*}
+  \text{\emph{type checking}}\qquad &\Gamma \vdash M \chck{\sigma} S \\
+  \text{\emph{type synthesis}}\qquad &\Gamma \vdash M \syn{\sigma} S
+\end{align*}
+Type synthesis is also called \emph{type inference} and the~term $M$ is
+the~\emph{subject} of these judgments. The~difference is that in type checking
+the~type $S$ is an~input and the~derivation proves that the~subject can indeed
+be of type $S$; whereas, in type synthesis the~type $S$ is an~output.
+
+It is often the~case that checking a~given solution to a~problem is easier than
+finding, or synthesising a~solution. In typing, this holds as well: synthesising
+a~type may be convenient for the~programmer, but undecidable for the~algorithm,
+so at some points in the~program the~programmer has to guide the~typing
+algorithm by providing the~types. Bidirectional typing systems can alternate
+between treating types as inputs or outputs and so the~resulting language can
+take advantage of various typing features while demanding only a~modest volume
+of type annotations from the~programmer. We will explain bidirectional typing
+concepts that are relevant to this work, but interested reader is encouraged to
+consult the~survey on the~topic provided by \citet{dunfield_krishnaswami_2019}
+for further details.
+
+In bidirectional typing, we need to decide which terms can have their type
+synthesised and which terms can only have it checked. Notice that we are saying
+that if we can synthesise a~type from a~term, we can then also take the~result
+and check the~term with it. In the~rest of this section, we use $I$ to denote
+terms from which its type can be synthesised, or inferred, and we use $C$ for
+terms that can have its type checked, which is every term.
+
+The~following terms can have its type synthesised:
+\begin{enumerate}
+  \item type annotation
+    \[
+      C_1 \is{} C_2
+    \]
+    lets us create a~type-synthesising term from an~arbitrary term $C_1$ by
+    attaching the~type $C_2$ to it. All type annotations in these terms are
+    appended following a~colon. This is closer to the~actual syntax of our
+    interpreter where we have been constrained by what can be easily typed on
+    a~keyboard;
+  \item variable
+    \[
+      x
+    \]
+    has its type specified in the~typing context;
+  \item function application
+    \[
+      I \: C
+    \]
+    combines a~type-synthesising term which evaluates to a~function and
+    a~type-checkable term that provides the~function argument;
+  \item dependent multiplicative pair eliminator
+    \[
+      \letpair {} [z] x y I {C_1} \is{} C_2
+    \]
+    takes a~type-synthesising term that produces the~pair and type-checkable
+    terms $C_1$, which uses the~pair and $C_2$, providing the~type annotation of
+    $C_1$ and again written following a~colon. As before, $x$ and $y$ bind
+    the~two elements of the~pair in $C_1$ and $z$ binds the~whole pair in $C_2$.
+    Hence, we write
+    \[
+      \letpair {} [z] x y M N \is{} O \qquad \text{instead of} \qquad
+        \letpair {(x \is\pi S) \otimes T} [z] x y M [O] N,
+    \]
+    for some types $S$ and $T$;
+  \item multiplicative unit eliminator
+    \[
+      \letu* [x] I {C_1} \is{} C_2
+    \]
+    also moves the~type annotation $C_2$ of the~term $C_1$ after the~colon;
+    hence, we write
+    \[
+      \letu* [x] M N \is{} O \qquad \text{instead of} \qquad
+        \letu [x] M [O] N;
+    \]
+  \item additive pair eliminators
+    \begin{mathpar}
+      \fst I \and \snd I
+    \end{mathpar}
+    takes a~type-synthesising term that produces the~pair.
+\end{enumerate}
+
+Terms that can have its type checked are:
+\begin{enumerate}
+  \item every type-synthesising term
+    \[
+      I
+    \]
+    is also type-checkable, since we can take the~result of the~type synthesis
+    and check the~term with it;
+  \item atomic types
+    \begin{mathpar}
+      \univ \and \1 \and \top
+    \end{mathpar}
+    as well as the~units themselves,
+    \begin{mathpar}
+      \munit \and \aunit
+    \end{mathpar}
+    are type-checkable;
+  \item function abstraction term
+    \[
+      \lam x C
+    \]
+    has no explicit typing annotation of its parameter, instead we have to
+    specify the~type somewhere else. For example, we usually annotate the~whole
+    function; if $M$ has type $T$, we can write
+    \[
+      \lam x M \is{} \depq x \pi S T \qquad \text{instead of} \qquad
+        \lam {x \is\pi S} M;
+    \]
+  \item terms for the~formation of function and pair types
+    \begin{mathpar}
+      \depq x \pi {C_1}{C_2} \and (x \is \pi C_1) \otimes C_2 \and
+        (x \is{} C_2) \with C_1
+    \end{mathpar}
+    and terms for the~introduction of pairs
+    \begin{mathpar}
+      \mpair{C_1}{C_2} \and \apair{C_1}{C_2}
+    \end{mathpar}
+    combine type-checkable terms, but are otherwise unchanged from their
+    counterparts in the~previous chapter.
+\end{enumerate}
+
+Whether a~given term is type-synthesising or only type-checkable is determined
+by the~role it plays in the~bidirectional typing rules. Our definition follows
+the~\emph{Pfenning recipe}~\citep{dunfield_krishnaswami_2019}:
+\begin{quote}
+  If the~rule is an~\emph{introduction} rule, make the~principal judgment
+  \emph{checking} and if the~rule is an~\emph{elimination} rule, make
+  the~principal judgment \emph{synthesising}.
+\end{quote}
+A~\emph{principal judgment} is the~judgment containing the~logical connective
+that is being introduced or eliminated; in our introduction rules the~principal
+judgment is always the~conclusion and in the~elimination rules it is the~first
+premise. Thus, terms that are the~subject of type synthesis judgments are
+type-synthesising, otherwise they are only type-checkable.
+
+The~bidirectional typing rules are, except for the~directionality, identical to
+the~rules in the~previous chapter. They are written in full in
+the~\autoref{cha:bidir_rules}. The~only new rule we add synthesises the~type of
+term $M \is{} S$:
+\begin{mathpar}
+  \inferrule*[right=Ann\syn{}]
+  {\Gamma \vdash M \chck{\sigma} S}
+  {\Gamma \vdash M \is{} S \syn{\sigma} S}
+\end{mathpar}
+
+The~bidirectional typing rules are almost completely \emph{syntax-directed};
+that is, the~derivation rule which can be used is determined by the~syntax of
+the~term. At any point, there is only one rule whose subject in the~conclusion
+judgment matches the~term. There are two exceptions to this: first, when
+constructing a~multiplicative pair, we first check if $\sigma\pi = 0$ and use
+the~rule \ir{$\otimes$-I$_0$\chck{}}, otherwise we use
+\ir{$\otimes$-I$_1$\chck{}}; and second, when applying a~function, we synthesise
+the~type of the~function first and then check if $\sigma\pi = 0$ as well,
+using the~rule \ir{$\to$-E$_0$\syn{}} if true and \ir{$\to$-E$_1$\syn{}}
+otherwise.
+
+\sectionwithtoc{Resource accounting}
+
+To be able to translate the~typing rules into an~efficient algorithm, we need to
+deal with one last thing. Currently, it seems as if we have to guess how to
+split the~resources in a~given context when deriving multiple premises. For
+example, in the~rule
+\begin{mathpar}
+    \inferrule*[right=$\to$-E$_1$\syn{}]
+  {
+    \Gamma_1 \vdash M \syn\sigma \depq x \pi S T \\
+    \Gamma_2 \vdash N \chck1 S
+  }
+  {\Gamma_1 + \sigma\pi\Gamma_2 \vdash M \: N \syn\sigma T}
+\end{mathpar}
+we are given the~context $\Gamma_1 + \sigma\pi\Gamma_2$ and we need to decide
+how it gets split into $\Gamma_1$ and $\Gamma_2$ to be used in the~premises. We
+remove the~guessing from the~algorithm by adding outputs to our typing
+judgments: both type checking and type synthesis output a~\emph{usage}, a~record
+of how much of each variable is the~subject term consuming.
+
+\begin{definition}
+  If $V$ is a~set of variables and $\mathcal{R}$ is a~semiring, then
+  \emph{usage} is a~subset of the~Cartesian product $V \times \mathcal{R}$, such
+  that every variable is unique.
+\end{definition}
+
+We will write usage as $\{x \: \pi; \: y \: \rho; \dots \}$ instead of
+$\{(x, \pi), (y, \rho), \dots\}$ to not confuse it with the~multiplicative pair
+notation.
+
+Usage accumulates the~resource consumption from throughout the~term and
+the~typing algorithm uses it to check that an~appropriate amount of every
+resource is available. For \emph{global variables}, i.e. variables that are free
+in the~whole term, this check is done at the~end of the~typing algorithm and for
+the~\emph{local variables}, i.e. variables that have a~binding occurrence
+somewhere in the~term, the~check is done after accumulating its usage from its
+scope. Thus, returning to the~example of rule \ir{$\to$-E$_1$\syn{}}, there is
+no need to know how to split $\Gamma_1 + \sigma\pi\Gamma_2$ a~priori, instead
+the~premises produce usages $\Psi$ from $M$ and $\Omega$ from $N$, which get
+combined into $\Psi + \Omega$ and returned as the~usage of $M \: N$.
+The~addition on usages works analogously to contexts.
+
+We will not extend the~formalisation of the~bidirectional rules to include
+\emph{usage}, instead we will go through an~example and use it to illustrate how
+usage works. Consider the~judgment:
+\[
+  \Gamma \vdash ((\lam y {f \: x \: y}) \is{} \depq y 1 {(z \is1 T)\otimes T} S)
+    \: \mpair x x \syn1 S
+\]
+To find out whether the~variables in $\Gamma$ have the~quantities needed to
+successfully synthesise $S$, we collect the~usage from the~term and then check
+it against the~context. Here is part of the~derivation:
+\begin{mathpar}
+  \inferrule*[Right=$\to$-E$_1$\syn{}]
+  {
+    \inferrule*[right=Ann\syn{}]
+    {
+      \inferrule*
+      { \vdots }
+      {0\Gamma \vdash M \chck0 \univ} \\
+      \inferrule*[Right=$\to$-I\chck{}]
+      {
+        \inferrule*[Right=Inf\chck{}]
+        {
+          \inferrule*[Right=$\to$-E$_1$\syn{}]
+          {
+            \inferrule*
+            { \vdots }
+            {\Gamma'_1 \vdash f \: x \syn1 M} \\
+            \inferrule*
+            { \vdots }
+            {\Gamma'_2 \vdash y \chck1 (z \is1 T)\otimes T}
+          }
+          {\Gamma', y \is1 (z \is1 T)\otimes T \vdash f \: x \: y \syn1 S}
+        }
+        {\Gamma', y \is1 (z \is1 T)\otimes T \vdash f \: x \: y \chck1 S}
+      }
+      {\Gamma' \vdash \lam y {f \: x \: y} \chck1 M}
+    }
+    {
+      \Gamma' \vdash
+      (\lam y {f \: x \: y})\is{} M \syn1 M
+    } \\
+    \inferrule*
+    { \vdots }
+    {\mathcal{J} \;}
+  }
+  {\Gamma \vdash ((\lam y {f \: x \: y})\is{} M) \: \mpair x x \syn1 S}
+\end{mathpar}
+where, to make the~terms more readable, $M$ stands for
+$\depq y 1 {(z \is1 T)\otimes T} S$. Since the~term is computationally relevant,
+given the~\syn1, we start the~derivation with rule \ir{$\to$-E$_1$\syn{}}, which
+first expects us to synthesise the~type of the~annotated λ-abstraction. This in
+turn demands the~use of rules \ir{Ann\syn{}} and \ir{$\to$-I\chck{}}. The~first
+premise of \ir{Ann\syn{}} checks that $M$ is a~type and produces a~usage which,
+since we are in the~erased part of the~theory (\chck0), has to be empty.
+The~function introduction rule adds variable $y$ to the~context; it is
+the~\emph{local variable}, so after collecting the~usage from $f \: x \: y$, we
+check the~consumed quantity of $y$: the~term $f \: x$ produces the~usage
+$\{f \:1; \: x \: 1\}$ and $y$ produces $\{y \: 1\}$, which added together gives
+$\{f \:1; \: x \: 1; \: y \: 1\}$. This is a~valid usage, since our context
+contains $y$ with quantity 1. Now $y$ goes out of scope again and so it is
+removed from the~usage; thus, the~whole term $\lam y {f \: x \: y}$ uses
+$\{f \:1; \: x \: 1\}$. This, added together with the~empty usage from checking
+the~type of $M$, gives that $(\lam y {f \: x \: y})\is{} M$ also uses
+$\{f \:1; \: x \: 1\}$. Judgment $\mathcal{J}$ uses $\{x \: \omega\}$, since
+the~$x$ is used twice. Finally, the~whole term uses
+$\{f \:1; \: x \: 1\} + \{x \: \omega\} = \{f \:1; \: x \: \omega\}$. This means
+that $\Gamma$ has to contain
+\[
+  f \is1 \depq x 1 T {\depq y 1 {(z \is1 T)\otimes T} S}, \: x \is\omega T
+\]
+for the~typing to succeed. Note that in the~derivation we omit some premises of
+the~\ir{Inf\chck{}} rule for brevity.
+
+\sectionwithtoc{Janus}
+
+This work is accompanied by an~interpreter of a~\lc with quantitative types.
+The~interpreter uses the~\emph{Janus} language to express terms in that \lc.
+This section details syntax of the~language. The~listings use monospaced font
+when quoting the~Janus language, but use proportional cursive for metavariables.
+
+The~interpreter provides a~read-evaluate-print loop (REPL) for a~user to
+interact with. Each iteration of this loop expects the~input to either be
+a~\emph{command} or a~\emph{statement}. Throughout its run, the~interpreter
+maintains a~state with the~results of previously evaluated statements, which are
+then available in the~contexts of subsequent statements. Commands are identified
+by a~leading colon and some expect arguments to follow the~command, separated by
+whitespace. Janus interpreter supports the~following commands:
+\begin{itemize}
+  \item \emph{Load} command (\janus{:load}) expects a~file path as an argument.
+    It reads the~file and evaluates its contents. A~valid file contains
+    a~sequence of Janus statements which are evaluated consecutively. For
+    example, to load a~file \emph{library.jns} in the~current directory, user
+    writes:
+    \begin{center}
+      \janus{:load library.jns}
+    \end{center}
+  \item \emph{Browse} command (\janus{:browse}) lists all variables and their
+    types that the~state of the~interpreter currently tracks.
+  \item \emph{Type} command (\janus{:type}) expects as an~argument
+    a~type-synthesising Janus term and it synthesises the~type.
+  \item \emph{Quit} command (\janus{:quit}) exits the~interpreter.
+  \item \emph{Help} command (\janus{:help} or \janus{:?}) shows a~short
+    description of the~interpreter's features.
+\end{itemize}
+Any prefix of a~command is also recognised: the~user can, for example, write
+\janus{:l library.jns}, or \janus{:q}.
+
+Before we look at the~statements, we will define the~syntax of terms in
+the~Janus language. These terms are a~straightforward analogues of
+the~terms from the~\nameref{sec:bidir_typing} section. The~following table
+details how to translate the~terms from the~mathematical notation into
+the~syntax our interpreter understands; each term has an~ASCII variant that
+is easily typed on a~keyboard and a~Unicode variant that closer corresponds to
+the~mathematical notation.
+
+Parts of the~syntax are colourised, which is done to highlight the~differences
+between the~multiplicative and additive pairs: constructors, eliminators, and
+types for multiplicative pairs and units are printed in
+blue\colorrect{DodgerBlue2}; and similarly, syntax of additive terms and types
+is printed in green\colorrect{Green4}. Every resource semiring annotation is
+printed in magenta\colorrect{DeepPink3}. These colours are produced using
+the~ANSI escape codes and so should be available in all modern terminal
+emulators. Additionally, binding occurrences of variables are printed in bold.
+
+\begin{center}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill} } c c c }
+  Abstract syntax & ASCII variant & Unicode variant \\
+  \hline \hline
+  \multicolumn{3}{ c }{Function} \\
+  \hline
+  \multirow{2}{*}{$\depq x \pi S T$}
+    & \janus{(\quant{$\pi$} $x$ : $S$) -> $T$}
+    & \janus{\vdep{$\pi$}{$x$}{$S$}{$T$}} \\
+    & \janus{forall (\quant{$\pi$} $x$ : $S$) . $T$}
+    & \janus{∀ (\quant{$\pi$} $x$ : $S$) . $T$} \\
+  $\lam x M$ & \janus{\textbackslash$x$. $M$} & \janus{\vlam{$x$}{$M$}} \\
+  $M \: N$   & \janus{{$M$} {$N$}}            & --- \\
+
+  \hline \hline
+  \multicolumn{3}{ c }{Multiplicative pair} \\
+  \hline
+  $(x \is \pi S) \otimes T$
+    & \janus{\mult(\quant{$\pi$} $x$ : $S$\mult) \mult* $T$}
+    & \janus{\vmpairt{$\pi$}{$x$}{$S$}{$T$}} \\
+  $\mpair M N$ & \janus{\vmpair{$M$}{$N$}} & --- \\
+  $\letpair {} [z] x y M N \is{} O$ &
+    \multicolumn{2}{c}{\janus{\vmpairlet{$z$}{$x$}{$y$}{$M$}{$N$}{$O$}}} \\
+
+  \hline \hline
+  \multicolumn{3}{ c }{Multiplicative unit} \\
+  \hline
+  \1     & \janus{\mult{I}} & \janus{\vmunitt} \\
+  \munit & \janus{\vmunit}  & ---              \\
+  $\textrm{let} \: x @ \munit \: \textrm{=} \: M \: \textrm{in} \: N \is{} O$ &
+    \multicolumn{2}{c}{\janus{\vmunitlet{$x$}{$M$}{$N$}{$O$}}} \\
+
+  \hline \hline
+  \multicolumn{3}{ c }{Additive pair} \\
+  \hline
+  $(x \is{} S) \with T$ & \janus{\vapairt{$x$}{$S$}{$T$}} & --- \\
+  $\apair M N$ & \janus{\add<$M$\add, $N$\add>} & \janus{\vapair{$M$}{$N$}} \\
+  $\fst M$     & \janus{\vapairfst {$M$}}       & --- \\
+  $\snd M$     & \janus{\vapairsnd {$M$}}       & --- \\
+
+  \hline \hline
+  \multicolumn{3}{ c }{Additive unit} \\
+  \hline
+  $\top$ & \janus{\add{T}}  & \janus{\vaunitt} \\
+  \aunit & \janus{\add{<>}} & \janus{\vaunit} \\
+
+  \hline \hline
+  \multicolumn{3}{ c }{Universe} \\
+  \hline
+  $\univ$ & \janus{U} & \janus{\vuniv} \\
+
+  \hline \hline
+  \multicolumn{3}{ c }{Type annotation} \\
+  \hline
+  $M \is{} N$ & \janus{$M$ : $N$} & --- \\
+
+  \hline \hline
+  \multicolumn{3}{ c }{Zero-One-Many semiring} \\
+  \hline
+  $0$      & \janus{\vzero}    & --- \\
+  $1$      & \janus{\vone}     & --- \\
+  $\omega$ & \janus{\quant{w}} & \janus{\vmany} \\
+\end{tabular*}
+\end{center}
+
+Binding variables that have no other occurrence in the~term are often written as
+\janus{\_}, following a~convention from the~Haskell language; for example,
+these two terms are equivalent:
+\begin{center}
+  \janus{(λ\textbf{x} \textbf{y}. y) : (\quant0 \textbf{x} : U) -> (\quant1\
+  \textbf{y} : x) -> x} \\ \vspace{0.6em}
+\janus{(λ\_ \textbf{y}. y) : (\quant0 \textbf{x} : U) -> (\quant1 \_ : x) -> x}
+\end{center}
+
+The~dependent function type can be written in two ways, either using an~arrow,
+or a~universal quantifier. The~second form is useful for describing types of
+higher order functions, because we can list all the~binding variables without
+any interspersing syntax; meaning, in Janus, the~term
+$\depq{x_1}{\pi_1}{S_1}{\ldots \to \depq{x_n}{\pi_n}{S_n}{T}}$ can be written in
+two ways:
+\begin{center}
+  \janus{\vdep{$\pi_1$}{$x_1$}{$S_1$}{$\ldots$} →
+    \vdep{$\pi_n$}{$x_n$}{$S_n$}{$T$}} \\ \vspace{0.6em}
+  \janus{∀ (\quant{$\pi_1$} $x_1$ : $S_1$) $\ldots$
+    (\quant{$\pi_n$} $x_n$ : $S_n$) . $T$}
+\end{center}
+
+As in the~mathematical notation, function abstractions can be abbreviated to
+bind multiple variables at the~same time; so we can write
+\begin{center}
+  \janus{λ\textbf{x} \textbf{y} \textbf{z}. x} \hspace{3em} instead of
+  \hspace{3em} \janus{λ\textbf{x}. λ\textbf{y}. λ\textbf{z}. x}
+\end{center}
+
+Another convenience abbreviation is available: the~semiring annotation can be
+omitted; interpreter then uses \quant{$\omega$}, hence the~following terms are
+equivalent:
+\begin{center}
+  \janus{(\vmany{} \_ : $S$) → \vmpairt{\vmany}{\_}{$T$}{$S$}} \hspace{6em}
+  \janus{(\_ : $S$) → \mult(\_ : $T$\mult{) ⊗} $S$}
+\end{center}
+
+Janus terms form the~\emph{statements} that our interpreter understands. REPL
+evaluates the~terms in these statements and, if needed, modifies the~running
+interpreter state with the~results to be used in the~subsequent statements. So,
+next to the~commands, our interpreter recognises three kinds of statements:
+
+First, \emph{assume} statement adds variables to the~interpreter state.
+The~syntax is:
+\begin{center}
+  \janus{assume (\quant{$\pi_1$} $x_1$ : $S_1$) $\dots$\
+  (\quant{$\pi_n$} $x_n$ : $S_n$)}
+\end{center}
+for $n \geq 1$; where \quant{$\pi_i$} is a~semiring element, $x_i$ a~variable,
+and $S_i$ a~type-checkable term. The~interpreter starts with the~context
+$\Gamma$ in its state and it consecutively tries deriving judgments
+\[
+  \Gamma, x_1 \is{\pi_1} S_1, \dots, x_{i-1} \is{\pi_{i-1}} S_{i-1} \vdash
+  S_i \is{} \univ \syn{\pi_i} \univ
+\]
+If it successfully synthesises the~type, it adds $x_i \is{\pi_i} S_i$ to
+the~context, replacing the~context $\Gamma$ in its state with
+\[
+  \Gamma, x_1 \is{\pi_1} S_1, \dots, x_n \is{\pi_n} S_n
+\]
+for the~evaluation of subsequent statements. For example, the~statement
+\begin{center}
+  \janus{assume (\quant0 $x$ : U) (\quant1 $y$ : (\quant1 \_ : $x$) -> $x$)}
+\end{center}
+extends the~interpreter state context with $x \is0 \univ, y \is1 \depq z 1 x x$.
+
+Second, \emph{let} statement adds to the~interpreter state a~variable together
+with its value. The~statement takes the~form
+\begin{center}
+  \janus{let \quant{$\pi$} $x$ = $M$}
+\end{center}
+where \quant{$\pi$} is a~semiring element, which can again be omitted and
+the~interpreter uses \quant{$\omega$}; $x$ is a~variable; and $M$ is
+a~type-synthesising term. If the~judgment $\Gamma \vdash M \syn{\pi} S$
+successfully synthesises the~type $S$, the~interpreter overrides the~context
+$\Gamma$ in its state with $\Gamma, x \is{\pi} S$ and any occurrence of $x$ in
+a~subsequent term will be evaluated to $M$.
+
+Third, the~\emph{eval} statement is evaluated and the~result printed out without
+any modifications to the~interpreter state. The~statement consists of
+an~optional semiring element, \quant{$\omega$} if omitted, and
+a~type-synthesising term. For the~eval statement
+\begin{center}
+  \janus{\quant{$\pi$} $M$}
+\end{center}
+interpreter synthesises the~type in its context $\Gamma$ using the~judgment
+$\Gamma \vdash M \syn{\pi} S$ and then evaluates $M$.
+
+\sectionwithtoc{De Bruijn index}
+
+In the~Janus interpreter, functions are represented using
+\emph{De Bruijn indices}, which simplifies the~implementation of substitution.
+In \autoref{cha:lambdacalculus}, \lts used the~same set
+$\mathbf{v}_0, \mathbf{v}_1, \mathbf{v}_2, \dots$ for both free and bound
+variables. This caused a~risk of name collision during substitution, which we
+had to avoid by replacing our bound variables with fresh ones. Instead, we can
+represent every bound variable with a~natural number $n$ if there are $n-1$
+$\lambda$s between the~bound variable occurrence and its binding $\lambda$.
+The~binding variables disappear completely from the~syntax. De Bruijn indices
+provide a~canonical description of every \lt; whereas, when using names for
+local variables, \lt belongs to an~equivalence class identified by
+the~equivalence $\equiv_\alpha$.
+
+Some examples of \lts written using De Bruijn indices are:
+\begin{align*}
+  \lam x x \quad &\text{corresponds to} \quad \lambda. \; 0 \\
+  \lam x {\lam y x} \quad &\text{corresponds to} \quad \lambda. \lambda. \; 1 \\
+  \lam x {\lam y {\lam z {x z (y z)}}} \quad &\text{corresponds to} \quad
+    \lambda. \lambda. \lambda. \; 2 \; 0 \; (1 \; 0) \\
+  \lam z {(\lam y {y \; (\lam x x)})\;(\lam x {x z})}\quad&\text{corresponds to}
+    \quad \lambda. (\lambda. \; 0 \; (\lambda. \; 0)) \; (\lambda. \; 0 \; 1).
+\end{align*}
+
+A~formal definition of terms with De Bruin indices and substitution on these
+terms is described, for example, by \citet[Chapter~6]{pierce_2002}.
+
+When printing a~term, our interpreter synthesises fresh names for variables
+represented by De Bruin indices. Since the~implementation does not remember how
+has the~user called a~variable which has been converted to a~De Bruin index,
+the~name may differ when that variable is part of the~output. For example, if
+the~user inputs term:
+\begin{center}
+  \janus{(\backslash{}a b c. a) : forall (\_ : U) (\_ : U) (\_ : U) . U}
+\end{center}
+then the~interpreter outputs equivalent term, except with variables
+\janus{a}, \janus{b}, and \janus{c} replaced with
+\janus{x}, \janus{y}, and \janus{z}:
+
+\begin{center}
+\janus{\vmany{} (λ\textbf{x} \textbf{y} \textbf{z}. x) : ∀ (\vmany{} \textbf{x}\
+ : \vuniv) (\vmany{} \textbf{y} : \vuniv) (\vmany{} \textbf{z} : \vuniv) .\
+ \vuniv}
+\end{center}
 

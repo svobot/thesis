@@ -111,3 +111,52 @@
 
 \newcommand{\todo}[1]{\textcolor{red}{#1}} % TODO: remove
 
+% Colour rectangle
+\newcommand{\colorrect}[1]{\ifdefined\colourflag\xspace(\textcolor{#1}%
+{\ensuremath{\blacksquare}})\fi}
+
+% Arrows for type synthesis and type checking judgments
+\newcommand{\syn}[1]{\ensuremath{\overset{\!{#1}}\Rightarrow}}
+\newcommand{\chck}[1]{\ensuremath{\overset{\;\;{#1}}{\Leftarrow}}}
+
+%% Verbatim macros
+% Environment convince shortcuts
+\RecustomVerbatimEnvironment
+  {Verbatim}{Verbatim}
+  {commandchars=\\\{\}}
+\RecustomVerbatimEnvironment
+  {BVerbatim}{BVerbatim}
+  {commandchars=\\\{\}}
+\newcommand{\janus}[1]{\Verb!#1!}
+% Colouring
+\newcommand{\quant}[1]{\ifdefined\colourflag\textcolor{DeepPink3}{#1}\else#1\fi}
+\newcommand{\mult}[1]{\ifdefined\colourflag\textcolor{DodgerBlue2}{#1}\else#1\fi}
+\newcommand{\add}[1]{\ifdefined\colourflag\textcolor{Green4}{#1}\else#1\fi}
+% Semiring values
+\newcommand{\vzero}{\quant{0}}
+\newcommand{\vone}{\quant{1}}
+\newcommand{\vmany}{\quant{ω}}
+% Function
+\newcommand{\vdep}[4]{(\quant{#1} \textbf{#2} : #3) → #4}
+\newcommand{\vlam}[2]{λ\textbf{#1}. #2}
+% Multiplicative pair
+\newcommand{\vmpairt}[4]{\mult(\quant{#1} \textbf{#2} : #3\mult{) ⊗} #4}
+\newcommand{\vmpair}[2]{\mult(#1\mult, #2\mult)}
+\newcommand{\vmpairlet}[6]{\mult{let} \textbf{#1} \mult{@} \textbf{#2}\mult,
+ \textbf{#3} \mult= #4 \mult{in} #5 \mult: #6}
+% Multiplicative unit
+\newcommand{\vmunitt}{\mult{𝟭ₘ}}
+\newcommand{\vmunit}{\mult{()}}
+\newcommand{\vmunitlet}[4]{\mult{let} \textbf{#1} \mult{@} \vmunit{} \mult= #2
+ \mult{in} #3 \mult: #4}
+% Additive pair
+\newcommand{\vapairt}[3]{\add(\textbf{#1} : #2\add{) \&} #3}
+\newcommand{\vapair}[2]{\add⟨#1\add, #2\add⟩}
+\newcommand{\vapairfst}[1]{\add{fst} #1}
+\newcommand{\vapairsnd}[1]{\add{snd} #1}
+% Additive unit
+\newcommand{\vaunit}{\add{⟨⟩}}
+\newcommand{\vaunitt}{\add{⊤}}
+% Universe type
+\newcommand{\vuniv}{𝘜}
+

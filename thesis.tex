@@ -38,6 +38,7 @@
 \usepackage[nottoc]{tocbibind} % makes sure that bibliography, etc. are in TOC
 \usepackage{hyperref}   % hypertext
 \usepackage{enumitem}   % custom enumeration labels
+\usepackage{multirow}   % columns spanning multiple rows
 \usepackage{xspace}     % define commands that appear not to eat spaces
 \usepackage{xcolor}     % text colour
 \usepackage{xparse}
@@ -113,7 +114,7 @@ Dedication.
 \include{conclusion}
 
 \renewcommand{\bibname}{Bibliography}
-\bibliographystyle{plainnat}    %% Author (year)
+\bibliographystyle{plainnat}    % Author [Year]
 \bibliography{bibliography}
 
 %%% Attachments to the master thesis, if any. Each attachment must be
@@ -127,10 +128,8 @@ Dedication.
 %%% source code, data files, interactive charts, etc.). Electronic attachments
 %%% should be uploaded to SIS and optionally also included in the thesis on a~CD/DVD.
 %%% Allowed file formats are specified in provision of the rector no. 72/2017.
-%\appendix
-%\chapter{Attachments}
-%
-%\section{First Attachment}
+\appendix
+\include{appendix01}
 
 \openright
 \end{document}

@@ -1,0 +1,173 @@
+\chapter{Bidirectional typing rules}\label{cha:bidir_rules}
+
+This appendix defines the~bidirectional typing rules which underlie the~typing
+algorithm of our interpreter. Since these rules get translated into
+an~algorithm, we need to pick an~order in which the~premises will we derived.
+Our choice is to always do it from left to right, top to bottom.
+
+The~rule \ir{Var\syn{}} infers the~type of a~variable; \ir{Univ\chck{}} checks
+the~type of type; \ir{Ann\syn{}} synthesises the~type that is given in
+the~annotation of the~term; and \ir{Inf\chck{}} is the~bidirectional variant of
+the~\ir{Conv} rule, it synthesises type from the~term and checks that it
+β-equals to the~type given to type checking:
+\begin{mathpar}
+  \inferrule*[right=Var\syn{}]
+  { }
+  {0\Gamma_1, x \is{\sigma} S, 0\Gamma_2 \vdash x \syn{\sigma} S}
+
+  \inferrule*[right=Univ\chck{}]
+  {0\Gamma \vdash}
+  {0\Gamma \vdash \univ \chck0 \univ} \\
+
+  \inferrule*[right=Ann\syn{}]
+  {
+    0\Gamma \vdash S \chck0 \univ \\
+    \Gamma \vdash M \chck{\sigma} S
+  }
+  {\Gamma \vdash M \is{} S \syn{\sigma} S}
+
+  \inferrule*[right=Inf\chck{}]
+  {
+    \Gamma \vdash M \syn{\sigma} S \\
+    \Gamma \vdash S \chck0 \univ \\\\
+    \Gamma \vdash T \chck0 \univ \\
+    S =_\beta T
+  }
+  {\Gamma \vdash M \chck{\sigma} T}
+\end{mathpar}
+
+The~formation, introduction, and elimination rules for the~dependent function
+type are:
+\begin{mathpar}
+  \inferrule*[right=$\to$-F\chck{}]
+  {
+    0\Gamma \vdash S \chck0 \univ \\
+    0\Gamma, x \is0 S \vdash T \chck0 \univ
+  }
+  {0\Gamma \vdash \depq x \pi S T \chck0 \univ}
+
+  \inferrule*[right=$\to$-I\chck{}]
+  {\Gamma, x \is{\sigma\pi} S \vdash M \chck\sigma T}
+  {\Gamma \vdash \lam x M \chck\sigma \depq x \pi S T}
+
+  \inferrule*[right=$\to$-E$_0$\syn{}]
+  {
+    \Gamma \vdash M \syn\sigma \depq x \pi S T \\\\
+    \sigma\pi = 0 \\
+    0\Gamma \vdash N \chck0 S
+  }
+  {\Gamma \vdash M \: N \syn\sigma T}
+
+  \inferrule*[right=$\to$-E$_1$\syn{}]
+  {
+    \Gamma_1 \vdash M \syn\sigma \depq x \pi S T \\\\
+    \Gamma_2 \vdash N \chck1 S
+  }
+  {\Gamma_1 + \sigma\pi\Gamma_2 \vdash M \: N \syn\sigma T}
+\end{mathpar}
+Note that, for example, in the~\ir{$\to$-E$_0$\syn{}} rule we first synthesise
+the~type $\depq x \pi S T$ from $M$ and only then we can take $S$ and check $N$
+with it. This makes the~order in which the~algorithm derives the~premises
+important.
+
+The~formation, introduction, and elimination rules for the~dependent
+multiplicative pair type are:
+\begin{mathpar}
+  \inferrule*[right=$\otimes$-F\chck{}]
+  {
+    0\Gamma \vdash S \chck0 \univ \\
+    0\Gamma, x \is0 S \vdash T \chck0 \univ
+  }
+  {0\Gamma \vdash (x \is\pi S) \otimes T \chck0 \univ} \\
+
+  \inferrule*[right=$\otimes$-I$_0$\chck{}]
+  {
+    \sigma\pi = 0 \\
+    0\Gamma \vdash M \chck0 S \\\\
+    \Gamma \vdash N \chck\sigma T[M/x]
+  }
+  {\Gamma \vdash \mpair M N \chck\sigma (x \is\pi S) \otimes T}
+
+  \inferrule*[right=$\otimes$-I$_1$\chck{}]
+  {
+    \Gamma_1 \vdash M \chck1 S \\
+    \Gamma_2 \vdash N \chck\sigma T[M/x]
+  }
+  {
+    \sigma\pi \Gamma_1 + \Gamma_2
+      \vdash \mpair M N \chck\sigma (x \is\pi S) \otimes T
+  }
+
+  \inferrule*[right=$\otimes$-E\syn{}]
+  {
+    \Gamma_1 \vdash M \syn\sigma (x \is\pi S) \otimes T \\
+    0\Gamma_1, z \is0 (x \is\pi S) \otimes T \vdash U \chck0 \univ \\
+    \Gamma_2, x \is{\sigma \pi} S, y \is\sigma T
+      \vdash N \chck\sigma U[\mpair x y /z]
+  }
+  {
+    \Gamma_1 + \Gamma_2
+      \vdash \letpair {} [z] x y M N \is{} U \syn\sigma U[M/z]
+  }
+\end{mathpar}
+
+The~formation, introduction, and elimination rules for the~multiplicative unit
+type are:
+\begin{mathpar}
+  \inferrule*[Right=\1-F\chck{}]
+  {0\Gamma \vdash}
+  {0\Gamma \vdash \1 \chck0 \univ}
+
+  \inferrule*[right=\1-I\chck{}]
+  {0\Gamma \vdash}
+  {0\Gamma \vdash \munit \chck\sigma \1}
+
+  \inferrule*[right=\1-E\syn{}]
+  {
+    \Gamma_1 \vdash M \syn\sigma \1 \\\\
+    0\Gamma_1, x \is0 \1 \vdash S \chck0 \univ \\
+    \Gamma_2 \vdash N \chck\sigma S[\munit/x]
+  }
+  {
+    \Gamma_1 + \Gamma_2 \vdash \letu* [x] M N \is{} S \syn\sigma S[M/x]
+  }
+\end{mathpar}
+
+The~formation, introduction, and elimination rules for the~additive pair type
+are:
+\begin{mathpar}
+  \inferrule*[right=$\with$-F\chck{}]
+  {
+    0\Gamma \vdash S \chck0 \univ \\
+    0\Gamma, x \is 0 S \vdash T \chck0 \univ
+  }
+  {0\Gamma \vdash (x \is{} S) \with T \chck0 \univ}
+
+  \inferrule*[right=$\with$-I\chck{}]
+  {
+    \Gamma \vdash M \chck\sigma S \\
+    \Gamma \vdash N \chck\sigma T[M/x]
+  }
+  {\Gamma \vdash \langle M, N \rangle \chck\sigma (x \is{} S) \with T}
+
+  \inferrule*[right=$\with$-Efst\syn{}]
+  {\Gamma \vdash M \syn\sigma (x \is{} S) \with T}
+  {\Gamma \vdash \fst M \syn\sigma S}
+
+  \inferrule*[right=$\with$-Esnd\syn{}]
+  {\Gamma \vdash M \syn\sigma (x \is{} S) \with T}
+  {\Gamma \vdash \snd M \syn\sigma T[\fst M/x]}
+\end{mathpar}
+
+The~formation, introduction, and elimination rules for the~additive unit type
+are:
+\begin{mathpar}
+  \inferrule*[right=$\top$-F\chck{}]
+  {0\Gamma \vdash}
+  {0\Gamma \vdash \top \chck0 \univ}
+
+  \inferrule*[right=$\top$-I\chck{}]
+  {0\Gamma \vdash}
+  {0\Gamma \vdash \aunit \chck\sigma \top}
+\end{mathpar}
+
