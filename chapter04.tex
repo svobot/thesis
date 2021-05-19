@@ -452,12 +452,15 @@ we consume in the~term:
 
 There are a~few sensible choices for the~order:
 \begin{enumerate}
-  \item in the~order $1 \leq \omega$, quantity $\omega$ means that a~resource
-    is computationally relevant;
-  \item order $0 \leq 1 \leq \omega$ creates affine typing system;
-  \item in the~order $0, 1 \leq \omega$ (but not $0 \leq 1$), quantity $\omega$
-    represents an~intuitionistic resource. This makes $\depq x \omega S T$
-    behave like an~intuitionistic function while $\depq x 1 S T$ behaves like
-    a~linear one. This is the~order that is used in our interpreter.
+  \item order $1 \leq \omega$ captures computational relevancy using $\omega$:
+    a~resource with quantity $\omega$ has to be used during runtime, but it does
+    not matter if it is used once or more;
+  \item order $0 \leq 1 \leq \omega$ creates affine typing system: a~linear
+    resource is not required to be used exactly once, so, while it cannot be
+    duplicated, it can be used zero-times during runtime, i.e. \emph{dropped};
+  \item order $0, 1 \leq \omega$ (but not $0 \leq 1$) makes quantity $\omega$
+    represent an~intuitionistic resource. Then $\depq x \omega S T$ behaves like
+    an~intuitionistic function while $\depq x 1 S T$ behaves like a~linear one.
+    This is the~order that is used in our interpreter.
 \end{enumerate}
 

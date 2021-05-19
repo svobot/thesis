@@ -307,8 +307,8 @@ interact with. Each iteration of this loop expects the~input to either be
 a~\emph{command} or a~\emph{statement}. Throughout its run, the~interpreter
 maintains a~state with the~results of previously evaluated statements, which are
 then available in the~contexts of subsequent statements. Commands are identified
-by a~leading colon and some expect arguments to follow the~command, separated by
-whitespace. Janus interpreter supports the~following commands:
+by a~leading colon and some expect arguments. Arguments follow the~command,
+separated by whitespace. Our interpreter provides the~following commands:
 \begin{itemize}
   \item \emph{Load} command (\janus{:load}) expects a~file path as an argument.
     It reads the~file and evaluates its contents. A~valid file contains
@@ -415,9 +415,8 @@ Binding variables that have no other occurrence in the~term are often written as
 \janus{\_}, following a~convention from the~Haskell language; for example,
 these two terms are equivalent:
 \begin{center}
-  \janus{(λ\textbf{x} \textbf{y}. y) : (\quant0 \textbf{x} : U) -> (\quant1\
-  \textbf{y} : x) -> x} \\ \vspace{0.6em}
-\janus{(λ\_ \textbf{y}. y) : (\quant0 \textbf{x} : U) -> (\quant1 \_ : x) -> x}
+  \janus{(\vlam{x y}{y}) : \vdep{0}{x}{U}{\vdep{1}{y}{x}{x}}} \\ \vspace{0.6em}
+  \janus{(\vlam{\_ y}{y}) : \vdep{0}{x}{U}{\vdep{1}{\_}{x}{x}}}
 \end{center}
 
 The~dependent function type can be written in two ways, either using an~arrow,
@@ -436,63 +435,69 @@ two ways:
 As in the~mathematical notation, function abstractions can be abbreviated to
 bind multiple variables at the~same time; so we can write
 \begin{center}
-  \janus{λ\textbf{x} \textbf{y} \textbf{z}. x} \hspace{3em} instead of
-  \hspace{3em} \janus{λ\textbf{x}. λ\textbf{y}. λ\textbf{z}. x}
+  \janus{\vlam{x y z}{x}} \hspace{3em} instead of \hspace{3em}
+  \janus{\vlam{x}{\vlam{y}{\vlam{z}{x}}}}
 \end{center}
 
-Another convenience abbreviation is available: the~semiring annotation can be
-omitted; interpreter then uses \quant{$\omega$}, hence the~following terms are
+Another convenience abbreviation is available: the~semiring annotations can be
+omitted; interpreter then uses $\omega$, hence the~following terms are
 equivalent:
 \begin{center}
-  \janus{(\vmany{} \_ : $S$) → \vmpairt{\vmany}{\_}{$T$}{$S$}} \hspace{6em}
+  \janus{\vdep{\vmany}{\_}{$S$}{\vmpairt{\vmany}{\_}{$T$}{$S$}}} \hspace{6em}
   \janus{(\_ : $S$) → \mult(\_ : $T$\mult{) ⊗} $S$}
 \end{center}
+This is also true for the~semiring annotations anywhere in the~Janus statements
+below.
 
 Janus terms form the~\emph{statements} that our interpreter understands. REPL
 evaluates the~terms in these statements and, if needed, modifies the~running
-interpreter state with the~results to be used in the~subsequent statements. So,
-next to the~commands, our interpreter recognises three kinds of statements:
+interpreter state with the~results. The~new state is then used when evaluating
+subsequent statements. So, next to the~commands listed above, our interpreter
+recognises three kinds of statements:
 
-First, \emph{assume} statement adds variables to the~interpreter state.
-The~syntax is:
+First, there is the~\emph{assume} statement, which adds variables to
+the~interpreter state. The~state contains a~running context, which is used in
+typing judgments that are derived during the~run of the~interpreter. This
+context gets extended with the~variables specified using the~assume statement.
+The~syntax of the~statement is:
 \begin{center}
   \janus{assume (\quant{$\pi_1$} $x_1$ : $S_1$) $\dots$\
   (\quant{$\pi_n$} $x_n$ : $S_n$)}
 \end{center}
-for $n \geq 1$; where \quant{$\pi_i$} is a~semiring element, $x_i$ a~variable,
-and $S_i$ a~type-checkable term. The~interpreter starts with the~context
-$\Gamma$ in its state and it consecutively tries deriving judgments
+where $n \geq 1$, $\pi_i$ is a~semiring element, $x_i$ is a~variable, and $S_i$
+is a~type-checkable term. The~interpreter consecutively, for every $i$, tries
+deriving the~judgment
 \[
-  \Gamma, x_1 \is{\pi_1} S_1, \dots, x_{i-1} \is{\pi_{i-1}} S_{i-1} \vdash
-  S_i \is{} \univ \syn{\pi_i} \univ
+  0\Gamma_i \vdash S_i \is{} \univ \syn0 \univ
 \]
-If it successfully synthesises the~type, it adds $x_i \is{\pi_i} S_i$ to
-the~context, replacing the~context $\Gamma$ in its state with
+where $\Gamma_i$ is the~state context, and if it successfully synthesises
+the~type, it adds $x_i \is{\pi_i} S_i$ to the~context; that is, it replaces
+the~context $\Gamma_i$ in the~state with the~extended
 \[
-  \Gamma, x_1 \is{\pi_1} S_1, \dots, x_n \is{\pi_n} S_n
+  \Gamma_i, x_i \is{\pi_i} S_i
 \]
-for the~evaluation of subsequent statements. For example, the~statement
+for the~subsequent judgments. For example, the~statement
 \begin{center}
-  \janus{assume (\quant0 $x$ : U) (\quant1 $y$ : (\quant1 \_ : $x$) -> $x$)}
+  \janus{assume (\quant0 $x$ : U) ($y$ : \vdep{1}{\_}{$x$}{$x$})}
 \end{center}
-extends the~interpreter state context with $x \is0 \univ, y \is1 \depq z 1 x x$.
+extends the~interpreter state context with $x \is0 \univ, y \is\omega
+\depq z 1 x x$. Note that $x$ is already in the~state context, when judging
+$0\Gamma \vdash \depq z 1 x x \is{} \univ \syn0 \univ$.
 
-Second, \emph{let} statement adds to the~interpreter state a~variable together
-with its value. The~statement takes the~form
+Second, the~\emph{let} statement adds to the~interpreter state a~variable
+together with its value. The~statement takes the~form
 \begin{center}
   \janus{let \quant{$\pi$} $x$ = $M$}
 \end{center}
-where \quant{$\pi$} is a~semiring element, which can again be omitted and
-the~interpreter uses \quant{$\omega$}; $x$ is a~variable; and $M$ is
+where $\pi$ is a~semiring element, $x$ is a~variable, and $M$ is
 a~type-synthesising term. If the~judgment $\Gamma \vdash M \syn{\pi} S$
-successfully synthesises the~type $S$, the~interpreter overrides the~context
-$\Gamma$ in its state with $\Gamma, x \is{\pi} S$ and any occurrence of $x$ in
+successfully synthesises the~type $S$, the~interpreter overrides its state
+context $\Gamma$ with $\Gamma, x \is{\pi} S$ and any occurrence of $x$ in
 a~subsequent term will be evaluated to $M$.
 
 Third, the~\emph{eval} statement is evaluated and the~result printed out without
-any modifications to the~interpreter state. The~statement consists of
-an~optional semiring element, \quant{$\omega$} if omitted, and
-a~type-synthesising term. For the~eval statement
+any modifications to the~interpreter state. The~eval statement is a semiring
+element followed by a~type-synthesising term, so with the~statement
 \begin{center}
   \janus{\quant{$\pi$} $M$}
 \end{center}
@@ -540,8 +545,7 @@ then the~interpreter outputs equivalent term, except with variables
 \janus{x}, \janus{y}, and \janus{z}:
 
 \begin{center}
-\janus{\vmany{} (λ\textbf{x} \textbf{y} \textbf{z}. x) : ∀ (\vmany{} \textbf{x}\
- : \vuniv) (\vmany{} \textbf{y} : \vuniv) (\vmany{} \textbf{z} : \vuniv) .\
- \vuniv}
+  \janus{\vmany{} (\vlam{x y z}{x}) : ∀ (\vmany{} \textbf{x} : \vuniv)\
+    (\vmany{} \textbf{y} : \vuniv) (\vmany{} \textbf{z} : \vuniv) . \vuniv}
 \end{center}
 
