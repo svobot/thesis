@@ -21,25 +21,26 @@ with the~presence of a~variable in (the~second part of) a~context, are
 restricted in what kinds of \emph{use} they can express: either variable is used
 or it is not.
 
-Another kind of restriction is that our linear type system does not integrate
-dependent types. Although we mentioned systems that combine the~two, they do so
-by allowing the~linear variable types to dependent on intuitionistic variables.
-This solution, however, would still not allow us to formulate types that depend
-on linear variables.
+Another kind of restriction is that our formulation of the~linear type system
+does not integrate dependent types. Although we have mentioned systems that
+combine the~two, they do so by allowing the~linear variable types to dependent
+on intuitionistic variables. This solution, however, would still not allow us to
+formulate types that depend on linear variables.
 
-Our new type system removes these two restrictions. The~context does not get
-separated into two parts, instead we track how a~variable can be used by
+Type system in this chapter removes these two restrictions. The~context does not
+get separated into two parts, instead we track how a~variable can be used by
 annotating it with an~element of some semiring. Several authors have used
-semiring annotations of variables to attach information on how they can be used,
-but \citet{mcbride_2016} was first to use the~annotations to indicate
-whether variables are available for computation or only available in
-the~formation of types. The~\lc \citeauthor{mcbride_2016} uses has only
-the~dependent function type with its abstraction and application.
-\citet{atkey_2018} fixed an~issue in \citeauthor{mcbride_2016}'s idea and
-presented it as the~Quantitative Type Theory (QTT) while also extending
-the~system with rules for dependent multiplicative pair type and multiplicative
-unit type. \citet{weirich_2020} relaxed some of the~restrictions that
-\citeauthor{atkey_2018} imposed on the~system.
+semiring annotations of variables to attach information on how they can be
+used~\citep{brunel_et_al_2014, ghica_smith_2014}, but \citet{mcbride_2016} was
+first to use the~annotations to indicate whether variables are available for
+computation or only available in the~formation of types. The~\lc
+\citeauthor{mcbride_2016} uses has only the~dependent function type with its
+abstraction and application. \citet{atkey_2018} fixed an~issue in
+\citeauthor{mcbride_2016}'s idea and presented it as the~Quantitative Type
+Theory (QTT) while also extending the~system with rules for dependent
+multiplicative pair type and multiplicative unit type. \citet{weirich_2020}
+relaxed some of the~restrictions that \citeauthor{atkey_2018} imposed on
+the~system.
 
 This work extends QTT with the~typing rules for the~dependent additive pair type
 and the~additive unit.

@@ -160,9 +160,9 @@ and we will abbreviate accordingly:
   &S \times T  &  &\text{for} &  &(S \times T).
 \end{align*}
 We do not define any order of precedence between the~function and pair types.
-Note that an~expression like $S \to T$, which contains Greek-letter type
-variables, is not itself a~type. It is only a~name in the~metalanguage for
-a~type of unspecified functions.
+Note that an~expression like $S \to T$, which contains type variables $S$ and
+$T$, is not itself a~type. It is only a~name in the~metalanguage for a~type of
+unspecified functions.
 
 A~pair type, or a~\emph{product type}, $(S \times T)$ denotes the~Cartesian
 product of the~sets denoted by $S$ and $T$. For example, $((\Int \to \Int)
@@ -244,23 +244,11 @@ The~pair eliminator binds the~variables $x$ and $y$ to the~elements of the~pair
 given by the~term $M$ and makes them bound in the~scope of $N$. The~subscript
 type annotation specifies the~expected type of the~pair.
 
-Substitution on simply typed \lts works the same way as in
-\autoref{def:substitution} for the~functions, we simply disregard the~type
-annotation on the~binding variable, but for pairs and units we need to extend
-the~definition as follows:
-\begin{enumerate}
-  \setcounter{enumi}{\value{subst_enum}}
-  \item $\mpair M N [O/x] \defeq \mpair {M[O/x]} {N[O/x]}$;
-  \item $(\letpair {S \times T} x y M N)[O/x] \defeq
-    \letpair {S \times T} x y {M[O/x]} N$
-  \item $(\letpair{S\times T} y x M N)[O/x] \defeq
-    \letpair{S \times T} y x {M[O/x]} N$
-  \item $(\letpair{S\times T} y z M N)[O/x] \defeq
-    \letpair{S \times T} y z {M[O/x]} {N[O/x]}$
-  \item $\munit[O/x] \defeq \munit$
-  \item $(\letu M N)[O/x] \defeq \letu {M[O/x]} {N[O/x]}$
-\end{enumerate}
-where $x$, $y$, and $z$ are three distinct variables.
+Substitution on simply typed \lts works analogously to
+\autoref{def:substitution}: we disregard the~type annotations on the~binding
+variables and substitute in the~sub-terms recursively, while taking care that we
+do not change the~semantics of the~term by applying α-conversions where
+necessary.
 
 Similarly, we extend the~definition of β-contraction. Generally β-contraction
 tells us how to simplify a~term that involves an~eliminator directly applied to
@@ -271,21 +259,20 @@ a~constructor.
   \begin{align*}
     (\lam {x \is{} S} M) \: N \quad &\triangleright_{1\beta} \quad M[N/x] \\
     \letpair {S \times T} x y {\mpair M N} O \quad &\triangleright_{1\beta}
-      \quad O[M/x][N/y] \\
+      \quad O[M/x, \: N/y] \\
     \letu \munit N \quad &\triangleright_{1\beta} \quad N
   \end{align*}
 \end{definition}
 
-The~\emph{type system} of simply typed \lc consists of two parts. First, it is
-the~\lts we have just defined and, second, the~deduction rules that assign types
-to these terms. We define these \emph{typing rules} next. In type systems,
-a~term gets assigned at most one type. If a~term gets assigned a~type, we call
-this term \emph{well-typed} and it is the~point of the~type system to fail to
-assign a~type to as many terms, which could be ``misbehaving'' during
-the~evaluation, as possible.
+The~\emph{type system} of simply typed \lc consists of two parts. First are
+the~\lts we have just defined and second are the~deduction rules. These rules
+are called \emph{typing rules} and they determine how a~type gets assigned to
+a~term. If a~type is assigned to a~term, we call this term \emph{well-typed} and
+it is the~point of the~type system to fail to assign a~type to as many terms,
+which could be ``misbehaving'' during the~evaluation, as possible.
 
-First, our type system has an~axiom which says that we can pick a~variable from
-the~context:
+Now we will go over the~set of rules in this type system. We start with an~axiom
+which says that we can pick a~variable from the~context:
 \begin{mathpar}
   \inferrule*[right=Var]
   { }
@@ -300,7 +287,7 @@ For the~function type, the~eliminator \ir{$\to$-E} says that the~term $M$ can be
 applied to any value $N$ of type $S$. Conversely, to construct a~term of type
 $S \to T$, the~introduction rule \ir{$\to$-I} expects a~description of how
 the~term behaves upon applying eliminator to it; meaning, we should provide
-a~term of type $T$ containing a~free variable $x$ of type $S$:
+a~term of type $T$ which may contain a~free variable $x$ of type $S$:
 \begin{mathpar}
   \inferrule*[right=$\to$-I]
   {\Gamma, x \is{} S \vdash M \is{} T}
@@ -356,8 +343,8 @@ which covers all possible values like \ir{$\times$-E} does for pairs:
 
 The Church-style system from the~previous chapter has lost some of
 the~versatility of the~pure \lc. The~term $\lam {x \is{} S} x$ represents
-the~one operation of doing nothing, the~identity function, yet for different
-types $S$ this one operation is represented by distinct terms. We want our
+the~one operation of doing nothing, the~identity function, yet this one
+operation is represented by different terms for different types $S$. We want our
 formalism to keep track of the~fact that identity does the~same thing regardless
 of the~type. An~ability to universally quantify the~types, which we will gain
 with the~introduction of dependent types, will allow us to express this; then
@@ -376,7 +363,7 @@ published until much later, \citet{howard_1980} described the~relation between
 the~natural deduction and the~simply typed \lc, as well as shown that
 the~simplification of proofs corresponds to the~evaluation of programs.
 \citet{wadler_2015} provides a~detailed yet approachable introduction to
-the~topic. Now we will generalise the~simple types into their dependent
+the~topic. We will now generalise the~simple types into their dependent
 counterparts and use the~Curry–Howard correspondence to form a~better intuition
 around them.
 
@@ -386,11 +373,11 @@ S \, . \: T)}$, but we will write:
 \[
   \dep x S T.
 \]
-Here, $S$ is a~type, but $T$ is a~function parametrised with $x$; meaning, $T$
-takes an~argument of type $S$ and produces a~~type. Thus, a~term of type
-$\dep x S T$ represents function that for an~argument $N$ of type $S$ produces
-a~value of type \,$T[N/x]$. In the~special case that \,$T$ is a~constant
-function whose value is always the~type $U$, $\dep x S T$ is the~type $S \to U$.
+Here $S$ and $T$ are types, but $T$ is parametrised by $x$; meaning, $T$ may
+depend on a~value of type $S$ to form a~type. Thus, a~term of type $\dep x S T$
+represents function that for an~argument $N$ of type $S$ produces a~value of
+type \,$T[N/x]$. In the~special case that \,$T$ does not contain a~reference to
+$x$, $\dep x S T$ is the~type $S \to T$.
 
 On the~logic side, the~dependent function type corresponds to a~universal
 quantification; hence, we can read it as ``for all $s$ in $S$, $T[s/x]$ is
@@ -409,10 +396,10 @@ The value of this type is a~pair $\mpair x y$, where $x$ is of type $S$ and $y$
 is of type $T$, which is again a~function parametrised by $x$; hence, the~type
 of the~second element is determined by the~value of the~first.
 
-This type corresponds to the~existential quantification in logic. It uses $S$ in
-its notation because we can interpret it as a~\emph{disjoint union} of all $T$,
-with an~index from $S$; meaning, a~value of type $(x \is{} S) \times T$ can be
-interpreted as a~member of the~set
+This type corresponds to the~existential quantification in logic. It uses
+$\Sigma$ in its notation because we can interpret it as a~\emph{disjoint union}
+of all $T$, with an~index from $S$; meaning, a~value of type
+$(x \is{} S) \times T$ can be interpreted as a~member of the~set
 \[
   \bigcup_{s \, \in \, S} \{ \mpair s t \mid t \in T[s/x] \}.
 \]
