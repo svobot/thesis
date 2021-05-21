@@ -1,1 +1,17 @@
 \chapwithtoc{Conclusion}
+
+\coloredlettrine{O}{ur goal} was to build an~interpreter for a~language based on
+the~Quantitative Type Theory. We have used bidirectional versions of the~typing
+rules to decrease the~type annotation burden on the~user. The~implementation
+is based on the~\lc with QTT rules that we have described in the~text. Compared
+to previous works on this topic, we have extended the~type system with
+the~additive pair and unit types.
+
+Since distinguishing between the~semantics of the~multiplicative and additive
+pairs was an~important part of this work, we have implemented highlighting of
+the~interpreter output, which differentiates the~two types at first glance.
+
+Currently, the~interpreter implementation makes only one semiring with one order
+available to the~user; additional semiring options could be added. Janus is also
+unable to parametrise over the~semiring elements, adding this feature could
+increase code reuse.
