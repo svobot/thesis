@@ -1,6 +1,80 @@
 \chapter*{Introduction}
 \addcontentsline{toc}{chapter}{Introduction}
 
-In the~\autoref{cha:lambdacalculus}, the~text follows the~exposition as offered
-by \citet{hindley_seldin_2008}.
+\coloredlettrine{A}{ very important} feature of many programming languages:
+types; they can be used in type systems to establish properties of programs
+without having to run them. Type theory recognises an~abundance of various type
+systems which all have various strengths and weaknesses. Dependent types can be
+used to express assumptions about the~relationships between inputs and outputs,
+but are not that well suited for reasoning about other properties, like memory
+safety, protocol correctness, or resource safety in general.
+
+Linear type systems offer a~finer control over the~use of structural rules,
+which means types can control when a~value can be used. This gives a~logical
+reading to the~notion of resource. Linear types enable expressing order of
+operations as required by a~protocol, as well as new program optimisations.
+
+Combining linear and dependent types has historically been difficult.
+Quantitative Type Theory (QTT)~\citep{mcbride_2016, atkey_2018} solved this
+problem by assigning a~quantity annotation to each variable and checking terms
+with these annotations in mind.
+
+\citet{mcbride_2016} formulated \lc containing only function types and
+\citet{atkey_2018} extended it with multiplicative pair and multiplicative unit
+types. Our contribution is to formulate quantitative type versions of additive
+pair and additive unit types. We then create a~simple programming language,
+\emph{Janus}, and implement its interpreter, which uses the~QTT typing rules to
+type-check the~programs.
+
+\autoref{cha:lambdacalculus} introduces \lc. We define the~untyped \lc and
+describe its historical context; then we explain how it can be used as
+a~language of computation by defining substitution and evaluation on \lts. This
+chapter follows the~exposition as offered by \citet{hindley_seldin_2008}.
+
+Types and type systems are the~subject of \autoref{cha:typesystems}; they are
+usually presented using natural deduction, so we introduce it briefly. First
+type system we look at is the~simply typed \lc. Then we generalise to dependent
+types, which enable a~type definition to depend on a~value, and define a~type
+system with dependent types.
+
+In \autoref{cha:linear} we define a~linear type system. It is based on linear
+logic, which is a~substructural logic; hence, we first formalise the~structural
+rules of type systems and then describe the~implications of omitting some of
+them. This change gives rise to novel types, the~additive pair and additive
+unit, so we impart some intuition on the~reader by comparing them to
+the~definition of pair and unit we saw earlier.
+
+\autoref{cha:qtt} details the~Quantitative Type Theory (QTT), which combines
+the~dependent and linear types. We show how annotating type judgments with
+semiring elements can be used to track the~purpose of each variable.
+
+In \autoref{cha:implementation}, we describe the~interpreter of our new
+programming language. We introduce the~bidirectional versions of the~typing
+judgments and explain how they are converted into the~code of our interpreter;
+then we describe the~syntax of the~Janus language and how to use
+the~interpreter. Finally, we go over the~implementation decisions of our program
+and show some examples of usage.
+
+\sectionwithtoc{Related work}
+
+\citet{girard_1987} initiated a~body of research into type systems that restrict
+the~use of computational resources. Recent work by \citet{petricek_et_al_2014},
+\citet{brunel_et_al_2014}, and \citet{ghica_smith_2014} established the~use of
+semirings to track resource usage.
+
+Combining linear and dependent types is not straightforward. Historically,
+the~problem was with counting the~usage of linear variables in types.
+Linear logic uses the~presence or absence in context to record the~resource use,
+which conflicts with dependent types: variable must be in context either if it
+is to be used computationally or in type formation. Work has been done to
+distinguish between these different kinds of data uses. \citet{barber_1996}
+established splitting contexts to separate intuitionistic and linear types.
+\citet{cervesato_pfenning_2002} and \citet{krishnaswami_et_al_2015} adapted this
+to dependent types.
+
+\citet{mcbride_2016} uses the~work on coeffects and quantitative types to track
+the~use in type formation with the~0 of the~semiring. These uses are erased at
+runtime, hence the~linear restrictions on resource usage are not violated.
+\citet{atkey_2018} fixed an~issue with inadmissibility of substitution in
+\citeauthor{mcbride_2016}'s solution and gave a~categorical model for QTT.
 
