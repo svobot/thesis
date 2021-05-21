@@ -1,0 +1,29 @@
+\chapter{Using Janus}
+
+The~Janus interpreter is included in the~\texttt{janus.zip} attachment as well
+as available in a GitHub repository at \url{https://github.com/svobot/janus}.
+
+The~interpreter can be compiled using the Cabal package manager and the~GHC
+compiler. Both come with the~Haskell
+platform~\footnote{\url{https://www.haskell.org/platform/}}. Janus can be
+compiled and run using the~command:
+\begin{center}
+  \texttt{cabal run janusc}
+\end{center}
+The~software was tested using Cabal version 3.4.0.0 and GHC version 8.10.4.
+The~code is documented with Haddock-style comments. The~HTML version of
+the~documentation can be generated using the~command:
+\begin{center}
+  \texttt{cabal haddock --enable-documentation}
+\end{center}
+
+Modules of the~interpreter described in the~section \nameref{sec:architecture}
+can be found in the~folder \texttt{src/Janus} and the~tests in the~folder
+\texttt{test}. In the~folder \texttt{app} is the~module \texttt{Main}, which
+serves as the~entry point for the~executable. Folder \texttt{lib} contains
+a~file with a~few interesting functions that can be conveniently loaded into
+the~scope of the~interpreter using the~\emph{load} command: there are
+the~first and second element projections for the~multiplicative pair in
+the~erased part of the~theory, \texttt{proj1} and \texttt{proj2}, the~of course
+type constructor $\oc_\omega S$ (\texttt{ofcW}), and an~eliminator for values of
+this type \texttt{ofcElim}.
