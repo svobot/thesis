@@ -668,4 +668,51 @@ that simulate a~complete run of the~interpreter and evaluate several statements
 in sequence, done using a~second instance of the~\texttt{MonadAbstractIO} class
 in the~\texttt{IntegrationSpec} module.
 
+\sectionwithtoc{Examples}
 
+Here are some examples of our interpreter in action. Lines of user input start
+with \texttt{>>>}. Some outputs are omitted.
+
+Duplication of an~argument succeeds if it is intuitionistic, but fails if it is
+linear.
+\begin{Verbatim}
+>>> assume (0 S : U) ( x : S)
+\vzero{} \textbf{S} : 𝘜
+\vmany{} \textbf{x} : S
+>>> (\backslash{}x. (x, x) : (_ : S) -> (1 _ : S) * S) x
+\vmany{} \vmpair{x}{x} : \vmpairt{1}{y}{S}{S}
+>>> (\backslash{}x. (x, x) : (1 _ : S) -> (1 _ : S) * S) x
+\verr{} Mismatched multiplicities (Lambda abstraction):
+         [Local 0] : S
+           Used \vmany-times, but available \vone-times.
+\end{Verbatim}
+Error message uses the~De Bruijn index representation of the~bound variable, so
+the~usefulness of the~message is degraded.
+
+Given a~linear resource $x$, using it in both elements of an~additive pair does
+not duplicate it, but when we use it in both elements of a~multiplicative pair,
+it gets duplicated:
+\begin{Verbatim}
+>>> assume (0 S : U) (1 x : S)
+>>> 1 <x, x> : (_ : S) & S
+\vone{} \vapair{x}{x} : \vapairt{x}{S}{S}
+>>> 1 (x, x) : (1 _ : S) * S
+\verr{} Mismatched multiplicities:
+         y : S
+           Used \vmany-times, but available \vone-times.
+\end{Verbatim}
+
+Types cannot be used outside of the~erased part of the~theory:
+\begin{Verbatim}
+>>> let 1 y = (x : U) & U : U
+\verr{} Type '\vapairt{x}{𝘜}{𝘜}' used \vone-times outside erased context.
+\end{Verbatim}
+
+Projection to the~first element of the~multiplicative pair in the~erased part of
+the~theory:
+\begin{Verbatim}
+>>> assume (0 S : U) (1 y : S) (1 x : S)
+>>> :l lib/Prelude.jns
+>>> 0 proj1 S (\backslash{}x. S) (x, y)
+\vzero{} \textbf{x} : S
+\end{Verbatim}
