@@ -373,11 +373,11 @@ S \, . \: T)}$, but we will write:
 \[
   \dep x S T.
 \]
-Here $S$ and $T$ are types, but $T$ is parametrised by $x$; meaning, $T$ may
-depend on a~value of type $S$ to form a~type. Thus, a~term of type $\dep x S T$
-represents function that for an~argument $N$ of type $S$ produces a~value of
-type \,$T[N/x]$. In the~special case that \,$T$ does not contain a~reference to
-$x$, $\dep x S T$ is the~type $S \to T$.
+Here $S$ and $T$ are types, but $T$ may contain an~occurrence of $x$; meaning,
+$T$ may depend on a~value of type $S$ to form a~type. Thus, a~term of type
+$\dep x S T$ represents function that for an~argument $N$ of type $S$ produces
+a~value of type \,$T[N/x]$. In the~special case that \,$T$ does not contain
+an~occurrence of $x$, $\dep x S T$ is the~type $S \to T$.
 
 On the~logic side, the~dependent function type corresponds to a~universal
 quantification; hence, we can read it as ``for all $s$ in $S$, $T[s/x]$ is
