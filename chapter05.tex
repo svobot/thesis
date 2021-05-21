@@ -1,4 +1,4 @@
-\chapter{Implementation}
+\chapter{Implementation}\label{cha:implementation}
 
 \coloredlettrine{Q}{uantitative Type} Theory has already found practical
 application in the~programming language Idris~2 by \citet{brady_2021}. Idris~2
@@ -180,7 +180,7 @@ the~type of the~function first and then check if $\sigma\pi = 0$ as well,
 using the~rule \ir{$\to$-E$_0$\syn{}} if true and \ir{$\to$-E$_1$\syn{}}
 otherwise.
 
-\sectionwithtoc{Resource accounting}
+\sectionwithtoc{Resource accounting}\label{sec:usage}
 
 To be able to translate the~typing rules into an~efficient algorithm, we need to
 deal with one last thing. Currently, it seems as if we have to guess how to
@@ -548,4 +548,105 @@ then the~interpreter outputs equivalent term, except with variables
   \janus{\vmany{} (\vlam{x y z}{x}) : ∀ (\vmany{} \textbf{x} : \vuniv)\
     (\vmany{} \textbf{y} : \vuniv) (\vmany{} \textbf{z} : \vuniv) . \vuniv}
 \end{center}
+
+\sectionwithtoc{Program architecture}\label{sec:architecture}
+
+This section describes the~implementation of our Janus interpreter. It is
+a~console application written in Haskell~\citep{haskell_2010}. We have started
+with the~code from the~\emph{LambdaPi} interpreter developed by
+\citet{loh_et_al_2010}, but most of it was rewritten. Our implementation splits
+up into eight Haskell modules:
+\begin{itemize}
+  \item the~\texttt{Janus.Evaluation} module implements the~β-reduction of
+    terms;
+  \item the~\texttt{Janus.Infer} module implements the~typing algorithm;
+  \item the~\texttt{Janus.Judgment} module defines the~judgment monad;
+  \item the~\texttt{Janus.Parsing} module implements the~parser of the~Janus
+    language;
+  \item the~\texttt{Janus.Pretty} module implements the~pretty printing;
+  \item the~\texttt{Janus.REPL} module defines the~abstract REPL interface and
+    one implementation of this interface, which provides an~interactive
+    programming environment;
+  \item the~\texttt{Janus.Semiring} module defines the~zero-one-many semiring;
+  \item the~\texttt{Janus.Syntax} module defines the~abstract syntax tree type
+    for the~representation of terms and implements substitution on this type.
+\end{itemize}
+
+The~\texttt{Janus.Syntax} module defines the~data types \texttt{CTerm} and
+\texttt{ITerm}, representing the~type-checkable and type-synthesising terms
+respectively. It also implements a~substitution on these terms, which replaces
+a~De Bruijn index-based variable with a~type-synthesising term.
+
+The~evaluation of terms is defined in the~\texttt{Janus.Evaluation} module. This
+function evaluates everything as far as possible, including sub-terms; that is,
+if, for example, λ-abstraction is not a~part of function application and cannot
+be β-reduced, we still evaluate the~body of the~function.
+
+Terms are evaluated into \emph{values} (the~data type \texttt{Value}), which are
+represented using higher-order abstract syntax; meaning, some values are
+represented by Haskell functions. This simplifies our implementation, because we
+reuse the~function application of Haskell and do not have to define our
+substitution on values. Unfortunately, Haskell functions cannot be shown or
+compared for equality, which means that to print or equate values we have to
+\emph{quote} them. Quoting converts the~values back into terms; it is done by
+applying the~Haskell function to a~temporary variable, whose occurrences in
+the~function body are then replaced with an~appropriate De Bruijn
+index~\citep{loh_et_al_2010}.
+
+The~typing algorithm runs in the~\texttt{Judgment} monad. Defined in
+the~\texttt{Janus.Judgment} module, this monad holds the~context of typing
+judgments in its state.
+
+The~\texttt{Janus.Infer} module implements the~typing algorithm as described by
+the~bidirectional judgments. The~main difference between the~typing rules and
+the~code is the~lack of explicit handling of usage in the~rules, which we have
+described in the~\nameref{sec:usage} section. The~function \texttt{synthType}
+implements the~type-synthesising judgment and the~function \texttt{checkType}
+the~type-checking judgment. Apart from returning the~usage, or a~usage and
+the~synthesised type, typing algorithm can also fail; in this case the~result is
+a~\texttt{TypingError}. In the~next section we look at examples of the~different
+errors typing algorithm can report.
+
+Parser for the~Janus language is implemented in the~\texttt{Janus.Parsing}
+module. It is written using the~parser combinator library
+\emph{Parsec}~[\citeauthor{parsec}]. Both the~function application and its
+left-most sub-term are type-synthesising terms, which makes our grammar
+left-recursive. Since a~recursive-descent parser can loop forever on such
+grammars, Parsec provides the~\texttt{chainl1} combinator. Its type is
+unfortunately too restrictive for our case, so our code implements analogous
+functionality in the~\texttt{iTerm} function.
+
+The~\texttt{Janus.Pretty} module implements pretty-printing for types that are
+shown to the~user. Pretty-printer creates a~document by combining many smaller
+parts and offers a~way to conveniently format and render it. We use
+the~\emph{Prettyprinter} library~[\citeauthor{prettyprinter}]; a~modern,
+well-documented option. Prettyprinter offers \emph{annotations} on the~document
+which can determine how it should be rendered and we use them to colour
+the~output. When pretty-printing the~terms (\texttt{ITerm} and \texttt{CTerm}),
+we use the~\texttt{Printer} monad, which keeps track of variables occurring in
+the~term and generates fresh names for the~De Bruijn index-based variables:
+the~writer monad first collects all free variable names in the~term and then
+the~reader monad tracks which names can be assigned to the~De Bruijn indices.
+
+The~interactive programming environment is defined in the~\texttt{Janus.REPL}
+module. It is implemented using
+the~\emph{Repline}~[\citeauthor{repline}] library, which is a~wrapper around
+\emph{Haskeline}~[\citeauthor{haskeline}]. We define
+the~\texttt{MonadAbstractIO} type class to capture the~output capabilities of
+the~interpreter. We can then have two different programming environments: one,
+interactive, built on Haskeline; and another, scriptable, which we can use to
+write tests of the~read-eval-print loop.
+
+The~\texttt{Janus.Semiring} module defines \texttt{Semiring} type class and
+the~one instance that is available in our interpreter, \texttt{ZeroOneMany}
+semiring with the~$0, 1 \leq \omega$ (but not $0 \leq 1$) order.
+
+Our implementation also has a~test suite. All tests are written using
+the~\emph{Hspec} testing framework~[\citeauthor{hspec}]. We have three kinds of
+tests: tests of the~parsing functions, in the~\texttt{ParseSpec} module; tests
+of the~typing algorithm, in the~\texttt{TypeSpec} module; and integration tests
+that simulate a~complete run of the~interpreter and evaluate several statements
+in sequence, done using a~second instance of the~\texttt{MonadAbstractIO} class
+in the~\texttt{IntegrationSpec} module.
+
 
